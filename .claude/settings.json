@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "b=$(git rev-parse --abbrev-ref HEAD 2>/dev/null); if [ \"$b\" = \"main\" ] && [ -n \"$(git status --porcelain)\" ]; then git add -A && git commit -q -m \"chore: auto-sync from Claude Code ($(date -u +%Y-%m-%dT%H:%M:%SZ))\" && git push -q origin main; fi; true",
+            "timeout": 120,
+            "statusMessage": "main에 자동 커밋·푸시 중..."
+          }
+        ]
+      }
+    ]
+  }
+}

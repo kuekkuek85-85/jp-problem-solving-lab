@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { SessionDoc, Slide } from "@/lib/types";
+import { SEED_SLIDES } from "@/lib/constants";
 import { Button, Card, Textarea } from "@/components/ui";
 
 export function SlidesPanel({ sessionCode, pin, session }: { sessionCode: string; pin: string; session: SessionDoc }) {
@@ -35,6 +36,18 @@ export function SlidesPanel({ sessionCode, pin, session }: { sessionCode: string
 
   function removeSlide(i: number) {
     setSlides((prev) => prev.filter((_, idx) => idx !== i).map((s, idx) => ({ ...s, index: idx })));
+  }
+
+  async function loadDefaults() {
+    if (!confirm("현재 슬라이드를 기본 안내 슬라이드(단계별 전체)로 교체할까요? 편집한 내용은 사라져요.")) return;
+    const defaults = SEED_SLIDES.map((markdown, index) => ({ index, markdown }));
+    setSlides(defaults);
+    setSaving(true);
+    try {
+      await call({ slides: defaults, currentSlideIndex: 0 });
+    } finally {
+      setSaving(false);
+    }
   }
 
   const currentMarkdown = slides.find((s) => s.index === session.currentSlideIndex)?.markdown ?? slides[0]?.markdown ?? "";
@@ -91,7 +104,12 @@ export function SlidesPanel({ sessionCode, pin, session }: { sessionCode: string
       </Card>
 
       <Card>
-        <p className="mb-1 font-bold">슬라이드 (자동 생성됨)</p>
+        <div className="mb-1 flex items-center justify-between gap-2">
+          <p className="font-bold">슬라이드 ({slides.length}장)</p>
+          <Button variant="secondary" className="!px-3 !py-1.5 text-xs" disabled={saving} onClick={loadDefaults}>
+            ↺ 기본 안내 슬라이드 불러오기
+          </Button>
+        </div>
         <p className="mb-3 text-xs text-slate-500">단계별 안내 슬라이드가 미리 준비돼 있어요. 그대로 브리핑해도 되고, 필요하면 수정·추가하세요.</p>
         <div className="space-y-3">
           {slides.map((s, i) => (

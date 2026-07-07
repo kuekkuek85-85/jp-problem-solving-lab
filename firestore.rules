@@ -1,0 +1,68 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /sessions/{sessionCode} {
+      // 세션 메타(currentStage, slides 등)는 누구나 읽을 수 있지만
+      // 쓰기는 교사 전용 서버 라우트(Firebase Admin, 규칙 우회)에서만 수행한다.
+      allow read: if true;
+      allow write: if false;
+
+      // 의뢰(요청) — 누구나 읽기, 쓰기는 서버(Admin) 전용.
+      // activeSolverIds/submissionCount는 학생이 의뢰를 맡거나 제출할 때 갱신되므로
+      // 클라이언트에서 해당 두 필드만 변경하는 것은 허용한다.
+      match /requests/{requestId} {
+        allow read: if true;
+        allow create, delete: if false;
+        allow update: if request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['activeSolverIds', 'submissionCount']);
+      }
+
+      // 연구원(학생) 문서 — 세션 참가자는 누구나 읽기(현황판·게시판 표시용),
+      // 본인 문서만 쓰기 가능(studentId = 문서 id, 자기 서명 검증은 앱 레벨의 로그인 흐름에서 처리).
+      match /students/{studentId} {
+        allow read: if true;
+        allow create: if request.resource.data.studentId == studentId;
+        allow update: if resource.data.studentId == studentId;
+        allow delete: if false;
+
+        match /projects/{projectId} {
+          // 해결 보고회·동료 검토를 위해 세션 참가자는 프로젝트를 읽을 수 있다.
+          allow read: if true;
+          allow create, update: if true;
+          allow delete: if false;
+        }
+      }
+
+      // Help Me 큐 — 누구나 읽기(교사 대시보드·도우미 현황), 요청자 본인 생성, 상태 갱신은 열어둔다.
+      match /helpRequests/{helpId} {
+        allow read: if true;
+        allow create: if request.resource.data.requesterId is string;
+        allow update: if true;
+        allow delete: if false;
+      }
+
+      // 해결 보고회 열람용 평면화된 제출물 요약(원본은 students/*/projects/*)
+      match /submissions/{projectId} {
+        allow read: if true;
+        allow create, update: if true;
+        allow delete: if false;
+      }
+
+      // 해결 보고회 반응(이모지·댓글)
+      match /reactions/{reactionId} {
+        allow read: if true;
+        allow create: if true;
+        allow update, delete: if false;
+      }
+
+      // 성찰 후기 — 본인만 작성, 교사는 서버(Admin)로 전체 열람.
+      match /reflections/{studentId} {
+        allow read: if true;
+        allow create, update: if request.resource.data.studentId == studentId;
+        allow delete: if false;
+      }
+    }
+  }
+}

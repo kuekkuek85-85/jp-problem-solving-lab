@@ -16,15 +16,14 @@ export function StageControlBar({
   onCloseLab: () => void;
 }) {
   const [busy, setBusy] = useState(false);
-  const [timerMinutes, setTimerMinutes] = useState(10);
 
-  async function setStage(stage: Stage, minutes?: number) {
+  async function setStage(stage: Stage) {
     setBusy(true);
     try {
       await fetch("/api/teacher/stage", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionCode, pin, currentStage: stage, timerMinutes: minutes }),
+        body: JSON.stringify({ sessionCode, pin, currentStage: stage }),
       });
     } finally {
       setBusy(false);
@@ -60,25 +59,6 @@ export function StageControlBar({
             다음 단계 → {STAGE_LABELS[nextStage]}
           </Button>
         )}
-
-        <div className="flex items-center gap-1">
-          <input
-            type="number"
-            min={1}
-            max={60}
-            value={timerMinutes}
-            onChange={(e) => setTimerMinutes(Number(e.target.value))}
-            className="w-14 rounded-lg border border-slate-300 px-2 py-1.5 text-xs"
-          />
-          <Button
-            variant="secondary"
-            disabled={busy}
-            onClick={() => setStage(session.currentStage, timerMinutes)}
-            className="!px-3 !py-1.5 text-xs"
-          >
-            분 타이머 시작
-          </Button>
-        </div>
 
         <div className="ml-auto flex gap-2">
           <Button variant="danger" onClick={onCloseLab} className="!px-3 !py-1.5 text-xs">

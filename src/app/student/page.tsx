@@ -104,7 +104,7 @@ export default function StudentPage() {
 
   return (
     <div>
-      <StageHeader student={student} stage={stage} requestTitle={project.requestTitle} timerEnd={session.stageTimerEnd} />
+      <StageHeader student={student} stage={stage} requestTitle={project.requestTitle} />
 
       {stage === "analyze" && <AnalyzeStage sessionCode={sessionCode} student={student} project={project} />}
       {stage === "prd" && <PrdStage sessionCode={sessionCode} student={student} project={project} />}

@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { LEVEL_LABELS, STAGE_LABELS, type Stage, type StudentDoc } from "@/lib/types";
 import { LevelBadge } from "@/components/ui";
 
@@ -8,12 +7,10 @@ export function StageHeader({
   student,
   stage,
   requestTitle,
-  timerEnd,
 }: {
   student: StudentDoc;
   stage: Stage;
   requestTitle?: string | null;
-  timerEnd?: number | null;
 }) {
   return (
     <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur px-4 py-3">
@@ -28,7 +25,6 @@ export function StageHeader({
         </div>
         <div className="text-right">
           <div className="text-sm font-bold text-rose-600">{STAGE_LABELS[stage]}</div>
-          {timerEnd && <TimerText timerEnd={timerEnd} />}
         </div>
       </div>
       <div className="mx-auto mt-2 flex max-w-4xl gap-1">
@@ -36,29 +32,10 @@ export function StageHeader({
           [1, 2, 3, 4, 5].map((n) => (
             <span
               key={n}
-              className={`h-1.5 flex-1 rounded-full ${student.stamps.includes(n) ? "bg-rose-400" : "bg-slate-150 bg-slate-200"}`}
+              className={`h-1.5 flex-1 rounded-full ${student.stamps.includes(n) ? "bg-rose-400" : "bg-slate-200"}`}
             />
           ))}
       </div>
     </header>
-  );
-}
-
-function TimerText({ timerEnd }: { timerEnd: number }) {
-  const [now, setNow] = useState<number>(() => Date.now());
-
-  useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(id);
-  }, []);
-
-  const remainingMs = timerEnd - now;
-  if (remainingMs <= 0) return <div className="text-xs text-slate-400">시간 종료</div>;
-  const min = Math.floor(remainingMs / 60000);
-  const sec = Math.floor((remainingMs % 60000) / 1000);
-  return (
-    <div className="text-xs text-slate-400">
-      남은 시간 {min}:{sec.toString().padStart(2, "0")}
-    </div>
   );
 }

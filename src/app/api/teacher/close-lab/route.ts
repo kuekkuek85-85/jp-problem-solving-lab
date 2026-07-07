@@ -12,6 +12,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "sessionCode 필요" }, { status: 400 });
   }
   const db = getAdminDb();
-  await db.doc(`sessions/${sessionCode}`).update({ currentStage: "closing", stageTimerEnd: null, lectureMode: false });
+  await db.doc(`sessions/${sessionCode}`).update({ currentStage: "closing", lectureMode: false });
   return NextResponse.json({ ok: true });
 }

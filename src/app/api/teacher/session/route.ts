@@ -26,7 +26,6 @@ export async function POST(req: Request) {
     createdAt: now,
     teacherPinHash: "env",
     currentStage: "onboarding",
-    stageTimerEnd: null,
     currentSlideIndex: 0,
     lectureMode: false,
     presentingSubmissionId: null,

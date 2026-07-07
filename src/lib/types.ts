@@ -60,7 +60,6 @@ export interface SessionDoc {
   createdAt: number;
   teacherPinHash: string;
   currentStage: Stage;
-  stageTimerEnd?: number | null;
   currentSlideIndex: number;
   lectureMode: boolean;
   presentingSubmissionId?: string | null;

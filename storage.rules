@@ -2,10 +2,12 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    // 손그림 사진 업로드(설계도 화면 첨부) — 세션 참가자 누구나 읽기, 쓰기는 이미지 5MB 이하로 제한.
+    // 손그림 사진 업로드(설계도 화면 첨부) — 로그인된(익명 포함) 참가자만 읽기/쓰기,
+    // 쓰기는 이미지 5MB 이하로 제한.
     match /sessions/{sessionCode}/{allPaths=**} {
-      allow read: if true;
-      allow write: if request.resource.size < 5 * 1024 * 1024
+      allow read: if request.auth != null;
+      allow write: if request.auth != null
+        && request.resource.size < 5 * 1024 * 1024
         && request.resource.contentType.matches('image/.*');
     }
   }

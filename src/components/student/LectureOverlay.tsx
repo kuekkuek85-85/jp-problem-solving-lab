@@ -22,16 +22,27 @@ export function LectureOverlay({ session }: { session: SessionDoc }) {
   );
 }
 
+// `**굵게**` 인라인 처리 + 긴 URL 자동 줄바꿈
+function renderInline(text: string) {
+  return text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
+    part.startsWith("**") && part.endsWith("**") ? (
+      <strong key={i}>{part.slice(2, -2)}</strong>
+    ) : (
+      <span key={i}>{part}</span>
+    )
+  );
+}
+
 function MarkdownLite({ text }: { text: string }) {
   const lines = text.split("\n");
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 break-words">
       {lines.map((line, i) => {
-        if (line.startsWith("# ")) return <h1 key={i} className="text-2xl font-black">{line.slice(2)}</h1>;
-        if (line.startsWith("## ")) return <h2 key={i} className="text-xl font-bold">{line.slice(3)}</h2>;
-        if (line.startsWith("- ")) return <li key={i} className="ml-5 list-disc">{line.slice(2)}</li>;
+        if (line.startsWith("# ")) return <h1 key={i} className="text-2xl font-black">{renderInline(line.slice(2))}</h1>;
+        if (line.startsWith("## ")) return <h2 key={i} className="text-xl font-bold">{renderInline(line.slice(3))}</h2>;
+        if (line.startsWith("- ")) return <li key={i} className="ml-5 list-disc">{renderInline(line.slice(2))}</li>;
         if (!line.trim()) return <div key={i} className="h-2" />;
-        return <p key={i}>{line}</p>;
+        return <p key={i}>{renderInline(line)}</p>;
       })}
     </div>
   );

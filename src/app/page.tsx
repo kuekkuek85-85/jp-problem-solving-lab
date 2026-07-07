@@ -95,10 +95,6 @@ function StudentLogin() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="mb-1 block text-sm font-bold text-slate-800">이름</label>
-        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="홍길동" />
-      </div>
-      <div>
         <label className="mb-1 block text-sm font-bold text-slate-800">학번 (5자리)</label>
         <Input
           value={studentNo}
@@ -106,6 +102,10 @@ function StudentLogin() {
           placeholder="예: 20301 (2학년 3반 1번)"
           inputMode="numeric"
         />
+      </div>
+      <div>
+        <label className="mb-1 block text-sm font-bold text-slate-800">이름</label>
+        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="홍길동" />
       </div>
       {error && <p className="text-sm font-bold text-red-600">{error}</p>}
       <Button type="submit" disabled={loading} className="w-full">

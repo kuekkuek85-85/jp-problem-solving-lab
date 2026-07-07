@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Noto_Sans_KR } from "next/font/google";
 import "./globals.css";
 import { AuthGate } from "@/components/AuthGate";
+import { Footer } from "@/components/Footer";
 
 const notoSansKr = Noto_Sans_KR({
   variable: "--font-noto-sans-kr",
@@ -23,6 +24,7 @@ export default function RootLayout({
     <html lang="ko" className={`${notoSansKr.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-slate-50 text-slate-900 font-sans">
         <AuthGate>{children}</AuthGate>
+        <Footer />
       </body>
     </html>
   );

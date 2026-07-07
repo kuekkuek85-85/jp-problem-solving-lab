@@ -1,8 +1,9 @@
 "use client";
 
-import { use, useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { loadStudentAuth } from "@/lib/local-auth";
+import { LAB_ID } from "@/lib/constants";
 import { useHelpRequests, useMyProjects, useProject, useRequests, useSession, useStudent, useStudents } from "@/lib/hooks";
 import type { Stage } from "@/lib/types";
 import { Spinner } from "@/components/ui";
@@ -23,18 +24,18 @@ import { SubmissionGallery } from "@/components/gallery/SubmissionGallery";
 
 const LOOP_STAGES: Stage[] = ["analyze", "prd", "grillme", "peer", "coding", "submit"];
 
-export default function StudentPage({ params }: { params: Promise<{ sessionCode: string }> }) {
-  const { sessionCode } = use(params);
+export default function StudentPage() {
+  const sessionCode = LAB_ID;
   const router = useRouter();
   const auth = useMemo(() => loadStudentAuth(), []);
 
   useEffect(() => {
-    if (!auth || auth.sessionCode !== sessionCode) {
+    if (!auth) {
       router.replace("/");
     }
-  }, [auth, sessionCode, router]);
+  }, [auth, router]);
 
-  const studentId = auth?.sessionCode === sessionCode ? auth.studentId : null;
+  const studentId = auth?.studentId ?? null;
 
   const { session, loading: sessionLoading } = useSession(sessionCode);
   const { student, loading: studentLoading } = useStudent(sessionCode, studentId);

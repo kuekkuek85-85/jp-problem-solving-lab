@@ -1,7 +1,8 @@
 "use client";
 
-import { use, useState } from "react";
+import { useState } from "react";
 import { loadTeacherPin, saveTeacherPin } from "@/lib/local-auth";
+import { LAB_ID } from "@/lib/constants";
 import { useHelpRequests, useRequests, useSession, useStudents, useReflections } from "@/lib/hooks";
 import { Button, Card, Input, Spinner } from "@/components/ui";
 import { StageControlBar } from "@/components/teacher/StageControlBar";
@@ -13,18 +14,17 @@ import { ReflectionsPanel } from "@/components/teacher/ReflectionsPanel";
 
 type Tab = "roster" | "requests" | "help" | "slides" | "reflections";
 
-export default function TeacherPage({ params }: { params: Promise<{ sessionCode: string }> }) {
-  const { sessionCode } = use(params);
-  const [pin, setPin] = useState<string | null>(() => loadTeacherPin(sessionCode));
+export default function TeacherPage() {
+  const [pin, setPin] = useState<string | null>(() => loadTeacherPin());
 
   if (!pin) {
-    return <PinGate sessionCode={sessionCode} onAuthed={setPin} />;
+    return <PinGate onAuthed={setPin} />;
   }
 
-  return <Dashboard sessionCode={sessionCode} pin={pin} />;
+  return <Dashboard sessionCode={LAB_ID} pin={pin} />;
 }
 
-function PinGate({ sessionCode, onAuthed }: { sessionCode: string; onAuthed: (pin: string) => void }) {
+function PinGate({ onAuthed }: { onAuthed: (pin: string) => void }) {
   const [value, setValue] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -34,7 +34,8 @@ function PinGate({ sessionCode, onAuthed }: { sessionCode: string; onAuthed: (pi
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/teacher/auth", {
+      // 연구소가 없으면 개소, 있으면 그대로 입장(멱등). PIN 검증도 이 라우트에서 수행.
+      const res = await fetch("/api/teacher/session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ pin: value }),
@@ -44,7 +45,7 @@ function PinGate({ sessionCode, onAuthed }: { sessionCode: string; onAuthed: (pi
         setError(data.error ?? "PIN이 올바르지 않아요.");
         return;
       }
-      saveTeacherPin(sessionCode, value);
+      saveTeacherPin(value);
       onAuthed(value);
     } finally {
       setLoading(false);
@@ -111,10 +112,8 @@ function Dashboard({ sessionCode, pin }: { sessionCode: string; pin: string }) {
 
       <div className="mx-auto max-w-6xl px-4 py-4">
         <div className="mb-4 flex items-center justify-between">
-          <div className="text-sm text-slate-500">
-            세션 코드 <span className="font-black text-slate-800">{sessionCode}</span> · 연구원 {students.length}명
-          </div>
-          <a href={`/gallery/${sessionCode}`} target="_blank" className="text-xs font-bold text-rose-500 underline">
+          <div className="text-sm text-slate-500">연구원 {students.length}명</div>
+          <a href="/gallery" target="_blank" className="text-xs font-bold text-rose-500 underline">
             참관자용 해결 보고회 링크 →
           </a>
         </div>

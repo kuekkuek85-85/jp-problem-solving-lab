@@ -40,18 +40,20 @@ npm run dev
 
 [http://localhost:3000](http://localhost:3000) 접속.
 
-- 교사: 랜딩 페이지에서 "연구소장" 탭 → "새 연구소 개소" → PIN 입력 → 세션 코드 발급(공식 의뢰 15건 자동 등록)
-- 학생: "연구원(학생)" 탭 → 세션 코드 + 이름 + 5자리 학번 입력
+세션 코드 없이 단일 고정 연구소(`sessions/main`)로 운영합니다.
+
+- 교사: 랜딩 페이지 "연구소장" 탭 → PIN 입력 → 최초 입장 시 연구소가 자동 개소되고 공식 의뢰 15건이 등록됩니다(재입장 시 기존 데이터 그대로 이어감).
+- 학생: "연구원(학생)" 탭 → 이름 + 5자리 학번만 입력하면 입장(연구소가 열려 있어야 함).
 
 ## 프로젝트 구조
 
 ```
 src/
   app/
-    page.tsx                     # 랜딩(학생/교사 로그인)
-    student/[sessionCode]/       # 연구원(학생) 메인 — 11단계 상태 머신
-    teacher/[sessionCode]/       # 연구소장(교사) 대시보드
-    gallery/[sessionCode]/       # 참관자용 읽기 전용 해결 보고회
+    page.tsx                     # 랜딩(학생: 이름+학번 / 교사: PIN)
+    student/                     # 연구원(학생) 메인 — 11단계 상태 머신
+    teacher/                     # 연구소장(교사) 대시보드
+    gallery/                     # 참관자용 읽기 전용 해결 보고회
     api/
       teacher/*                  # 교사 전용 쓰기(Firebase Admin) — session/stage/lecture/requests/peer-match/close-lab/auth
       student/propose-request    # 학생 의뢰 등록 요청
@@ -73,7 +75,7 @@ storage.rules
 
 ## 데이터 모델 요약
 
-`sessions/{sessionCode}` 아래에 `requests`(의뢰), `students`(연구원, 하위에 `projects`), `helpRequests`(Help Me 큐), `submissions`(해결 보고회용 평면 요약), `reactions`, `reflections` 서브컬렉션이 있습니다. 자세한 필드는 `src/lib/types.ts` 참고.
+고정 연구소 문서 `sessions/main`(상수 `LAB_ID`) 아래에 `requests`(의뢰), `students`(연구원, 하위에 `projects`), `helpRequests`(Help Me 큐), `submissions`(해결 보고회용 평면 요약), `reactions`, `reflections` 서브컬렉션이 있습니다. 자세한 필드는 `src/lib/types.ts` 참고.
 
 ## 권한 모델
 

@@ -3,6 +3,9 @@ import type { Level } from "./types";
 export const LAB_NAME = "장평 문제해결연구소";
 export const CLUB_NAME = "하트이로봇 동아리";
 
+// 세션 코드 개념을 없애고 단일 고정 연구소로 운영한다. 모든 데이터는 sessions/main 아래에 저장.
+export const LAB_ID = "main";
+
 // ── 0단계(A) 수준 자가 진단 5문항 ────────────────────────────────
 export interface DiagnosticQuestion {
   id: string;

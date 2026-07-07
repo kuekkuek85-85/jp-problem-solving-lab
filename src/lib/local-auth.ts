@@ -2,7 +2,6 @@
 
 // 학생 재접속 복구용 로컬 저장 정보 (Firestore가 진짜 데이터, 이건 편의용 캐시일 뿐)
 export interface StudentAuthInfo {
-  sessionCode: string;
   studentId: string;
   name: string;
 }
@@ -31,12 +30,12 @@ export function clearStudentAuth() {
   localStorage.removeItem(STUDENT_KEY);
 }
 
-export function saveTeacherPin(sessionCode: string, pin: string) {
+export function saveTeacherPin(pin: string) {
   if (typeof window === "undefined") return;
-  sessionStorage.setItem(`${TEACHER_KEY}:${sessionCode}`, pin);
+  sessionStorage.setItem(TEACHER_KEY, pin);
 }
 
-export function loadTeacherPin(sessionCode: string): string | null {
+export function loadTeacherPin(): string | null {
   if (typeof window === "undefined") return null;
-  return sessionStorage.getItem(`${TEACHER_KEY}:${sessionCode}`);
+  return sessionStorage.getItem(TEACHER_KEY);
 }

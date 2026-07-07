@@ -16,13 +16,12 @@ import { RequestBoard } from "@/components/student/RequestBoard";
 import { AnalyzeStage } from "@/components/student/AnalyzeStage";
 import { PrdStage } from "@/components/student/PrdStage";
 import { GrillmeStage } from "@/components/student/GrillmeStage";
-import { PeerStage } from "@/components/student/PeerStage";
 import { CodingStage } from "@/components/student/CodingStage";
 import { SubmitStage } from "@/components/student/SubmitStage";
 import { ClosingStage } from "@/components/student/ClosingStage";
 import { SubmissionGallery } from "@/components/gallery/SubmissionGallery";
 
-const LOOP_STAGES: Stage[] = ["analyze", "prd", "grillme", "peer", "coding", "submit"];
+const LOOP_STAGES: Stage[] = ["analyze", "prd", "grillme", "coding", "submit"];
 
 export default function StudentPage() {
   const sessionCode = LAB_ID;
@@ -110,7 +109,6 @@ export default function StudentPage() {
       {stage === "analyze" && <AnalyzeStage sessionCode={sessionCode} student={student} project={project} />}
       {stage === "prd" && <PrdStage sessionCode={sessionCode} student={student} project={project} />}
       {stage === "grillme" && <GrillmeStage sessionCode={sessionCode} student={student} project={project} />}
-      {stage === "peer" && <PeerStage sessionCode={sessionCode} student={student} project={project} />}
       {stage === "coding" && <CodingStage sessionCode={sessionCode} student={student} project={project} />}
       {stage === "submit" && <SubmitStage sessionCode={sessionCode} student={student} project={project} />}
 

@@ -38,7 +38,7 @@ export function GrillmeStage({
       });
       const data = await res.json();
       if (!data.ok) {
-        setError(data.error ?? "그릴미 호출에 실패했어요.");
+        setError(data.error ?? "Grill Me 호출에 실패했어요.");
         return;
       }
       setAnswers(data.questions.map(() => ""));
@@ -71,7 +71,7 @@ export function GrillmeStage({
       studentId: student.studentId,
       projectId: project.id,
       stamp: 3,
-      nextStep: "peer",
+      nextStep: "coding",
     });
     setCelebrate(true);
   }
@@ -79,14 +79,14 @@ export function GrillmeStage({
   return (
     <main className="mx-auto max-w-2xl px-4 py-6">
       <Card>
-        <h2 className="mb-1 text-lg font-black">AI 그릴미 검토</h2>
+        <h2 className="mb-1 text-lg font-black">AI Grill Me 검토</h2>
         <p className="mb-5 text-sm text-slate-500">
           AI 코치가 내 설계도의 허점을 날카롭게 질문해요. (호출 {project.grillme.callCount}/2회 사용)
         </p>
 
         {!hasQuestions && (
           <Button className="w-full" onClick={startGrillme} disabled={loading || project.grillme.callCount >= 2}>
-            {loading ? "그릴미 준비 중..." : "그릴미 시작"}
+            {loading ? "Grill Me 준비 중..." : "Grill Me 시작"}
           </Button>
         )}
 

@@ -32,7 +32,7 @@ export function Certificate({ student, projects }: { student: StudentDoc; projec
       </div>
 
       <div className="mx-auto mt-6 flex max-w-md justify-center gap-2">
-        {[1, 2, 3, 4, 5, 6].map((n) => (
+        {[1, 2, 3, 4, 5].map((n) => (
           <span
             key={n}
             className={`flex h-9 w-9 items-center justify-center rounded-full text-xs font-black ${

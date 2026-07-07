@@ -62,6 +62,7 @@ export function RequestBoard({
       await updateDoc(doc(db, studentPath(sessionCode, student.studentId)), {
         activeRequestId: request.id,
         activeProjectId: projectRef.id,
+        activeStep: "analyze",
       });
       await updateDoc(doc(db, requestPath(sessionCode, request.id)), {
         activeSolverIds: arrayUnion(student.studentId),

@@ -33,6 +33,7 @@ export function emptyStudent(params: {
     badges: [],
     activeRequestId: null,
     activeProjectId: null,
+    activeStep: null,
     helperModeOn: false,
   };
 }
@@ -72,13 +73,6 @@ export function emptyProject(params: {
     },
     prdHints: {},
     grillme: { questions: [], answers: [], callCount: 0 },
-    peerMatch: {
-      targetProjectId: null,
-      targetStudentId: null,
-      targetName: null,
-      feedbackGiven: null,
-      feedbackReceived: null,
-    },
     codingNotes: "",
     codingFirstDone: false,
     submission: { url: "", oneLiner: "", slidesHtml: null, submittedAt: null },

@@ -47,7 +47,7 @@ export function CodingStage({
       sessionCode,
       studentId: student.studentId,
       projectId: project.id,
-      stamp: 5,
+      stamp: 4,
       nextStep: "submit",
       projectFields: { codingFirstDone: true },
     });
@@ -68,7 +68,7 @@ export function CodingStage({
 
           {project.grillme.questions.length > 0 && (
             <div className="mt-4 border-t border-slate-100 pt-3">
-              <p className="mb-1 text-xs font-bold text-slate-400">그릴미 답변</p>
+              <p className="mb-1 text-xs font-bold text-slate-400">Grill Me 답변</p>
               <ul className="space-y-1 text-xs text-slate-600">
                 {project.grillme.questions.map((q, i) => (
                   <li key={i}>
@@ -76,15 +76,6 @@ export function CodingStage({
                   </li>
                 ))}
               </ul>
-            </div>
-          )}
-
-          {project.peerMatch.feedbackReceived && (
-            <div className="mt-4 border-t border-slate-100 pt-3">
-              <p className="mb-1 text-xs font-bold text-slate-400">동료 검토 피드백</p>
-              <p className="text-xs text-slate-600">👍 {project.peerMatch.feedbackReceived.praise}</p>
-              <p className="text-xs text-slate-600">❓ {project.peerMatch.feedbackReceived.question}</p>
-              <p className="text-xs text-slate-600">💡 {project.peerMatch.feedbackReceived.suggestion}</p>
             </div>
           )}
         </Card>

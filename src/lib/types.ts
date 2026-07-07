@@ -9,11 +9,10 @@ export type Stage =
   | "analyze" // 2
   | "prd" // 3
   | "grillme" // 4
-  | "peer" // 5
-  | "coding" // 6
-  | "submit" // 7
-  | "gallery" // 8
-  | "closing"; // 9
+  | "coding" // 5
+  | "submit" // 6
+  | "gallery" // 7
+  | "closing"; // 8
 
 export const STAGE_ORDER: Stage[] = [
   "onboarding",
@@ -22,7 +21,6 @@ export const STAGE_ORDER: Stage[] = [
   "analyze",
   "prd",
   "grillme",
-  "peer",
   "coding",
   "submit",
   "gallery",
@@ -35,8 +33,7 @@ export const STAGE_LABELS: Record<Stage, string> = {
   lecture: "브리핑",
   analyze: "의뢰 분석",
   prd: "설계도 작성",
-  grillme: "AI 그릴미 검토",
-  peer: "동료 검토",
+  grillme: "AI Grill Me 검토",
   coding: "바이브 코딩",
   submit: "해결안 제출",
   gallery: "해결 보고회",
@@ -114,10 +111,11 @@ export interface StudentDoc {
   diagnostic: DiagnosticAnswers | null;
   ethicsPledge: EthicsPledge;
   trafficLight: TrafficLight;
-  stamps: number[]; // 1..6
+  stamps: number[]; // 1..5
   badges: Badge[];
   activeRequestId: string | null;
   activeProjectId: string | null;
+  activeStep: ProjectStep | null; // 현재 활성 프로젝트 진행 단계(교사 로스터 상황 표시용 비정규화)
   helperModeOn?: boolean;
 }
 
@@ -165,20 +163,6 @@ export interface GrillmeData {
   callCount: number;
 }
 
-export interface PeerFeedback {
-  praise: string;
-  question: string;
-  suggestion: string;
-}
-
-export interface PeerMatchData {
-  targetProjectId: string | null;
-  targetStudentId: string | null;
-  targetName: string | null;
-  feedbackGiven: PeerFeedback | null;
-  feedbackReceived: PeerFeedback | null;
-}
-
 export interface SubmissionData {
   url: string;
   oneLiner: string;
@@ -192,7 +176,7 @@ export interface DeepDiveData {
   completed: boolean;
 }
 
-export type ProjectStep = "analyze" | "prd" | "grillme" | "peer" | "coding" | "submit" | "done";
+export type ProjectStep = "analyze" | "prd" | "grillme" | "coding" | "submit" | "done";
 
 export interface ProjectDoc {
   id: string;
@@ -205,7 +189,6 @@ export interface ProjectDoc {
   prd: PrdData;
   prdHints: Record<string, number>;
   grillme: GrillmeData;
-  peerMatch: PeerMatchData;
   codingNotes: string;
   codingFirstDone: boolean;
   submission: SubmissionData;

@@ -76,16 +76,6 @@ function Dashboard({ sessionCode, pin }: { sessionCode: string; pin: string }) {
   const helpRequests = useHelpRequests(sessionCode);
   const reflections = useReflections(sessionCode);
 
-  async function peerMatch() {
-    const res = await fetch("/api/teacher/peer-match", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sessionCode, pin }),
-    });
-    const data = await res.json();
-    if (!data.ok) alert(data.error ?? "매칭에 실패했어요.");
-  }
-
   async function closeLab() {
     if (!confirm("연구소를 마감할까요? 모든 학생 화면이 수료증 화면으로 전환돼요.")) return;
     await fetch("/api/teacher/close-lab", {
@@ -108,7 +98,7 @@ function Dashboard({ sessionCode, pin }: { sessionCode: string; pin: string }) {
 
   return (
     <div>
-      <StageControlBar sessionCode={sessionCode} pin={pin} session={session} onPeerMatch={peerMatch} onCloseLab={closeLab} />
+      <StageControlBar sessionCode={sessionCode} pin={pin} session={session} onCloseLab={closeLab} />
 
       <div className="mx-auto max-w-6xl px-4 py-4">
         <div className="mb-4 flex items-center justify-between">

@@ -51,11 +51,11 @@ npm run dev
 src/
   app/
     page.tsx                     # 랜딩(학생: 이름+학번 / 교사: PIN)
-    student/                     # 연구원(학생) 메인 — 11단계 상태 머신
+    student/                     # 연구원(학생) 메인 — 단계 상태 머신
     teacher/                     # 연구소장(교사) 대시보드
     gallery/                     # 참관자용 읽기 전용 해결 보고회
     api/
-      teacher/*                  # 교사 전용 쓰기(Firebase Admin) — session/stage/lecture/requests/peer-match/close-lab/auth
+      teacher/*                  # 교사 전용 쓰기(Firebase Admin) — session/stage/lecture/requests/close-lab/auth
       student/propose-request    # 학생 의뢰 등록 요청
       grillme, prd-hint,
       deep-dive, slides-gen      # Gemini API 서버 라우트

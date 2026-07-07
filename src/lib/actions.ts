@@ -24,6 +24,7 @@ export async function advanceProject(params: {
 
   await updateDoc(doc(db, studentPath(sessionCode, studentId)), {
     stamps: arrayUnion(stamp),
+    activeStep: nextStep === "done" ? null : nextStep,
     lastActiveAt: Date.now(),
   });
 }

@@ -24,7 +24,7 @@ export function SubmitStage({
   const [deepDiveLoading, setDeepDiveLoading] = useState(false);
 
   const complete = url.trim() && oneLiner.trim();
-  const willCompleteAllStamps = !student.stamps.includes(6) && [1, 2, 3, 4, 5].every((n) => student.stamps.includes(n));
+  const willCompleteAllStamps = !student.stamps.includes(5) && [1, 2, 3, 4].every((n) => student.stamps.includes(n));
 
   async function submit() {
     if (!complete) return;
@@ -37,9 +37,10 @@ export function SubmitStage({
         completedAt: now,
       });
       await updateDoc(doc(db, studentPath(sessionCode, student.studentId)), {
-        stamps: arrayUnion(6),
+        stamps: arrayUnion(5),
         activeRequestId: null,
         activeProjectId: null,
+        activeStep: null,
       });
       await updateDoc(doc(db, requestPath(sessionCode, project.requestId)), {
         activeSolverIds: arrayRemove(student.studentId),
@@ -127,7 +128,7 @@ export function SubmitStage({
       </Card>
 
       {celebrate && (
-        <StampCelebration stamp={6} allDone={willCompleteAllStamps} onDone={() => setCelebrate(false)} />
+        <StampCelebration stamp={5} allDone={willCompleteAllStamps} onDone={() => setCelebrate(false)} />
       )}
     </main>
   );

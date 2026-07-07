@@ -55,7 +55,7 @@ export async function POST(req: Request) {
 
   const currentCalls = project.grillme?.callCount ?? 0;
   if (currentCalls >= MAX_CALLS) {
-    return NextResponse.json({ ok: false, error: "그릴미 호출 횟수를 모두 사용했어요." }, { status: 429 });
+    return NextResponse.json({ ok: false, error: "Grill Me 호출 횟수를 모두 사용했어요." }, { status: 429 });
   }
 
   try {
@@ -76,6 +76,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true, questions, callCount: currentCalls + 1 });
   } catch (err) {
     console.error("grillme error", err);
-    return NextResponse.json({ ok: false, error: "AI 그릴미 호출에 실패했어요. 잠시 후 다시 시도해주세요." }, { status: 502 });
+    return NextResponse.json({ ok: false, error: "AI Grill Me 호출에 실패했어요. 잠시 후 다시 시도해주세요." }, { status: 502 });
   }
 }

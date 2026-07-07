@@ -61,11 +61,12 @@ export const ETHICS_PLEDGE_ITEMS: string[] = [
 export const STAMP_LABELS: Record<number, string> = {
   1: "① 의뢰 분석",
   2: "② 설계도 작성",
-  3: "③ AI 그릴미 검토",
-  4: "④ 동료 검토",
-  5: "⑤ 바이브 코딩",
-  6: "⑥ 해결안 제출",
+  3: "③ AI Grill Me 검토",
+  4: "④ 바이브 코딩",
+  5: "⑤ 해결안 제출",
 };
+
+export const STAMP_NUMBERS = [1, 2, 3, 4, 5];
 
 // ── 설계도(PRD) 10항목 정의 ───────────────────────────────────
 export interface PrdFieldDef {

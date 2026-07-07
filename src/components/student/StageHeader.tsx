@@ -33,7 +33,7 @@ export function StageHeader({
       </div>
       <div className="mx-auto mt-2 flex max-w-4xl gap-1">
         {student.stamps.length > 0 &&
-          [1, 2, 3, 4, 5, 6].map((n) => (
+          [1, 2, 3, 4, 5].map((n) => (
             <span
               key={n}
               className={`h-1.5 flex-1 rounded-full ${student.stamps.includes(n) ? "bg-rose-400" : "bg-slate-150 bg-slate-200"}`}

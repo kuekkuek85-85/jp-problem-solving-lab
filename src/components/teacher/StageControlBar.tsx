@@ -9,13 +9,11 @@ export function StageControlBar({
   pin,
   session,
   onCloseLab,
-  onPeerMatch,
 }: {
   sessionCode: string;
   pin: string;
   session: SessionDoc;
   onCloseLab: () => void;
-  onPeerMatch: () => void;
 }) {
   const [busy, setBusy] = useState(false);
   const [timerMinutes, setTimerMinutes] = useState(10);
@@ -81,10 +79,6 @@ export function StageControlBar({
             분 타이머 시작
           </Button>
         </div>
-
-        <Button variant="secondary" disabled={busy} onClick={onPeerMatch} className="!px-3 !py-1.5 text-xs">
-          🎲 동료 검토 랜덤 매칭
-        </Button>
 
         <div className="ml-auto flex gap-2">
           <Button variant="danger" onClick={onCloseLab} className="!px-3 !py-1.5 text-xs">

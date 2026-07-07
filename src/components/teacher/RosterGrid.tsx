@@ -5,8 +5,23 @@ import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import { studentPath } from "@/lib/paths";
 import { useMyProjects, useProject } from "@/lib/hooks";
-import { STAGE_LABELS, type HelpRequestDoc, type Level, type StudentDoc } from "@/lib/types";
+import { STAGE_LABELS, type HelpRequestDoc, type Level, type ProjectStep, type StudentDoc } from "@/lib/types";
 import { Card, LevelBadge, TrafficDot } from "@/components/ui";
+
+const STEP_STATUS: Record<Exclude<ProjectStep, "done">, string> = {
+  analyze: "의뢰 분석 중",
+  prd: "설계도 작성 중",
+  grillme: "Grill Me 검토 중",
+  coding: "바이브 코딩 중",
+  submit: "해결안 제출 중",
+};
+
+function statusText(s: StudentDoc): string {
+  if (s.activeStep && s.activeStep !== "done") return STEP_STATUS[s.activeStep];
+  if (s.stamps.includes(5)) return "해결안 제출 완료 · 새 의뢰 대기";
+  if (!s.ethicsPledge.checkedAll) return "연구원 등록 중";
+  return "의뢰 게시판에서 고르는 중";
+}
 
 export function RosterGrid({
   sessionCode,
@@ -50,9 +65,12 @@ export function RosterGrid({
                   <LevelBadge level={s.level} />
                   {openHelp && <span className="text-xs font-bold text-amber-700">🙋 도움요청</span>}
                 </div>
-                <p className="mt-2 truncate text-xs text-slate-500">{s.activeRequestId ? "의뢰 진행 중" : "게시판 대기"}</p>
+                <p className="mt-2 truncate text-xs font-bold text-slate-600">{statusText(s)}</p>
+                {s.activeRequestId && (
+                  <p className="truncate text-[11px] text-slate-400">맡은 의뢰 진행 중</p>
+                )}
                 <div className="mt-2 flex gap-1">
-                  {[1, 2, 3, 4, 5, 6].map((n) => (
+                  {[1, 2, 3, 4, 5].map((n) => (
                     <span key={n} className={`h-1.5 flex-1 rounded-full ${s.stamps.includes(n) ? "bg-rose-400" : "bg-slate-200"}`} />
                   ))}
                 </div>
@@ -131,7 +149,7 @@ function StudentDetailModal({
               <p>AI 기능: {project.prd.aiFeature.needed === "yes" ? project.prd.aiFeature.description : "불필요"}</p>
             </Section>
             {project.grillme.questions.length > 0 && (
-              <Section title="그릴미 답변">
+              <Section title="Grill Me 답변">
                 {project.grillme.questions.map((q, i) => (
                   <p key={i}>
                     Q. {q.text} → {project.grillme.answers[i]}

@@ -10,7 +10,6 @@ import { Spinner } from "@/components/ui";
 import { StageHeader } from "@/components/student/StageHeader";
 import { HelpWidget } from "@/components/student/HelpWidget";
 import { Onboarding } from "@/components/student/Onboarding";
-import { WaitingScreen } from "@/components/student/WaitingScreen";
 import { LectureOverlay } from "@/components/student/LectureOverlay";
 import { RequestBoard } from "@/components/student/RequestBoard";
 import { AnalyzeStage } from "@/components/student/AnalyzeStage";
@@ -56,22 +55,17 @@ export default function StudentPage() {
   const solverNameLookup = Object.fromEntries(students.map((s) => [s.studentId, s.name]));
   const myOpenHelp = helpRequests.find((h) => h.requesterId === studentId && h.status !== "resolved");
 
-  // 1) 윤리 서약 전에는 항상 온보딩
+  // 1) 윤리 서약 전에는 항상 온보딩(서약을 마치면 바로 활동에 들어간다)
   if (!student.ethicsPledge.checkedAll) {
     return <Onboarding sessionCode={sessionCode} student={student} />;
   }
 
-  // 2) 교사가 브리핑 모드면 전원 강제 오버레이
-  if (session.currentStage === "lecture") {
+  // 2) 교사가 브리핑을 켜면 전원 강제 오버레이(교사가 끄면 학생도 활동으로 복귀)
+  if (session.lectureMode) {
     return <LectureOverlay session={session} />;
   }
 
-  // 3) 아직 온보딩 단계면 게시판이 열리기를 대기
-  if (session.currentStage === "onboarding") {
-    return <WaitingScreen student={student} message="선생님이 의뢰 게시판을 여는 중이에요. 잠시만 기다려주세요!" />;
-  }
-
-  // 4) 교사가 해결 보고회/마감을 선언하면 개인 진행과 무관하게 강제 전환
+  // 3) 교사가 해결 보고회/마감을 선언하면 개인 진행과 무관하게 강제 전환
   if (session.currentStage === "gallery") {
     return (
       <div>

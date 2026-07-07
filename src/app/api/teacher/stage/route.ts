@@ -14,9 +14,10 @@ export async function POST(req: Request) {
   }
 
   const db = getAdminDb();
+  // 해결 보고회/활동/마감 등 전체 상태 전환 시에는 브리핑을 종료한다.
   await db.doc(`sessions/${sessionCode}`).update({
     currentStage,
-    lectureMode: currentStage === "lecture",
+    lectureMode: false,
   });
 
   return NextResponse.json({ ok: true });

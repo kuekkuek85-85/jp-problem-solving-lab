@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAdminDb } from "@/lib/firebase/admin";
 import { checkTeacherPin } from "../../_lib/auth";
-import { LAB_ID, SEED_REQUESTS } from "@/lib/constants";
+import { LAB_ID, SEED_REQUESTS, SEED_SLIDES } from "@/lib/constants";
 import type { RequestDoc, SessionDoc } from "@/lib/types";
 
 // 세션 코드 없이 단일 고정 연구소(sessions/main)를 운영한다.
@@ -25,17 +25,11 @@ export async function POST(req: Request) {
   const sessionDoc: SessionDoc = {
     createdAt: now,
     teacherPinHash: "env",
-    currentStage: "onboarding",
+    currentStage: "board", // 학생은 서약 후 바로 활동(게시판)에 진입
     currentSlideIndex: 0,
     lectureMode: false,
     presentingSubmissionId: null,
-    slides: [
-      {
-        index: 0,
-        markdown:
-          "# 오늘 우리가 AI를 안전하게 쓰는 이유\n\n- 학생 계정으로 직접 AI에 접속하지 않아요\n- 모든 AI 요청은 학교 서버를 통해서만 전달돼요\n- 이름·학번 같은 개인정보는 AI에게 보내지 않아요\n- 캔바 코드는 선생님이 초대한 관리된 계정에서만 사용해요",
-      },
-    ],
+    slides: SEED_SLIDES.map((markdown, index) => ({ index, markdown })),
   };
 
   const batch = db.batch();

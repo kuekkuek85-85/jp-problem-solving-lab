@@ -37,45 +37,62 @@ export function SlidesPanel({ sessionCode, pin, session }: { sessionCode: string
     setSlides((prev) => prev.filter((_, idx) => idx !== i).map((s, idx) => ({ ...s, index: idx })));
   }
 
+  const currentMarkdown = slides.find((s) => s.index === session.currentSlideIndex)?.markdown ?? slides[0]?.markdown ?? "";
+
   return (
     <div className="space-y-4">
       <Card>
-        <div className="mb-3 flex items-center justify-between">
-          <p className="font-bold">브리핑 발표 제어</p>
-          <label className="flex items-center gap-2 text-sm font-bold">
-            <input
-              type="checkbox"
-              checked={session.lectureMode}
-              onChange={(e) => call({ lectureMode: e.target.checked })}
-            />
-            학생 화면 강제 동기화
-          </label>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="secondary"
-            className="!px-3 !py-1.5 text-xs"
-            disabled={session.currentSlideIndex <= 0}
-            onClick={() => call({ currentSlideIndex: session.currentSlideIndex - 1 })}
-          >
-            ← 이전
-          </Button>
-          <span className="text-sm font-bold">
-            {session.currentSlideIndex + 1} / {slides.length}
-          </span>
-          <Button
-            variant="secondary"
-            className="!px-3 !py-1.5 text-xs"
-            disabled={session.currentSlideIndex >= slides.length - 1}
-            onClick={() => call({ currentSlideIndex: session.currentSlideIndex + 1 })}
-          >
-            다음 →
-          </Button>
-        </div>
+        {!session.lectureMode ? (
+          <div className="flex flex-col gap-2">
+            <p className="font-bold">브리핑 발표</p>
+            <p className="text-sm text-slate-500">
+              브리핑을 시작하면 <b>모든 학생 화면이 이 슬라이드로 동기화</b>돼요. 끝내면 학생은 다시 활동 화면으로 돌아가요.
+            </p>
+            <Button className="w-full" onClick={() => call({ lectureMode: true, currentSlideIndex: 0 })}>
+              🎤 브리핑 시작 (학생 화면 동기화)
+            </Button>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-100 px-2.5 py-1 text-xs font-bold text-rose-700">
+                🔴 브리핑 중 · 학생 화면 동기화
+              </span>
+              <Button variant="danger" className="!px-3 !py-1.5 text-xs" onClick={() => call({ lectureMode: false })}>
+                브리핑 끝내기
+              </Button>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="secondary"
+                className="!px-3 !py-1.5 text-xs"
+                disabled={session.currentSlideIndex <= 0}
+                onClick={() => call({ currentSlideIndex: session.currentSlideIndex - 1 })}
+              >
+                ← 이전
+              </Button>
+              <span className="text-sm font-bold">
+                {session.currentSlideIndex + 1} / {slides.length}
+              </span>
+              <Button
+                variant="secondary"
+                className="!px-3 !py-1.5 text-xs"
+                disabled={session.currentSlideIndex >= slides.length - 1}
+                onClick={() => call({ currentSlideIndex: session.currentSlideIndex + 1 })}
+              >
+                다음 →
+              </Button>
+            </div>
+            <div className="max-h-40 overflow-auto whitespace-pre-wrap rounded-lg bg-slate-900 p-3 text-xs text-slate-100">
+              {currentMarkdown}
+            </div>
+          </div>
+        )}
       </Card>
 
       <Card>
-        <p className="mb-3 font-bold">슬라이드 편집 (마크다운)</p>
+        <p className="mb-1 font-bold">슬라이드 (자동 생성됨)</p>
+        <p className="mb-3 text-xs text-slate-500">단계별 안내 슬라이드가 미리 준비돼 있어요. 그대로 브리핑해도 되고, 필요하면 수정·추가하세요.</p>
         <div className="space-y-3">
           {slides.map((s, i) => (
             <div key={i} className="rounded-lg border border-slate-200 p-3">

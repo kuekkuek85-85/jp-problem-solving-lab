@@ -82,13 +82,16 @@ export function CodingStage({
 
         <div className="space-y-4">
           <Card>
-            <h3 className="mb-2 font-black">캔바 코드 프롬프트</h3>
+            <h3 className="mb-2 font-black">코딩 프롬프트</h3>
             <pre className="mb-3 max-h-56 overflow-auto whitespace-pre-wrap rounded-lg bg-slate-900 p-3 text-xs text-slate-100">
               {prompt}
             </pre>
             <Button className="w-full" onClick={copyPrompt}>
               {copied ? "복사 완료! ✅" : "📋 프롬프트 복사하기"}
             </Button>
+            <p className="mt-2 text-xs text-slate-500">
+              캔바 코드가 기본이지만, Gemini · ChatGPT · Claude 같은 다른 AI 도구에도 그대로 붙여넣어 만들 수 있어요.
+            </p>
           </Card>
 
           <Card>

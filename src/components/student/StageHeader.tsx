@@ -24,7 +24,7 @@ export function StageHeader({
           {requestTitle && <div className="text-xs text-slate-500 mt-0.5">맡은 의뢰: {requestTitle}</div>}
         </div>
         <div className="text-right">
-          <div className="text-sm font-bold text-rose-600">{STAGE_LABELS[stage]}</div>
+          <div className="text-sm font-bold text-brand-deep">{STAGE_LABELS[stage]}</div>
         </div>
       </div>
       <div className="mx-auto mt-2 flex max-w-4xl gap-1">
@@ -32,7 +32,7 @@ export function StageHeader({
           [1, 2, 3, 4, 5].map((n) => (
             <span
               key={n}
-              className={`h-1.5 flex-1 rounded-full ${student.stamps.includes(n) ? "bg-rose-400" : "bg-slate-200"}`}
+              className={`h-1.5 flex-1 rounded-full ${student.stamps.includes(n) ? "bg-brand-soft" : "bg-slate-200"}`}
             />
           ))}
       </div>

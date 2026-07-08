@@ -5,7 +5,7 @@ export function LectureOverlay({ session }: { session: SessionDoc }) {
 
   return (
     <main className="fixed inset-0 z-40 flex flex-col items-center justify-center bg-slate-900 px-6 py-10 text-white">
-      <div className="mb-4 text-xs font-bold uppercase tracking-widest text-rose-300">브리핑</div>
+      <div className="mb-4 text-xs font-bold uppercase tracking-widest text-brand-soft">브리핑</div>
       <div className="w-full max-w-2xl whitespace-pre-wrap rounded-2xl bg-slate-800 p-8 text-lg leading-relaxed shadow-2xl">
         {slide ? (
           <MarkdownLite text={slide.markdown} />
@@ -31,14 +31,14 @@ function renderInline(text: string) {
     const md = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
     if (md) {
       return (
-        <a key={i} href={md[2]} target="_blank" rel="noreferrer" className="font-bold text-rose-300 underline decoration-rose-300 underline-offset-2 hover:text-rose-200">
+        <a key={i} href={md[2]} target="_blank" rel="noreferrer" className="font-bold text-brand-soft underline decoration-brand-soft underline-offset-2 hover:text-brand/30">
           {md[1]}
         </a>
       );
     }
     if (/^https?:\/\//.test(part)) {
       return (
-        <a key={i} href={part} target="_blank" rel="noreferrer" className="text-rose-300 underline underline-offset-2 hover:text-rose-200">
+        <a key={i} href={part} target="_blank" rel="noreferrer" className="text-brand-soft underline underline-offset-2 hover:text-brand/30">
           {part}
         </a>
       );

@@ -57,7 +57,7 @@ export function Onboarding({ sessionCode, student }: { sessionCode: string; stud
                       }
                       className={`flex-1 rounded-lg border px-2 py-2 text-xs font-bold transition ${
                         answers[qi] === oi
-                          ? "border-rose-400 bg-rose-50 text-rose-700"
+                          ? "border-brand-soft bg-brand/5 text-brand-deep"
                           : "border-slate-200 text-slate-600 hover:bg-slate-50"
                       }`}
                     >

@@ -35,7 +35,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
   if (!ready) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-rose-200 border-t-rose-500" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand/30 border-t-brand" />
       </div>
     );
   }

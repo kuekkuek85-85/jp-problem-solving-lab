@@ -29,10 +29,10 @@ export function PresentationControl({
 
   return (
     <div className="space-y-4">
-      <Card className={activeId ? "border-rose-300 bg-rose-50" : ""}>
+      <Card className={activeId ? "border-brand-soft bg-brand/5" : ""}>
         {activeId ? (
           <div className="flex flex-wrap items-center gap-3">
-            <span className="rounded-full bg-rose-500 px-3 py-1 text-xs font-black text-white">🎤 발표 중</span>
+            <span className="rounded-full bg-brand px-3 py-1 text-xs font-black text-white">🎤 발표 중</span>
             <span className="font-bold">
               {ordered[activeIdx]?.studentName ?? presentation?.presenterName} · {ordered[activeIdx]?.requestTitle}
             </span>
@@ -75,7 +75,7 @@ export function PresentationControl({
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {ordered.map((s, i) => (
-          <Card key={s.projectId} className={s.projectId === activeId ? "border-rose-300" : ""}>
+          <Card key={s.projectId} className={s.projectId === activeId ? "border-brand-soft" : ""}>
             <div className="flex items-center justify-between gap-2">
               <div>
                 <p className="font-bold">

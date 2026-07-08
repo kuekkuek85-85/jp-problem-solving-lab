@@ -1,19 +1,32 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  --background: #f1f4f7; /* surface-soft */
+  --foreground: #1c1e21; /* ink */
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-noto-sans-kr);
+
+  /* Meta 디자인 시스템 팔레트 */
+  --color-brand: #0064e0; /* cobalt primary */
+  --color-brand-deep: #0457cb; /* pressed */
+  --color-brand-soft: #0091ff;
+  --color-ink: #1c1e21;
+  --color-ink-deep: #0a1317;
+  --color-canvas: #ffffff;
+  --color-surface-soft: #f1f4f7;
+  --color-hairline: #ced0d4;
+  --color-hairline-soft: #dee3e9;
+  --color-critical: #e41e3f;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
+  letter-spacing: -0.01em; /* Optimistic VF의 스너그한 세팅을 근사 */
 }
 
 @media print {

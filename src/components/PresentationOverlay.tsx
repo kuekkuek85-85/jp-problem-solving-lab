@@ -100,7 +100,7 @@ export function PresentationOverlay({
       <div className="flex flex-1 flex-col p-4 lg:p-8">
         <div className="mb-3 flex items-center justify-between">
           <div>
-            <span className="rounded-full bg-rose-500 px-3 py-1 text-xs font-black">🎤 발표 중</span>
+            <span className="rounded-full bg-brand px-3 py-1 text-xs font-black">🎤 발표 중</span>
             <span className="ml-2 text-sm font-bold">{submission?.studentName ?? presentation.presenterName} 연구원</span>
             {submission?.requestTitle && <span className="ml-2 text-xs text-slate-400">· {submission.requestTitle}</span>}
           </div>
@@ -144,7 +144,7 @@ export function PresentationOverlay({
             </>
           )}
           {submission?.url && (
-            <a href={submission.url} target="_blank" rel="noreferrer" className="text-xs font-bold text-rose-300 underline">
+            <a href={submission.url} target="_blank" rel="noreferrer" className="text-xs font-bold text-brand-soft underline">
               산출물 열어보기 →
             </a>
           )}
@@ -164,7 +164,7 @@ export function PresentationOverlay({
           {comments.length === 0 && <p className="text-slate-500">응원 댓글을 남겨보세요!</p>}
           {comments.map((c, i) => (
             <div key={i}>
-              <span className="font-bold text-rose-300">{c.fromName}</span>{" "}
+              <span className="font-bold text-brand-soft">{c.fromName}</span>{" "}
               <span className="text-slate-200">{c.comment}</span>
             </div>
           ))}
@@ -177,7 +177,7 @@ export function PresentationOverlay({
             placeholder="댓글 남기기"
             className="flex-1 rounded-lg bg-slate-700 px-2 py-1.5 text-sm text-white outline-none placeholder:text-slate-400"
           />
-          <button onClick={sendComment} className="rounded-lg bg-rose-500 px-3 py-1.5 text-xs font-bold text-white">
+          <button onClick={sendComment} className="rounded-lg bg-brand px-3 py-1.5 text-xs font-bold text-white">
             등록
           </button>
         </div>

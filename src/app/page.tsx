@@ -26,13 +26,13 @@ export default function LandingPage() {
       <div className="mb-4 inline-flex rounded-full bg-slate-200 p-1 text-sm font-bold">
         <button
           onClick={() => setTab("student")}
-          className={`rounded-full px-5 py-2 transition ${tab === "student" ? "bg-white text-rose-600 shadow" : "text-slate-500"}`}
+          className={`rounded-full px-5 py-2 transition ${tab === "student" ? "bg-white text-brand-deep shadow" : "text-slate-500"}`}
         >
           연구원(학생)
         </button>
         <button
           onClick={() => setTab("teacher")}
-          className={`rounded-full px-5 py-2 transition ${tab === "teacher" ? "bg-white text-rose-600 shadow" : "text-slate-500"}`}
+          className={`rounded-full px-5 py-2 transition ${tab === "teacher" ? "bg-white text-brand-deep shadow" : "text-slate-500"}`}
         >
           연구소장(교사)
         </button>

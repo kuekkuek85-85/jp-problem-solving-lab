@@ -68,7 +68,7 @@ export function SlidesPanel({ sessionCode, pin, session }: { sessionCode: string
         ) : (
           <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-100 px-2.5 py-1 text-xs font-bold text-rose-700">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-brand/10 px-2.5 py-1 text-xs font-bold text-brand-deep">
                 🔴 브리핑 중 · 학생 화면 동기화
               </span>
               <Button variant="danger" className="!px-3 !py-1.5 text-xs" onClick={() => call({ lectureMode: false })}>

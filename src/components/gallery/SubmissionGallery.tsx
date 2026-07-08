@@ -124,7 +124,7 @@ function SubmissionCard({
         </div>
       )}
       {submission.url && (
-        <a href={submission.url} target="_blank" rel="noreferrer" className="mt-2 inline-block text-xs font-bold text-rose-500 underline">
+        <a href={submission.url} target="_blank" rel="noreferrer" className="mt-2 inline-block text-xs font-bold text-brand underline">
           산출물 열어보기 →
         </a>
       )}
@@ -152,12 +152,12 @@ function SubmissionCard({
               value={comment}
               onChange={(ev) => setComment(ev.target.value)}
               placeholder="짧은 댓글 남기기"
-              className="flex-1 rounded-lg border border-slate-200 px-2 py-1 text-xs outline-none focus:border-rose-300"
+              className="flex-1 rounded-lg border border-slate-200 px-2 py-1 text-xs outline-none focus:border-brand-soft"
             />
             <button
               onClick={sendComment}
               disabled={sending}
-              className="rounded-lg bg-rose-500 px-2 py-1 text-xs font-bold text-white disabled:opacity-40"
+              className="rounded-lg bg-brand px-2 py-1 text-xs font-bold text-white disabled:opacity-40"
             >
               등록
             </button>

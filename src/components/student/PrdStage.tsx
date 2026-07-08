@@ -132,7 +132,7 @@ export function PrdStage({
                     type="button"
                     onClick={() => toggleUser(opt)}
                     className={`rounded-full border px-3 py-1 text-xs font-bold ${
-                      prd.users.includes(opt) ? "border-rose-400 bg-rose-50 text-rose-700" : "border-slate-200 text-slate-500"
+                      prd.users.includes(opt) ? "border-brand-soft bg-brand/5 text-brand-deep" : "border-slate-200 text-slate-500"
                     }`}
                   >
                     {opt}
@@ -177,7 +177,7 @@ export function PrdStage({
                     type="button"
                     onClick={() => update("aiFeature", { ...prd.aiFeature, needed: v })}
                     className={`flex-1 rounded-lg border px-3 py-2 text-sm font-bold ${
-                      prd.aiFeature.needed === v ? "border-rose-400 bg-rose-50 text-rose-700" : "border-slate-200 text-slate-500"
+                      prd.aiFeature.needed === v ? "border-brand-soft bg-brand/5 text-brand-deep" : "border-slate-200 text-slate-500"
                     }`}
                   >
                     {v === "yes" ? "필요해요" : "불필요해요"}

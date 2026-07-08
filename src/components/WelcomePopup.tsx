@@ -29,7 +29,7 @@ export function WelcomePopup() {
         onClick={(e) => e.stopPropagation()}
       >
         {/* 상단 블링블링 헤더 */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-rose-500 via-fuchsia-500 to-violet-500 px-6 pb-8 pt-7 text-center text-white">
+        <div className="relative overflow-hidden bg-gradient-to-br from-brand via-fuchsia-500 to-violet-500 px-6 pb-8 pt-7 text-center text-white">
           {/* 반짝이는 별들 */}
           <span className="pointer-events-none absolute left-5 top-4 text-lg opacity-80 jp-float">✨</span>
           <span className="pointer-events-none absolute right-8 top-6 text-sm opacity-70 jp-float" style={{ animationDelay: "0.6s" }}>⭐</span>
@@ -54,7 +54,7 @@ export function WelcomePopup() {
         {/* 교장 인사 말씀 */}
         <div className="px-6 py-6">
           <div className="mb-3 flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-amber-200 to-rose-200 text-2xl">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-amber-200 to-brand/30 text-2xl">
               🎓
             </div>
             <div>
@@ -76,7 +76,7 @@ export function WelcomePopup() {
 
           <button
             onClick={close}
-            className="mt-5 w-full rounded-2xl bg-gradient-to-r from-rose-500 to-violet-500 px-4 py-3 font-black text-white shadow-lg shadow-rose-200 transition hover:brightness-110"
+            className="mt-5 w-full rounded-2xl bg-gradient-to-r from-brand to-violet-500 px-4 py-3 font-black text-white shadow-lg shadow-brand/30 transition hover:brightness-110"
           >
             연구소 입장하기 🚀
           </button>

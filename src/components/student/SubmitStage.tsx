@@ -159,11 +159,11 @@ function SubmitProgress({ progress, phase }: { progress: number; phase: string }
         <p className="mt-1 text-sm text-slate-500">{phase}</p>
         <div className="mt-4 h-3 w-full overflow-hidden rounded-full bg-slate-200">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-rose-400 to-violet-500 transition-all duration-300"
+            className="h-full rounded-full bg-gradient-to-r from-brand-soft to-violet-500 transition-all duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>
-        <p className="mt-2 text-lg font-black text-rose-500">{progress}%</p>
+        <p className="mt-2 text-lg font-black text-brand">{progress}%</p>
       </Card>
     </div>
   );

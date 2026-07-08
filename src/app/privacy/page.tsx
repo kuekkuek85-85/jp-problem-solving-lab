@@ -8,7 +8,7 @@ export const metadata = {
 export default function PrivacyPage() {
   return (
     <main className="mx-auto w-full max-w-2xl flex-1 px-5 py-10">
-      <Link href="/" className="text-sm font-bold text-rose-500 hover:underline">
+      <Link href="/" className="text-sm font-bold text-brand hover:underline">
         ← 처음으로
       </Link>
       <h1 className="mt-4 text-2xl font-black text-slate-900">개인정보처리방침</h1>
@@ -71,7 +71,7 @@ export default function PrivacyPage() {
         </section>
 
         <p className="pt-4">
-          <Link href="/terms" className="font-bold text-rose-500 hover:underline">
+          <Link href="/terms" className="font-bold text-brand hover:underline">
             이용약관 보기 →
           </Link>
         </p>

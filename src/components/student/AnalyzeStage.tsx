@@ -62,7 +62,7 @@ export function AnalyzeStage({
   return (
     <main className="mx-auto max-w-2xl px-4 py-6">
       <Card>
-        <div className="mb-4 rounded-lg bg-rose-50 px-3 py-2 text-sm font-bold text-rose-700">
+        <div className="mb-4 rounded-lg bg-brand/5 px-3 py-2 text-sm font-bold text-brand-deep">
           맡은 의뢰: {project.requestTitle}
         </div>
         <h2 className="mb-1 text-lg font-black">의뢰 분석 — 문제 정의</h2>

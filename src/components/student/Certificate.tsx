@@ -6,8 +6,8 @@ export function Certificate({ student, projects }: { student: StudentDoc; projec
   const today = new Date().toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric" });
 
   return (
-    <div className="mx-auto aspect-[297/210] w-full max-w-3xl border-8 border-double border-rose-300 bg-white p-10 text-center shadow-lg print:aspect-auto print:h-screen print:w-screen print:border-[12px]">
-      <div className="text-sm font-bold tracking-widest text-rose-400">{LAB_NAME}</div>
+    <div className="mx-auto aspect-[297/210] w-full max-w-3xl border-8 border-double border-brand-soft bg-white p-10 text-center shadow-lg print:aspect-auto print:h-screen print:w-screen print:border-[12px]">
+      <div className="text-sm font-bold tracking-widest text-brand-soft">{LAB_NAME}</div>
       <h1 className="mt-2 text-3xl font-black text-slate-900">수료증</h1>
 
       <p className="mt-8 text-lg">
@@ -36,7 +36,7 @@ export function Certificate({ student, projects }: { student: StudentDoc; projec
           <span
             key={n}
             className={`flex h-9 w-9 items-center justify-center rounded-full text-xs font-black ${
-              student.stamps.includes(n) ? "bg-rose-400 text-white" : "bg-slate-100 text-slate-300"
+              student.stamps.includes(n) ? "bg-brand-soft text-white" : "bg-slate-100 text-slate-300"
             }`}
             title={STAMP_LABELS[n]}
           >

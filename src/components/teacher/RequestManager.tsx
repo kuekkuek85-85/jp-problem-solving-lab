@@ -159,7 +159,7 @@ function RequestDetailModal({
                   <p className="font-bold text-slate-700">{s.studentName}</p>
                   <p className="text-xs text-slate-600">{s.oneLiner}</p>
                   {s.url && (
-                    <a href={s.url} target="_blank" rel="noreferrer" className="text-xs font-bold text-rose-500 underline">
+                    <a href={s.url} target="_blank" rel="noreferrer" className="text-xs font-bold text-brand underline">
                       산출물 열어보기 →
                     </a>
                   )}
@@ -194,7 +194,7 @@ function NewRequestForm({
             <button
               key={lv}
               onClick={() => setDifficulty(lv)}
-              className={`rounded-full border px-2 py-1 text-xs ${difficulty === lv ? "border-rose-400" : "border-slate-200"}`}
+              className={`rounded-full border px-2 py-1 text-xs ${difficulty === lv ? "border-brand-soft" : "border-slate-200"}`}
             >
               <LevelBadge level={lv} />
             </button>

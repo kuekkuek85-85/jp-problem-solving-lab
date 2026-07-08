@@ -70,7 +70,7 @@ export function HelpWidget({
                 key={key}
                 onClick={() => setCategory(key as HelpCategory)}
                 className={`rounded-full px-3 py-1 text-xs font-bold ${
-                  category === key ? "bg-rose-500 text-white" : "bg-slate-100 text-slate-600"
+                  category === key ? "bg-brand text-white" : "bg-slate-100 text-slate-600"
                 }`}
               >
                 {label}
@@ -81,7 +81,7 @@ export function HelpWidget({
             value={memo}
             onChange={(e) => setMemo(e.target.value)}
             placeholder="한 줄로 알려주세요 (선택)"
-            className="mb-3 w-full rounded-lg border border-slate-300 p-2 text-sm outline-none focus:border-rose-400"
+            className="mb-3 w-full rounded-lg border border-slate-300 p-2 text-sm outline-none focus:border-brand-soft"
             rows={2}
           />
           <div className="flex gap-2">

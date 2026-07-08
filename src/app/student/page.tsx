@@ -4,7 +4,7 @@ import { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { loadStudentAuth } from "@/lib/local-auth";
 import { LAB_ID } from "@/lib/constants";
-import { useHelpRequests, useMyProjects, usePresentation, useProject, useRequests, useSession, useStudent, useStudents } from "@/lib/hooks";
+import { useHelpRequests, useMyProjects, usePresentation, useProject, useRequests, useSession, useStudent, useStudents, useSubmissions } from "@/lib/hooks";
 import type { Stage } from "@/lib/types";
 import { Spinner } from "@/components/ui";
 import { StageHeader } from "@/components/student/StageHeader";
@@ -44,6 +44,7 @@ export default function StudentPage() {
   const { project } = useProject(sessionCode, studentId, student?.activeProjectId ?? null);
   const helpRequests = useHelpRequests(sessionCode);
   const presentation = usePresentation(sessionCode);
+  const submissions = useSubmissions(sessionCode);
 
   if (!studentId) return null;
   if (sessionLoading || studentLoading || !session || !student) {
@@ -104,6 +105,7 @@ export default function StudentPage() {
           requests={requests}
           solverNameLookup={solverNameLookup}
           myProjects={myProjects}
+          submissions={submissions}
         />
       </div>
     );

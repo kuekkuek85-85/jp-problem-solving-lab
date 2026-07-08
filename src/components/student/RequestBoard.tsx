@@ -5,7 +5,7 @@ import { arrayUnion, collection, doc, setDoc, updateDoc } from "firebase/firesto
 import { db } from "@/lib/firebase/client";
 import { projectsPath, requestPath, studentPath } from "@/lib/paths";
 import { emptyProject } from "@/lib/factories";
-import type { ProjectDoc, RequestDoc, StudentDoc } from "@/lib/types";
+import type { ProjectDoc, RequestDoc, StudentDoc, SubmissionSummaryDoc } from "@/lib/types";
 import { Button, Card, Input, LevelBadge, Textarea } from "@/components/ui";
 
 type SortMode = "recommended" | "difficulty" | "fewest";
@@ -16,12 +16,14 @@ export function RequestBoard({
   requests,
   solverNameLookup,
   myProjects,
+  submissions,
 }: {
   sessionCode: string;
   student: StudentDoc;
   requests: RequestDoc[];
   solverNameLookup: Record<string, string>;
   myProjects: ProjectDoc[];
+  submissions: SubmissionSummaryDoc[];
 }) {
   const [tab, setTab] = useState<"board" | "mine">("board");
   const [sort, setSort] = useState<SortMode>("recommended");
@@ -41,6 +43,16 @@ export function RequestBoard({
     }
     return sorted;
   }, [requests, sort, student.level]);
+
+  const submittersByRequest = useMemo(() => {
+    const m = new Map<string, string[]>();
+    for (const s of submissions) {
+      const list = m.get(s.requestId) ?? [];
+      list.push(s.studentName);
+      m.set(s.requestId, list);
+    }
+    return m;
+  }, [submissions]);
 
   const inProgress = myProjects.filter((p) => p.currentStep !== "done");
   const completed = myProjects.filter((p) => p.currentStep === "done");
@@ -78,13 +90,13 @@ export function RequestBoard({
         <div className="inline-flex rounded-full bg-slate-200 p-1 text-xs font-bold">
           <button
             onClick={() => setTab("board")}
-            className={`rounded-full px-4 py-1.5 ${tab === "board" ? "bg-white text-rose-600 shadow" : "text-slate-500"}`}
+            className={`rounded-full px-4 py-1.5 ${tab === "board" ? "bg-white text-brand-deep shadow" : "text-slate-500"}`}
           >
             의뢰 게시판
           </button>
           <button
             onClick={() => setTab("mine")}
-            className={`rounded-full px-4 py-1.5 ${tab === "mine" ? "bg-white text-rose-600 shadow" : "text-slate-500"}`}
+            className={`rounded-full px-4 py-1.5 ${tab === "mine" ? "bg-white text-brand-deep shadow" : "text-slate-500"}`}
           >
             내 해결안 ({myProjects.length})
           </button>
@@ -121,6 +133,7 @@ export function RequestBoard({
               request={r}
               student={student}
               solverNameLookup={solverNameLookup}
+              submitterNames={submittersByRequest.get(r.id) ?? []}
               onClaim={() => claim(r)}
               claiming={claiming === r.id}
               disabled={!!student.activeProjectId}
@@ -150,7 +163,7 @@ export function RequestBoard({
                   <p className="font-bold">{p.requestTitle}</p>
                   <p className="mt-1 text-xs text-slate-500">{p.submission.oneLiner}</p>
                   {p.submission.url && (
-                    <a href={p.submission.url} target="_blank" className="mt-1 block text-xs text-rose-500 underline">
+                    <a href={p.submission.url} target="_blank" className="mt-1 block text-xs text-brand underline">
                       산출물 보러가기
                     </a>
                   )}
@@ -176,6 +189,7 @@ function RequestCard({
   request,
   student,
   solverNameLookup,
+  submitterNames,
   onClaim,
   claiming,
   disabled,
@@ -183,18 +197,22 @@ function RequestCard({
   request: RequestDoc;
   student: StudentDoc;
   solverNameLookup: Record<string, string>;
+  submitterNames: string[];
   onClaim: () => void;
   claiming: boolean;
   disabled: boolean;
 }) {
   const recommended = request.difficulty === student.level;
+  const [showWho, setShowWho] = useState(false);
+  const solverNames = request.activeSolverIds.map((id) => solverNameLookup[id] ?? "연구원");
+
   return (
-    <Card className={recommended ? "ring-2 ring-rose-200" : ""}>
+    <Card className={recommended ? "ring-2 ring-brand-soft/40" : ""}>
       <div className="flex items-start justify-between gap-2">
         <div>
           <div className="flex items-center gap-2">
             <h3 className="font-black text-slate-900">{request.title}</h3>
-            {recommended && <span className="text-xs font-bold text-rose-500">나에게 딱!</span>}
+            {recommended && <span className="text-xs font-bold text-brand">나에게 딱!</span>}
           </div>
           <p className="mt-1 text-sm text-slate-500">{request.summary}</p>
         </div>
@@ -205,20 +223,89 @@ function RequestCard({
         <span className="rounded-full bg-sky-100 px-2 py-0.5 font-bold text-sky-700">
           {request.source === "official" ? "공식 의뢰" : "승인된 제보"}
         </span>
-        <span>연구 중 {request.activeSolverIds.length}명</span>
-        <span>제출 {request.submissionCount}건</span>
+        <button
+          onClick={() => setShowWho(true)}
+          className="rounded-full bg-slate-100 px-2 py-0.5 font-bold text-slate-600 hover:bg-slate-200"
+        >
+          🔬 연구 중 {request.activeSolverIds.length}명
+        </button>
+        <button
+          onClick={() => setShowWho(true)}
+          className="rounded-full bg-emerald-100 px-2 py-0.5 font-bold text-emerald-700 hover:bg-emerald-200"
+        >
+          🏁 제출 {request.submissionCount}건
+        </button>
       </div>
-
-      {request.activeSolverIds.length > 0 && (
-        <p className="mt-1.5 truncate text-xs text-slate-400">
-          {request.activeSolverIds.map((id) => solverNameLookup[id] ?? "연구원").join(", ")}
-        </p>
-      )}
 
       <Button className="mt-3 w-full" disabled={disabled || claiming} onClick={onClaim}>
         {claiming ? "맡는 중..." : "이 의뢰 맡기"}
       </Button>
+
+      {showWho && (
+        <WhoModal
+          title={request.title}
+          solverNames={solverNames}
+          submitterNames={submitterNames}
+          onClose={() => setShowWho(false)}
+        />
+      )}
     </Card>
+  );
+}
+
+// 학생용: 어떤 연구원이 도전 중/완료했는지 "이름"만 보여준다(내용·산출물은 비공개, 경쟁심 유발).
+function WhoModal({
+  title,
+  solverNames,
+  submitterNames,
+  onClose,
+}: {
+  title: string;
+  solverNames: string[];
+  submitterNames: string[];
+  onClose: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 px-4" onClick={onClose}>
+      <Card className="w-full max-w-sm" >
+        <div onClick={(e) => e.stopPropagation()}>
+          <div className="mb-3 flex items-center justify-between">
+            <h3 className="font-black text-slate-900">{title}</h3>
+            <button onClick={onClose} className="text-slate-400 hover:text-slate-600">✕</button>
+          </div>
+
+          <div className="mb-4">
+            <p className="mb-1.5 text-sm font-bold text-slate-700">🔥 지금 도전 중 ({solverNames.length}명)</p>
+            {solverNames.length === 0 ? (
+              <p className="text-sm text-slate-400">아직 아무도 안 맡았어요. 1등으로 도전해볼까요?</p>
+            ) : (
+              <div className="flex flex-wrap gap-1.5">
+                {solverNames.map((n, i) => (
+                  <span key={i} className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-700">
+                    {n}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div>
+            <p className="mb-1.5 text-sm font-bold text-emerald-700">🏆 벌써 해결한 연구원 ({submitterNames.length}명)</p>
+            {submitterNames.length === 0 ? (
+              <p className="text-sm text-slate-400">아직 해결한 사람이 없어요!</p>
+            ) : (
+              <div className="flex flex-wrap gap-1.5">
+                {submitterNames.map((n, i) => (
+                  <span key={i} className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-bold text-emerald-700">
+                    {n} ✅
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </Card>
+    </div>
   );
 }
 

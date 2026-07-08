@@ -118,7 +118,7 @@ function Dashboard({ sessionCode, pin }: { sessionCode: string; pin: string }) {
       <div className="mx-auto max-w-6xl px-4 py-4">
         <div className="mb-4 flex items-center justify-between">
           <div className="text-sm text-slate-500">연구원 {students.length}명</div>
-          <a href="/gallery" target="_blank" className="text-xs font-bold text-rose-500 underline">
+          <a href="/gallery" target="_blank" className="text-xs font-bold text-brand underline">
             참관자용 해결 보고회 링크 →
           </a>
         </div>
@@ -137,7 +137,7 @@ function Dashboard({ sessionCode, pin }: { sessionCode: string; pin: string }) {
             브리핑 슬라이드
           </TabButton>
           <TabButton active={tab === "present"} onClick={() => setTab("present")}>
-            발표회 {presentation?.activeSubmissionId && <span className="ml-1 text-rose-500">🎤</span>}
+            발표회 {presentation?.activeSubmissionId && <span className="ml-1 text-brand">🎤</span>}
           </TabButton>
           <TabButton active={tab === "reflections"} onClick={() => setTab("reflections")}>
             성찰 후기 ({reflections.length})
@@ -159,7 +159,7 @@ function TabButton({ active, onClick, children }: { active: boolean; onClick: ()
   return (
     <button
       onClick={onClick}
-      className={`rounded-full px-4 py-2 transition ${active ? "bg-rose-500 text-white" : "bg-white text-slate-600 border border-slate-200"}`}
+      className={`rounded-full px-4 py-2 transition ${active ? "bg-brand text-white" : "bg-white text-slate-600 border border-slate-200"}`}
     >
       {children}
     </button>

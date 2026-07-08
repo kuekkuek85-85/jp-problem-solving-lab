@@ -96,7 +96,7 @@ export function RosterGrid({
 
                 <div className="mt-2 flex gap-1">
                   {[1, 2, 3, 4, 5].map((n) => (
-                    <span key={n} className={`h-1.5 flex-1 rounded-full ${s.stamps.includes(n) ? "bg-rose-400" : "bg-slate-200"}`} />
+                    <span key={n} className={`h-1.5 flex-1 rounded-full ${s.stamps.includes(n) ? "bg-brand-soft" : "bg-slate-200"}`} />
                   ))}
                 </div>
               </Card>
@@ -151,7 +151,7 @@ function StudentDetailModal({
               key={lv}
               onClick={() => setLevel(lv)}
               className={`rounded-full border px-2 py-1 text-xs font-bold ${
-                student.level === lv ? "border-rose-400 bg-rose-50 text-rose-600" : "border-slate-200 text-slate-500"
+                student.level === lv ? "border-brand-soft bg-brand/5 text-brand-deep" : "border-slate-200 text-slate-500"
               }`}
             >
               <LevelBadge level={lv} />
@@ -184,7 +184,7 @@ function StudentDetailModal({
             )}
             {project.submission.url && (
               <Section title="제출된 산출물">
-                <a href={project.submission.url} target="_blank" className="text-rose-500 underline">
+                <a href={project.submission.url} target="_blank" className="text-brand underline">
                   {project.submission.url}
                 </a>
                 <p>{project.submission.oneLiner}</p>

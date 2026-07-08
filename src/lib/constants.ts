@@ -168,8 +168,8 @@ export const SEED_SLIDES: string[] = [
 
   `# 🧑‍💻 캔바 코드로 만들기 ①
 **먼저 캔바에 로그인해요 (Pro 무료 사용!)**
-- 선생님이 준 **초대 링크**로 로그인하면 캔바 **Pro**를 쓸 수 있어요.
-- 초대 링크: https://www.canva.com/brand/join?token=SzX1bRZsMAJe5nNeK4T89g&brandingVariant=edu&referrer=team-invite
+- 아래 링크로 로그인하면 캔바 **Pro**를 쓸 수 있어요.
+- 👉 [캔바 Pro 초대 링크 열기](https://www.canva.com/brand/join?token=SzX1bRZsMAJe5nNeK4T89g&brandingVariant=edu&referrer=team-invite)
 - (그냥 가입해도 되지만, 이 링크로 들어와야 Pro 기능이 열려요.)
 
 **그다음 프롬프트를 붙여넣어요**

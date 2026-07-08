@@ -22,15 +22,29 @@ export function LectureOverlay({ session }: { session: SessionDoc }) {
   );
 }
 
-// `**굵게**` 인라인 처리 + 긴 URL 자동 줄바꿈
+// `**굵게**`, `[텍스트](url)` 링크, 그리고 raw URL 자동 링크 처리
 function renderInline(text: string) {
-  return text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
-    part.startsWith("**") && part.endsWith("**") ? (
-      <strong key={i}>{part.slice(2, -2)}</strong>
-    ) : (
-      <span key={i}>{part}</span>
-    )
-  );
+  const pattern = /(\*\*[^*]+\*\*|\[[^\]]+\]\([^)]+\)|https?:\/\/[^\s]+)/g;
+  return text.split(pattern).map((part, i) => {
+    if (!part) return null;
+    if (part.startsWith("**") && part.endsWith("**")) return <strong key={i}>{part.slice(2, -2)}</strong>;
+    const md = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+    if (md) {
+      return (
+        <a key={i} href={md[2]} target="_blank" rel="noreferrer" className="font-bold text-rose-300 underline decoration-rose-300 underline-offset-2 hover:text-rose-200">
+          {md[1]}
+        </a>
+      );
+    }
+    if (/^https?:\/\//.test(part)) {
+      return (
+        <a key={i} href={part} target="_blank" rel="noreferrer" className="text-rose-300 underline underline-offset-2 hover:text-rose-200">
+          {part}
+        </a>
+      );
+    }
+    return <span key={i}>{part}</span>;
+  });
 }
 
 function MarkdownLite({ text }: { text: string }) {

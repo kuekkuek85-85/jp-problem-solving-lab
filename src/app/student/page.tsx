@@ -2,6 +2,9 @@
 
 import { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase/client";
+import { studentPath } from "@/lib/paths";
 import { loadStudentAuth } from "@/lib/local-auth";
 import { LAB_ID } from "@/lib/constants";
 import { useHelpRequests, useMyProjects, usePresentation, useProject, useRequests, useSession, useStudent, useStudents, useSubmissions } from "@/lib/hooks";
@@ -57,6 +60,16 @@ export default function StudentPage() {
 
   const solverNameLookup = Object.fromEntries(students.map((s) => [s.studentId, s.name]));
   const myOpenHelp = helpRequests.find((h) => h.requesterId === studentId && h.status !== "resolved");
+
+  // 언제든 의뢰 목록으로 돌아가기 — 진행 중이던 의뢰는 "내 해결안 > 진행 중"에서 이어서 할 수 있다.
+  async function goToBoard() {
+    if (!studentId) return;
+    await updateDoc(doc(db, studentPath(sessionCode, studentId)), {
+      activeRequestId: null,
+      activeProjectId: null,
+      activeStep: null,
+    });
+  }
 
   // 1) 윤리 서약 전에는 항상 온보딩(서약을 마치면 바로 활동에 들어간다)
   if (!student.ethicsPledge.checkedAll) {
@@ -116,7 +129,7 @@ export default function StudentPage() {
 
   return (
     <div>
-      <StageHeader student={student} stage={stage} requestTitle={project.requestTitle} />
+      <StageHeader student={student} stage={stage} requestTitle={project.requestTitle} onGoToBoard={goToBoard} />
 
       {stage === "analyze" && <AnalyzeStage sessionCode={sessionCode} student={student} project={project} />}
       {stage === "prd" && <PrdStage sessionCode={sessionCode} student={student} project={project} />}

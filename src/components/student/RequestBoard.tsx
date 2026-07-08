@@ -5,7 +5,7 @@ import { arrayUnion, collection, doc, setDoc, updateDoc } from "firebase/firesto
 import { db } from "@/lib/firebase/client";
 import { projectsPath, requestPath, studentPath } from "@/lib/paths";
 import { emptyProject } from "@/lib/factories";
-import type { ProjectDoc, RequestDoc, StudentDoc, SubmissionSummaryDoc } from "@/lib/types";
+import { STAGE_LABELS, type ProjectDoc, type RequestDoc, type StudentDoc, type SubmissionSummaryDoc } from "@/lib/types";
 import { Button, Card, Input, LevelBadge, Textarea } from "@/components/ui";
 
 type SortMode = "recommended" | "difficulty" | "fewest";
@@ -56,6 +56,16 @@ export function RequestBoard({
 
   const inProgress = myProjects.filter((p) => p.currentStep !== "done");
   const completed = myProjects.filter((p) => p.currentStep === "done");
+
+  // 의뢰 목록으로 나왔다가 다시 진행 중이던 의뢰를 이어서 하기.
+  async function resume(project: ProjectDoc) {
+    if (student.activeProjectId) return;
+    await updateDoc(doc(db, studentPath(sessionCode, student.studentId)), {
+      activeRequestId: project.requestId,
+      activeProjectId: project.id,
+      activeStep: project.currentStep,
+    });
+  }
 
   async function claim(request: RequestDoc) {
     if (student.activeProjectId) return;
@@ -149,7 +159,14 @@ export function RequestBoard({
               {inProgress.map((p) => (
                 <Card key={p.id}>
                   <p className="font-bold">{p.requestTitle}</p>
-                  <p className="mt-1 text-xs text-slate-400">진행 단계: {p.currentStep}</p>
+                  <p className="mt-1 text-xs text-slate-400">진행 단계: {STAGE_LABELS[p.currentStep === "done" ? "submit" : p.currentStep]}</p>
+                  <Button
+                    className="mt-3 w-full"
+                    disabled={!!student.activeProjectId}
+                    onClick={() => resume(p)}
+                  >
+                    이어서 하기
+                  </Button>
                 </Card>
               ))}
             </div>

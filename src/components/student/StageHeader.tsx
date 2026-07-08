@@ -7,15 +7,25 @@ export function StageHeader({
   student,
   stage,
   requestTitle,
+  onGoToBoard,
 }: {
   student: StudentDoc;
   stage: Stage;
   requestTitle?: string | null;
+  onGoToBoard?: () => void;
 }) {
   return (
     <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur px-4 py-3">
       <div className="mx-auto flex max-w-4xl items-center justify-between gap-3">
-        <div>
+        {onGoToBoard && (
+          <button
+            onClick={onGoToBoard}
+            className="shrink-0 rounded-full border-2 border-ink-deep bg-white px-3 py-1.5 text-xs font-bold text-ink-deep hover:bg-slate-50"
+          >
+            ← 의뢰 목록
+          </button>
+        )}
+        <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <span className="font-black text-slate-900">{student.name}</span>
             <LevelBadge level={student.level} />

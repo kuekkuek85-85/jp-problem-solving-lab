@@ -23,7 +23,6 @@ export function SubmitStage({
   const [progress, setProgress] = useState(0);
   const [phase, setPhase] = useState("");
   const [celebrate, setCelebrate] = useState(false);
-  const [deepDiveLoading, setDeepDiveLoading] = useState(false);
 
   const complete = url.trim() && oneLiner.trim();
   const willCompleteAllStamps = !student.stamps.includes(5) && [1, 2, 3, 4].every((n) => student.stamps.includes(n));
@@ -94,17 +93,13 @@ export function SubmitStage({
     }
   }
 
-  async function requestDeepDive() {
-    setDeepDiveLoading(true);
-    try {
-      await fetch("/api/deep-dive", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionCode, studentId: student.studentId, projectId: project.id }),
-      });
-    } finally {
-      setDeepDiveLoading(false);
-    }
+  async function goToBoard() {
+    // 새 의뢰를 맡을 수 있도록 활성 프로젝트를 정리하면 자동으로 의뢰 게시판으로 전환된다.
+    await updateDoc(doc(db, studentPath(sessionCode, student.studentId)), {
+      activeRequestId: null,
+      activeProjectId: null,
+      activeStep: null,
+    });
   }
 
   if (project.currentStep === "done") {
@@ -115,20 +110,10 @@ export function SubmitStage({
           <h2 className="mt-3 text-lg font-black">해결안을 제출했어요!</h2>
           <p className="mt-1 text-sm text-slate-500">{project.requestTitle} 의뢰가 해결됐습니다.</p>
 
-          {project.deepDive.suggestions.length === 0 ? (
-            <Button variant="secondary" className="mt-5 w-full" onClick={requestDeepDive} disabled={deepDiveLoading}>
-              {deepDiveLoading ? "생각하는 중..." : "🚀 심화 도전 과제 받아보기"}
-            </Button>
-          ) : (
-            <div className="mt-5 space-y-2 text-left">
-              <p className="text-xs font-bold text-slate-400">🚀 심화 도전 제안</p>
-              {project.deepDive.suggestions.map((s, i) => (
-                <p key={i} className="rounded-lg bg-teal-50 p-2 text-sm text-teal-800">{s}</p>
-              ))}
-            </div>
-          )}
-
-          <p className="mt-6 text-sm text-slate-500">의뢰 게시판에서 새 의뢰를 맡거나, 다음 브리핑을 기다려주세요.</p>
+          <Button className="mt-6 w-full" onClick={goToBoard}>
+            의뢰 게시판으로 이동하기
+          </Button>
+          <p className="mt-3 text-sm text-slate-500">게시판에서 새 의뢰를 맡거나, 다음 브리핑을 기다려주세요.</p>
         </Card>
       </main>
     );

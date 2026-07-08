@@ -109,7 +109,8 @@ export default function StudentPage() {
     );
   }
 
-  const stage = (project.currentStep === "done" ? "board" : project.currentStep) as Stage;
+  // 제출 완료(done) 직후에도 activeProjectId가 정리되기 전까지는 제출 화면(완료 상태)을 유지한다.
+  const stage = (project.currentStep === "done" ? "submit" : project.currentStep) as Stage;
 
   return (
     <div>

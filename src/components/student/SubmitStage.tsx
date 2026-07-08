@@ -20,6 +20,8 @@ export function SubmitStage({
   const [url, setUrl] = useState(project.submission.url ?? "");
   const [oneLiner, setOneLiner] = useState(project.submission.oneLiner ?? "");
   const [saving, setSaving] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [phase, setPhase] = useState("");
   const [celebrate, setCelebrate] = useState(false);
   const [deepDiveLoading, setDeepDiveLoading] = useState(false);
 
@@ -29,6 +31,9 @@ export function SubmitStage({
   async function submit() {
     if (!complete) return;
     setSaving(true);
+    setProgress(8);
+    setPhase("해결안을 저장하고 있어요...");
+    let timer: ReturnType<typeof setInterval> | null = null;
     try {
       const now = Date.now();
       await updateDoc(doc(db, projectPath(sessionCode, student.studentId, project.id)), {
@@ -37,6 +42,9 @@ export function SubmitStage({
         completedAt: now,
       });
       // 제출 내용 기반 발표 슬라이드 자동 생성(실패해도 제출은 완료 — 발표 화면에서 재생성 가능)
+      setProgress(25);
+      setPhase("발표 슬라이드를 만들고 있어요...");
+      timer = setInterval(() => setProgress((p) => Math.min(p + 3, 90)), 250);
       let slidesHtml: string | null = project.submission.slidesHtml ?? null;
       try {
         const res = await fetch("/api/slides-gen", {
@@ -49,6 +57,12 @@ export function SubmitStage({
       } catch {
         // 무시 — 발표 슬라이드는 나중에 생성 가능
       }
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+      setProgress(93);
+      setPhase("마무리하고 있어요...");
       await updateDoc(doc(db, studentPath(sessionCode, student.studentId)), {
         stamps: arrayUnion(5),
         activeRequestId: null,
@@ -72,8 +86,10 @@ export function SubmitStage({
         badges: student.badges,
         submittedAt: now,
       });
+      setProgress(100);
       setCelebrate(true);
     } finally {
+      if (timer) clearInterval(timer);
       setSaving(false);
     }
   }
@@ -140,9 +156,30 @@ export function SubmitStage({
         </Button>
       </Card>
 
+      {saving && <SubmitProgress progress={progress} phase={phase} />}
+
       {celebrate && (
         <StampCelebration stamp={5} allDone={willCompleteAllStamps} onDone={() => setCelebrate(false)} />
       )}
     </main>
+  );
+}
+
+function SubmitProgress({ progress, phase }: { progress: number; phase: string }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
+      <Card className="w-full max-w-sm text-center">
+        <div className="text-4xl">🚀</div>
+        <p className="mt-3 font-black text-slate-800">해결안 제출 중</p>
+        <p className="mt-1 text-sm text-slate-500">{phase}</p>
+        <div className="mt-4 h-3 w-full overflow-hidden rounded-full bg-slate-200">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-rose-400 to-violet-500 transition-all duration-300"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+        <p className="mt-2 text-lg font-black text-rose-500">{progress}%</p>
+      </Card>
+    </div>
   );
 }

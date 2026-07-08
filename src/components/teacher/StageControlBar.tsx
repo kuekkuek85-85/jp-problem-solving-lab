@@ -11,11 +11,13 @@ export function StageControlBar({
   pin,
   session,
   onCloseLab,
+  onReset,
 }: {
   sessionCode: string;
   pin: string;
   session: SessionDoc;
   onCloseLab: () => void;
+  onReset: () => void;
 }) {
   const [busy, setBusy] = useState(false);
 
@@ -56,6 +58,9 @@ export function StageControlBar({
               🏁 연구소 마감
             </Button>
           )}
+          <Button variant="secondary" onClick={onReset} className="!px-3 !py-1.5 text-xs !text-red-600">
+            🗑️ 데이터 초기화
+          </Button>
         </div>
       </div>
     </div>

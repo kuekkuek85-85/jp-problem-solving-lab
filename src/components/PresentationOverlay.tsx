@@ -114,7 +114,7 @@ export function PresentationOverlay({
         <div className="flex flex-1 items-center justify-center overflow-auto rounded-2xl bg-white p-2 text-slate-900">
           {slides.length > 0 ? (
             <div
-              className="presentation-slide w-full max-w-3xl"
+              className="presentation-slide mx-auto w-full max-w-4xl"
               dangerouslySetInnerHTML={{ __html: slides[idx] }}
             />
           ) : (

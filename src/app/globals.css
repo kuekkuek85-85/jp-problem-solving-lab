@@ -35,3 +35,50 @@ body {
 .print-only {
   display: none;
 }
+
+/* 발표 슬라이드: Gemini가 생성한 HTML(인라인 style)을 컨테이너에 맞게 강제 조정 */
+.presentation-slide {
+  width: 100%;
+}
+.presentation-slide section {
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: clamp(1rem, 4%, 2.5rem) !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+  border-radius: 1rem;
+}
+.presentation-slide,
+.presentation-slide * {
+  max-width: 100% !important;
+  overflow-wrap: break-word !important;
+  word-break: keep-all;
+}
+.presentation-slide h1 {
+  font-size: clamp(1.4rem, 4.5vw, 2.6rem) !important;
+  line-height: 1.2 !important;
+  margin: 0 0 0.5em !important;
+}
+.presentation-slide h2 {
+  font-size: clamp(1.1rem, 3.2vw, 1.9rem) !important;
+  line-height: 1.25 !important;
+  margin: 0 0 0.4em !important;
+}
+.presentation-slide h3 {
+  font-size: clamp(1rem, 2.6vw, 1.5rem) !important;
+}
+.presentation-slide p,
+.presentation-slide li,
+.presentation-slide span,
+.presentation-slide a {
+  font-size: clamp(0.9rem, 2.2vw, 1.25rem) !important;
+  line-height: 1.5 !important;
+}
+.presentation-slide img,
+.presentation-slide svg {
+  max-width: 100% !important;
+  height: auto !important;
+}

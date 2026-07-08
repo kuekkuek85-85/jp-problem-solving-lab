@@ -4,9 +4,15 @@ import { generateText } from "@/lib/gemini";
 
 const SYSTEM_PROMPT = `너는 중학생의 발표 슬라이드를 만들어주는 디자이너야.
 설계도와 완성 소개를 바탕으로 3장짜리 발표 슬라이드를 HTML로 만들어.
-1장: 문제, 2장: 해결 방법, 3장: 시연 링크 안내.
-전체를 <section class="slide">...</section> 3개로 구성하고 인라인 style만 사용해(밝고 경쾌한 색感, 큰 글씨).
-<html>, <head>, <body> 태그 없이 <section> 3개만 출력해. 다른 설명은 절대 추가하지 마.`;
+1장: 문제, 2장: 해결 방법, 3장: 시연 링크 안내. 각 장에는 실제 내용을 채워(빈 항목 금지).
+
+크기 규칙(매우 중요):
+- 각 <section>은 화면 컨테이너에 꽉 맞아야 해. width, height에 px 같은 고정 픽셀 값을 절대 쓰지 마.
+- 각 <section>의 style에는 width:100%; box-sizing:border-box; 를 반드시 포함해.
+- 폰트 크기는 rem 또는 % 등 상대 단위만 사용하고, 제목도 너무 크지 않게(2rem 이하 권장). 내용이 화면 밖으로 넘치지 않게 해.
+- 인라인 style만 사용(밝고 경쾌한 색감).
+
+<html>, <head>, <body> 태그 없이 <section class="slide">...</section> 3개만 출력해. 다른 설명은 절대 추가하지 마.`;
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));

@@ -7,6 +7,7 @@ import { projectsPath, requestPath, studentPath } from "@/lib/paths";
 import { emptyProject } from "@/lib/factories";
 import { STAGE_LABELS, type ProjectDoc, type RequestDoc, type StudentDoc, type SubmissionSummaryDoc } from "@/lib/types";
 import { Button, Card, Input, LevelBadge, Textarea } from "@/components/ui";
+import { HtmlArtifactButton } from "@/components/HtmlArtifact";
 
 type SortMode = "recommended" | "difficulty" | "fewest";
 
@@ -179,10 +180,20 @@ export function RequestBoard({
                 <Card key={p.id}>
                   <p className="font-bold">{p.requestTitle}</p>
                   <p className="mt-1 text-xs text-slate-500">{p.submission.oneLiner}</p>
-                  {p.submission.url && (
-                    <a href={p.submission.url} target="_blank" className="mt-1 block text-xs text-brand underline">
-                      산출물 보러가기
-                    </a>
+                  {p.submission.html ? (
+                    <div className="mt-1">
+                      <HtmlArtifactButton
+                        html={p.submission.html}
+                        title={p.submission.htmlFileName || p.requestTitle}
+                        label="산출물 보러가기"
+                      />
+                    </div>
+                  ) : (
+                    p.submission.url && (
+                      <a href={p.submission.url} target="_blank" className="mt-1 block text-xs text-brand underline">
+                        산출물 보러가기
+                      </a>
+                    )
                   )}
                 </Card>
               ))}

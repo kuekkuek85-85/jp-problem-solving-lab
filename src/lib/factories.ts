@@ -75,7 +75,7 @@ export function emptyProject(params: {
     grillme: { questions: [], answers: [], callCount: 0 },
     codingNotes: "",
     codingFirstDone: false,
-    submission: { url: "", oneLiner: "", slidesHtml: null, submittedAt: null },
+    submission: { url: "", html: null, htmlFileName: null, oneLiner: "", slidesHtml: null, submittedAt: null },
     deepDive: { suggestions: [], chosen: null, completed: false },
   };
 }

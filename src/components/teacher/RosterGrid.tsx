@@ -7,6 +7,7 @@ import { studentPath } from "@/lib/paths";
 import { useMyProjects, useProject, useSubmissions } from "@/lib/hooks";
 import { STAGE_LABELS, type HelpRequestDoc, type Level, type ProjectStep, type StudentDoc } from "@/lib/types";
 import { Card, LevelBadge, TrafficDot } from "@/components/ui";
+import { HtmlArtifactButton } from "@/components/HtmlArtifact";
 
 const STEP_STATUS: Record<Exclude<ProjectStep, "done">, string> = {
   analyze: "의뢰 분석 중",
@@ -182,13 +183,25 @@ function StudentDetailModal({
                 ))}
               </Section>
             )}
-            {project.submission.url && (
+            {project.submission.html ? (
               <Section title="제출된 산출물">
-                <a href={project.submission.url} target="_blank" className="text-brand underline">
-                  {project.submission.url}
-                </a>
+                <HtmlArtifactButton
+                  html={project.submission.html}
+                  title={project.submission.htmlFileName || project.requestTitle}
+                  label={`📄 ${project.submission.htmlFileName || "HTML 산출물"} 열어보기`}
+                  className="text-brand underline"
+                />
                 <p>{project.submission.oneLiner}</p>
               </Section>
+            ) : (
+              project.submission.url && (
+                <Section title="제출된 산출물">
+                  <a href={project.submission.url} target="_blank" className="text-brand underline">
+                    {project.submission.url}
+                  </a>
+                  <p>{project.submission.oneLiner}</p>
+                </Section>
+              )
             )}
           </div>
         ) : (

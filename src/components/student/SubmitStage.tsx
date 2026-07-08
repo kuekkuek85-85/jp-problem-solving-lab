@@ -6,7 +6,11 @@ import { db } from "@/lib/firebase/client";
 import { projectPath, requestPath, studentPath, submissionPath } from "@/lib/paths";
 import type { ProjectDoc, StudentDoc } from "@/lib/types";
 import { Button, Card, Input } from "@/components/ui";
+import { HtmlArtifactButton } from "@/components/HtmlArtifact";
 import { StampCelebration } from "./StampCelebration";
+
+// 업로드 HTML은 제출물 문서(발표 슬라이드와 함께)에 인라인 저장되므로 Firestore 1MB 한도를 고려해 넉넉히 제한.
+const MAX_HTML_BYTES = 600 * 1024;
 
 export function SubmitStage({
   sessionCode,
@@ -17,14 +21,41 @@ export function SubmitStage({
   student: StudentDoc;
   project: ProjectDoc;
 }) {
+  const [mode, setMode] = useState<"url" | "html">(project.submission.html ? "html" : "url");
   const [url, setUrl] = useState(project.submission.url ?? "");
+  const [html, setHtml] = useState(project.submission.html ?? "");
+  const [fileName, setFileName] = useState(project.submission.htmlFileName ?? "");
+  const [fileError, setFileError] = useState("");
   const [oneLiner, setOneLiner] = useState(project.submission.oneLiner ?? "");
   const [saving, setSaving] = useState(false);
   const [progress, setProgress] = useState(0);
   const [phase, setPhase] = useState("");
   const [celebrate, setCelebrate] = useState(false);
 
-  const complete = url.trim() && oneLiner.trim();
+  const artifactReady = mode === "url" ? !!url.trim() : !!html.trim();
+  const complete = artifactReady && oneLiner.trim();
+
+  function onPickFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // 같은 파일 다시 선택 가능하도록 초기화
+    if (!file) return;
+    setFileError("");
+    if (!/\.html?$/i.test(file.name)) {
+      setFileError("HTML 파일(.html)만 올릴 수 있어요.");
+      return;
+    }
+    if (file.size > MAX_HTML_BYTES) {
+      setFileError("파일이 너무 커요(최대 600KB). 이미지가 많다면 링크(URL)로 제출해주세요.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      setHtml(String(reader.result ?? ""));
+      setFileName(file.name);
+    };
+    reader.onerror = () => setFileError("파일을 읽지 못했어요. 다시 시도해주세요.");
+    reader.readAsText(file);
+  }
   const willCompleteAllStamps = !student.stamps.includes(5) && [1, 2, 3, 4].every((n) => student.stamps.includes(n));
 
   async function submit() {
@@ -35,8 +66,18 @@ export function SubmitStage({
     let timer: ReturnType<typeof setInterval> | null = null;
     try {
       const now = Date.now();
+      const submittedUrl = mode === "url" ? url.trim() : "";
+      const submittedHtml = mode === "html" ? html : null;
+      const submittedFileName = mode === "html" ? (fileName || "산출물.html") : null;
       await updateDoc(doc(db, projectPath(sessionCode, student.studentId, project.id)), {
-        submission: { url, oneLiner, slidesHtml: project.submission.slidesHtml ?? null, submittedAt: now },
+        submission: {
+          url: submittedUrl,
+          html: submittedHtml,
+          htmlFileName: submittedFileName,
+          oneLiner,
+          slidesHtml: project.submission.slidesHtml ?? null,
+          submittedAt: now,
+        },
         currentStep: "done",
         completedAt: now,
       });
@@ -80,7 +121,9 @@ export function SubmitStage({
         studentName: student.name,
         level: student.level,
         oneLiner,
-        url,
+        url: submittedUrl,
+        html: submittedHtml,
+        htmlFileName: submittedFileName,
         slidesHtml,
         badges: student.badges,
         submittedAt: now,
@@ -110,6 +153,23 @@ export function SubmitStage({
           <h2 className="mt-3 text-lg font-black">해결안을 제출했어요!</h2>
           <p className="mt-1 text-sm text-slate-500">{project.requestTitle} 의뢰가 해결됐습니다.</p>
 
+          {project.submission.html ? (
+            <div className="mt-4">
+              <HtmlArtifactButton
+                html={project.submission.html}
+                title={project.submission.htmlFileName || project.requestTitle}
+                label="📄 제출한 산출물 열어보기"
+                className="text-sm font-bold text-brand underline"
+              />
+            </div>
+          ) : (
+            project.submission.url && (
+              <a href={project.submission.url} target="_blank" rel="noreferrer" className="mt-4 inline-block text-sm font-bold text-brand underline">
+                🔗 제출한 산출물 열어보기
+              </a>
+            )
+          )}
+
           <Button className="mt-6 w-full" onClick={goToBoard}>
             의뢰 게시판으로 이동하기
           </Button>
@@ -123,12 +183,53 @@ export function SubmitStage({
     <main className="mx-auto max-w-xl px-4 py-6">
       <Card>
         <h2 className="mb-1 text-lg font-black">해결안 제출 · 배포</h2>
-        <p className="mb-5 text-sm text-slate-500">완성한 산출물의 링크를 제출해주세요.</p>
+        <p className="mb-5 text-sm text-slate-500">완성한 산출물의 링크를 내거나, HTML 파일을 올려주세요.</p>
 
         <div className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm font-bold text-slate-800">산출물 URL</label>
-            <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://..." />
+            <div className="mb-2 inline-flex rounded-full bg-slate-200 p-1 text-xs font-bold">
+              <button
+                type="button"
+                onClick={() => setMode("url")}
+                className={`rounded-full px-4 py-1.5 ${mode === "url" ? "bg-white text-brand-deep shadow" : "text-slate-500"}`}
+              >
+                🔗 링크(URL)
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode("html")}
+                className={`rounded-full px-4 py-1.5 ${mode === "html" ? "bg-white text-brand-deep shadow" : "text-slate-500"}`}
+              >
+                📄 HTML 파일
+              </button>
+            </div>
+
+            {mode === "url" ? (
+              <div>
+                <label className="mb-1 block text-sm font-bold text-slate-800">산출물 URL</label>
+                <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://..." />
+              </div>
+            ) : (
+              <div>
+                <label className="mb-1 block text-sm font-bold text-slate-800">HTML 파일 업로드</label>
+                <label className="flex cursor-pointer items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm font-bold text-slate-500 hover:border-brand-soft hover:bg-brand-soft/5">
+                  <input type="file" accept=".html,.htm,text/html" onChange={onPickFile} className="hidden" />
+                  {fileName ? `📄 ${fileName} (다시 선택하려면 클릭)` : "📄 .html 파일을 선택하세요"}
+                </label>
+                {fileError && <p className="mt-1.5 text-xs font-bold text-red-600">{fileError}</p>}
+                {html.trim() && (
+                  <div className="mt-2">
+                    <HtmlArtifactButton
+                      html={html}
+                      title={fileName || "산출물 미리보기"}
+                      label="👀 업로드한 화면 미리보기"
+                      className="text-xs font-bold text-brand underline"
+                    />
+                  </div>
+                )}
+                <p className="mt-1.5 text-xs text-slate-400">업로드한 HTML은 발표회에서 바로 화면으로 보여줘요. (최대 600KB)</p>
+              </div>
+            )}
           </div>
           <div>
             <label className="mb-1 block text-sm font-bold text-slate-800">한 줄 소개</label>

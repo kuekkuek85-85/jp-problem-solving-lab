@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Level, ProjectStep, RequestDoc, StudentDoc, SubmissionSummaryDoc } from "@/lib/types";
 import { Button, Card, Input, LevelBadge, Textarea } from "@/components/ui";
+import { HtmlArtifactButton } from "@/components/HtmlArtifact";
 
 const STEP_LABEL: Record<ProjectStep, string> = {
   analyze: "의뢰 분석 중",
@@ -158,10 +159,14 @@ function RequestDetailModal({
                 <div key={s.projectId} className="rounded-lg bg-emerald-50 px-3 py-2 text-sm">
                   <p className="font-bold text-slate-700">{s.studentName}</p>
                   <p className="text-xs text-slate-600">{s.oneLiner}</p>
-                  {s.url && (
-                    <a href={s.url} target="_blank" rel="noreferrer" className="text-xs font-bold text-brand underline">
-                      산출물 열어보기 →
-                    </a>
+                  {s.html ? (
+                    <HtmlArtifactButton html={s.html} title={s.htmlFileName || s.requestTitle} />
+                  ) : (
+                    s.url && (
+                      <a href={s.url} target="_blank" rel="noreferrer" className="text-xs font-bold text-brand underline">
+                        산출물 열어보기 →
+                      </a>
+                    )
                   )}
                 </div>
               ))}

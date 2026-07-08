@@ -7,6 +7,7 @@ import { reactionsPath } from "@/lib/paths";
 import { useSubmissions } from "@/lib/hooks";
 import { startPresentation } from "@/lib/actions";
 import { Button, LevelBadge } from "@/components/ui";
+import { HtmlArtifactButton } from "@/components/HtmlArtifact";
 
 const EMOJIS = ["👍", "❤️", "🔥", "👏", "💡"];
 
@@ -123,10 +124,16 @@ function SubmissionCard({
           {submission.badges.includes("challenger") && <span>🚀</span>}
         </div>
       )}
-      {submission.url && (
-        <a href={submission.url} target="_blank" rel="noreferrer" className="mt-2 inline-block text-xs font-bold text-brand underline">
-          산출물 열어보기 →
-        </a>
+      {submission.html ? (
+        <div className="mt-2">
+          <HtmlArtifactButton html={submission.html} title={submission.htmlFileName || submission.requestTitle} />
+        </div>
+      ) : (
+        submission.url && (
+          <a href={submission.url} target="_blank" rel="noreferrer" className="mt-2 inline-block text-xs font-bold text-brand underline">
+            산출물 열어보기 →
+          </a>
+        )
       )}
 
       {isMine && (

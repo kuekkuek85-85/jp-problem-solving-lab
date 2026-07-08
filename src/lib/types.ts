@@ -164,6 +164,8 @@ export interface GrillmeData {
 
 export interface SubmissionData {
   url: string;
+  html: string | null; // 학생이 URL 대신 업로드한 HTML 파일 내용(있으면 바로 렌더링)
+  htmlFileName: string | null;
   oneLiner: string;
   slidesHtml: string | null;
   submittedAt: number | null;
@@ -204,6 +206,8 @@ export interface SubmissionSummaryDoc {
   level: Level;
   oneLiner: string;
   url: string;
+  html: string | null;
+  htmlFileName: string | null;
   slidesHtml: string | null;
   badges: Badge[];
   submittedAt: number;

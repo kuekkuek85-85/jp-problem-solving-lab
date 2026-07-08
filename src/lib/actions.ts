@@ -1,8 +1,8 @@
 "use client";
 
-import { arrayUnion, doc, updateDoc } from "firebase/firestore";
+import { arrayUnion, doc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "./firebase/client";
-import { projectPath, studentPath } from "./paths";
+import { presentationPath, projectPath, studentPath } from "./paths";
 import type { Badge, ProjectStep } from "./types";
 
 // 스탬프 획득 + 프로젝트 다음 단계로 전환(공통 로직)
@@ -33,4 +33,31 @@ export async function awardBadge(sessionCode: string, studentId: string, badge: 
   await updateDoc(doc(db, studentPath(sessionCode, studentId)), {
     badges: arrayUnion(badge),
   });
+}
+
+// ── 발표회(해결 보고회) 동기화 제어 ────────────────────────────
+export async function startPresentation(sessionCode: string, submissionId: string, presenterName: string) {
+  await setDoc(doc(db, presentationPath(sessionCode)), {
+    activeSubmissionId: submissionId,
+    slideIndex: 0,
+    presenterName,
+    updatedAt: Date.now(),
+  });
+}
+
+export async function endPresentation(sessionCode: string) {
+  await setDoc(doc(db, presentationPath(sessionCode)), {
+    activeSubmissionId: null,
+    slideIndex: 0,
+    presenterName: null,
+    updatedAt: Date.now(),
+  });
+}
+
+export async function setPresentationSlide(sessionCode: string, slideIndex: number) {
+  await setDoc(
+    doc(db, presentationPath(sessionCode)),
+    { slideIndex, updatedAt: Date.now() },
+    { merge: true }
+  );
 }

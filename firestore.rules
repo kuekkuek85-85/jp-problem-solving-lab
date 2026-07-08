@@ -64,6 +64,12 @@ service cloud.firestore {
         allow update, delete: if false;
       }
 
+      // 발표회 동기화 상태(발표 중인 제출물·슬라이드 인덱스) — 교사·학생 모두 발표를 시작/종료·넘길 수 있다.
+      match /meta/{docId} {
+        allow read: if isSignedIn();
+        allow write: if isSignedIn();
+      }
+
       // 성찰 후기 — 본인만 작성, 교사는 서버(Admin)로 전체 열람.
       match /reflections/{studentId} {
         allow read: if isSignedIn();

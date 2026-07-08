@@ -236,6 +236,14 @@ export interface ReactionDoc {
   createdAt: number;
 }
 
+// 발표회(해결 보고회) 동기화 상태 — sessions/{lab}/meta/presentation 단일 문서
+export interface PresentationState {
+  activeSubmissionId: string | null; // 발표 중인 제출물(projectId), null이면 발표 없음
+  slideIndex: number;
+  presenterName: string | null;
+  updatedAt: number;
+}
+
 export interface ReflectionDoc {
   studentId: string;
   proud: string;

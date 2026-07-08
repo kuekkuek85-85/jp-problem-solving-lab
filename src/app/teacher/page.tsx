@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { loadTeacherPin, saveTeacherPin } from "@/lib/local-auth";
 import { LAB_ID } from "@/lib/constants";
-import { useHelpRequests, useRequests, useSession, useStudents, useReflections } from "@/lib/hooks";
+import { useHelpRequests, usePresentation, useRequests, useSession, useStudents, useReflections } from "@/lib/hooks";
 import { Button, Card, Input, Spinner } from "@/components/ui";
 import { StageControlBar } from "@/components/teacher/StageControlBar";
 import { RosterGrid } from "@/components/teacher/RosterGrid";
@@ -11,8 +11,9 @@ import { RequestManager } from "@/components/teacher/RequestManager";
 import { HelpQueue } from "@/components/teacher/HelpQueue";
 import { SlidesPanel } from "@/components/teacher/SlidesPanel";
 import { ReflectionsPanel } from "@/components/teacher/ReflectionsPanel";
+import { PresentationControl } from "@/components/teacher/PresentationControl";
 
-type Tab = "roster" | "requests" | "help" | "slides" | "reflections";
+type Tab = "roster" | "requests" | "help" | "slides" | "present" | "reflections";
 
 export default function TeacherPage() {
   const [pin, setPin] = useState<string | null>(() => loadTeacherPin());
@@ -75,6 +76,7 @@ function Dashboard({ sessionCode, pin }: { sessionCode: string; pin: string }) {
   const requests = useRequests(sessionCode);
   const helpRequests = useHelpRequests(sessionCode);
   const reflections = useReflections(sessionCode);
+  const presentation = usePresentation(sessionCode);
 
   async function closeLab() {
     if (!confirm("연구소를 마감할까요? 모든 학생 화면이 수료증 화면으로 전환돼요.")) return;
@@ -121,6 +123,9 @@ function Dashboard({ sessionCode, pin }: { sessionCode: string; pin: string }) {
           <TabButton active={tab === "slides"} onClick={() => setTab("slides")}>
             브리핑 슬라이드
           </TabButton>
+          <TabButton active={tab === "present"} onClick={() => setTab("present")}>
+            발표회 {presentation?.activeSubmissionId && <span className="ml-1 text-rose-500">🎤</span>}
+          </TabButton>
           <TabButton active={tab === "reflections"} onClick={() => setTab("reflections")}>
             성찰 후기 ({reflections.length})
           </TabButton>
@@ -130,6 +135,7 @@ function Dashboard({ sessionCode, pin }: { sessionCode: string; pin: string }) {
         {tab === "requests" && <RequestManager sessionCode={sessionCode} pin={pin} requests={requests} />}
         {tab === "help" && <HelpQueue sessionCode={sessionCode} helpRequests={helpRequests} />}
         {tab === "slides" && <SlidesPanel sessionCode={sessionCode} pin={pin} session={session} />}
+        {tab === "present" && <PresentationControl sessionCode={sessionCode} presentation={presentation} />}
         {tab === "reflections" && <ReflectionsPanel reflections={reflections} students={students} />}
       </div>
     </div>

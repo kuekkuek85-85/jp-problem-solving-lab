@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, doc, onSnapshot, orderBy, query } from "firebase/firestore";
+import { collection, doc, onSnapshot, orderBy, query, where } from "firebase/firestore";
 import { db } from "./firebase/client";
 import {
   helpRequestsPath,
+  presentationPath,
   projectPath,
   projectsPath,
+  reactionsPath,
   reflectionPath,
   reflectionsPath,
   requestsPath,
@@ -17,7 +19,9 @@ import {
 } from "./paths";
 import type {
   HelpRequestDoc,
+  PresentationState,
   ProjectDoc,
+  ReactionDoc,
   ReflectionDoc,
   RequestDoc,
   SessionDoc,
@@ -158,6 +162,37 @@ export function useReflections(sessionCode: string | null) {
   }, [sessionCode]);
 
   return reflections;
+}
+
+export function usePresentation(sessionCode: string | null) {
+  const [state, setState] = useState<PresentationState | null>(null);
+
+  useEffect(() => {
+    if (!sessionCode) return;
+    const unsub = onSnapshot(doc(db, presentationPath(sessionCode)), (snap) => {
+      setState(snap.exists() ? (snap.data() as PresentationState) : null);
+    });
+    return unsub;
+  }, [sessionCode]);
+
+  return state;
+}
+
+export function useReactions(sessionCode: string | null, targetProjectId: string | null) {
+  const [reactions, setReactions] = useState<ReactionDoc[]>([]);
+
+  useEffect(() => {
+    if (!sessionCode || !targetProjectId) return;
+    const q = query(collection(db, reactionsPath(sessionCode)), where("targetProjectId", "==", targetProjectId));
+    const unsub = onSnapshot(q, (snap) => {
+      const list = snap.docs.map((d) => d.data() as ReactionDoc);
+      list.sort((a, b) => a.createdAt - b.createdAt);
+      setReactions(list);
+    });
+    return unsub;
+  }, [sessionCode, targetProjectId]);
+
+  return sessionCode && targetProjectId ? reactions : [];
 }
 
 export function useHelpRequests(sessionCode: string | null) {

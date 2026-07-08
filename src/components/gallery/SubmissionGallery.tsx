@@ -5,7 +5,8 @@ import { addDoc, collection } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import { reactionsPath } from "@/lib/paths";
 import { useSubmissions } from "@/lib/hooks";
-import { LevelBadge } from "@/components/ui";
+import { startPresentation } from "@/lib/actions";
+import { Button, LevelBadge } from "@/components/ui";
 
 const EMOJIS = ["👍", "❤️", "🔥", "👏", "💡"];
 
@@ -13,10 +14,12 @@ export function SubmissionGallery({
   sessionCode,
   canReact,
   fromName,
+  meStudentId,
 }: {
   sessionCode: string;
   canReact: boolean;
   fromName?: string;
+  meStudentId?: string | null;
 }) {
   const submissions = useSubmissions(sessionCode);
   const [grouped, setGrouped] = useState(false);
@@ -53,7 +56,7 @@ export function SubmissionGallery({
           {g.title && <h3 className="mb-3 text-sm font-black text-slate-600">{g.title}</h3>}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {g.items.map((s) => (
-              <SubmissionCard key={s.projectId} sessionCode={sessionCode} submission={s} canReact={canReact} fromName={fromName} />
+              <SubmissionCard key={s.projectId} sessionCode={sessionCode} submission={s} canReact={canReact} fromName={fromName} meStudentId={meStudentId} />
             ))}
           </div>
         </div>
@@ -67,14 +70,17 @@ function SubmissionCard({
   submission,
   canReact,
   fromName,
+  meStudentId,
 }: {
   sessionCode: string;
   submission: ReturnType<typeof useSubmissions>[number];
   canReact: boolean;
   fromName?: string;
+  meStudentId?: string | null;
 }) {
   const [comment, setComment] = useState("");
   const [sending, setSending] = useState(false);
+  const isMine = !!meStudentId && submission.studentId === meStudentId;
 
   async function addReaction(emoji: string) {
     // eslint-disable-next-line react-hooks/purity -- runs only from an onClick handler, never during render
@@ -121,6 +127,15 @@ function SubmissionCard({
         <a href={submission.url} target="_blank" rel="noreferrer" className="mt-2 inline-block text-xs font-bold text-rose-500 underline">
           산출물 열어보기 →
         </a>
+      )}
+
+      {isMine && (
+        <Button
+          className="mt-3 w-full !py-1.5 text-xs"
+          onClick={() => startPresentation(sessionCode, submission.projectId, submission.studentName)}
+        >
+          🎤 내 발표 시작 (모두의 화면에 표시)
+        </Button>
       )}
 
       {canReact && (

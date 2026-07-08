@@ -36,6 +36,19 @@ export function SubmitStage({
         currentStep: "done",
         completedAt: now,
       });
+      // 제출 내용 기반 발표 슬라이드 자동 생성(실패해도 제출은 완료 — 발표 화면에서 재생성 가능)
+      let slidesHtml: string | null = project.submission.slidesHtml ?? null;
+      try {
+        const res = await fetch("/api/slides-gen", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionCode, studentId: student.studentId, projectId: project.id }),
+        });
+        const data = await res.json();
+        if (data.ok && data.slidesHtml) slidesHtml = data.slidesHtml;
+      } catch {
+        // 무시 — 발표 슬라이드는 나중에 생성 가능
+      }
       await updateDoc(doc(db, studentPath(sessionCode, student.studentId)), {
         stamps: arrayUnion(5),
         activeRequestId: null,
@@ -55,7 +68,7 @@ export function SubmitStage({
         level: student.level,
         oneLiner,
         url,
-        slidesHtml: project.submission.slidesHtml ?? null,
+        slidesHtml,
         badges: student.badges,
         submittedAt: now,
       });

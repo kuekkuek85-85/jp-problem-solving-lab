@@ -69,50 +69,26 @@ export function SubmitStage({
       const submittedUrl = mode === "url" ? url.trim() : "";
       const submittedHtml = mode === "html" ? html : null;
       const submittedFileName = mode === "html" ? (fileName || "산출물.html") : null;
+      const priorSlidesHtml: string | null = project.submission.slidesHtml ?? null;
+
+      // 1) 프로젝트 문서를 제출 완료 상태로 저장.
       await updateDoc(doc(db, projectPath(sessionCode, student.studentId, project.id)), {
         submission: {
           url: submittedUrl,
           html: submittedHtml,
           htmlFileName: submittedFileName,
           oneLiner,
-          slidesHtml: project.submission.slidesHtml ?? null,
+          slidesHtml: priorSlidesHtml,
           submittedAt: now,
         },
         currentStep: "done",
         completedAt: now,
       });
-      // 제출 내용 기반 발표 슬라이드 자동 생성(실패해도 제출은 완료 — 발표 화면에서 재생성 가능)
-      setProgress(25);
-      setPhase("발표 슬라이드를 만들고 있어요...");
-      timer = setInterval(() => setProgress((p) => Math.min(p + 3, 90)), 250);
-      let slidesHtml: string | null = project.submission.slidesHtml ?? null;
-      try {
-        const res = await fetch("/api/slides-gen", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sessionCode, studentId: student.studentId, projectId: project.id }),
-        });
-        const data = await res.json();
-        if (data.ok && data.slidesHtml) slidesHtml = data.slidesHtml;
-      } catch {
-        // 무시 — 발표 슬라이드는 나중에 생성 가능
-      }
-      if (timer) {
-        clearInterval(timer);
-        timer = null;
-      }
-      setProgress(93);
-      setPhase("마무리하고 있어요...");
-      await updateDoc(doc(db, studentPath(sessionCode, student.studentId)), {
-        stamps: arrayUnion(5),
-        activeRequestId: null,
-        activeProjectId: null,
-        activeStep: null,
-      });
-      await updateDoc(doc(db, requestPath(sessionCode, project.requestId)), {
-        activeSolverIds: arrayRemove(student.studentId),
-        submissionCount: increment(1),
-      });
+
+      // 2) 해결 보고회(발표)에 반드시 뜨도록, 갤러리용 요약 문서를 "먼저" 저장한다.
+      //    (슬라이드 생성·화면 전환보다 앞서 기록해, 중간에 끊겨도 발표에서 누락되지 않게 한다.)
+      setProgress(30);
+      setPhase("해결 보고회에 등록하고 있어요...");
       await setDoc(doc(db, submissionPath(sessionCode, project.id)), {
         projectId: project.id,
         requestId: project.requestId,
@@ -124,9 +100,46 @@ export function SubmitStage({
         url: submittedUrl,
         html: submittedHtml,
         htmlFileName: submittedFileName,
-        slidesHtml,
+        slidesHtml: priorSlidesHtml,
         badges: student.badges,
         submittedAt: now,
+      });
+      await updateDoc(doc(db, requestPath(sessionCode, project.requestId)), {
+        activeSolverIds: arrayRemove(student.studentId),
+        submissionCount: increment(1),
+      });
+
+      // 3) 발표 슬라이드 자동 생성(실패해도 제출은 이미 완료 — 발표 화면에서 재생성 가능).
+      setProgress(45);
+      setPhase("발표 슬라이드를 만들고 있어요...");
+      timer = setInterval(() => setProgress((p) => Math.min(p + 3, 90)), 250);
+      try {
+        const res = await fetch("/api/slides-gen", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionCode, studentId: student.studentId, projectId: project.id }),
+        });
+        const data = await res.json();
+        if (data.ok && data.slidesHtml) {
+          // 슬라이드가 생성되면 요약 문서에도 반영(발표에서 슬라이드까지 보이도록).
+          await setDoc(doc(db, submissionPath(sessionCode, project.id)), { slidesHtml: data.slidesHtml }, { merge: true });
+        }
+      } catch {
+        // 무시 — 발표 슬라이드는 나중에 생성 가능
+      }
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+
+      // 4) 마지막으로 스탬프 지급 + 활성 프로젝트 정리(이 순간 화면이 게시판으로 전환된다).
+      setProgress(95);
+      setPhase("마무리하고 있어요...");
+      await updateDoc(doc(db, studentPath(sessionCode, student.studentId)), {
+        stamps: arrayUnion(5),
+        activeRequestId: null,
+        activeProjectId: null,
+        activeStep: null,
       });
       setProgress(100);
       setCelebrate(true);

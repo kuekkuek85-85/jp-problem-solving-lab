@@ -9,12 +9,14 @@ import { emptyStudent } from "@/lib/factories";
 import { LAB_ID } from "@/lib/constants";
 import { saveStudentAuth, saveTeacherPin } from "@/lib/local-auth";
 import { Button, Card, Input } from "@/components/ui";
+import { WelcomePopup } from "@/components/WelcomePopup";
 
 export default function LandingPage() {
   const [tab, setTab] = useState<"student" | "teacher">("student");
 
   return (
     <main className="flex flex-1 flex-col items-center justify-center px-4 py-10">
+      <WelcomePopup />
       <div className="mb-8 text-center">
         <div className="text-4xl mb-2">🔬🤖</div>
         <h1 className="text-2xl font-black text-slate-900">장평 문제해결연구소</h1>

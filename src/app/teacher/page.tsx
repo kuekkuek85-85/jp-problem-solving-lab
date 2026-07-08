@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { loadTeacherPin, saveTeacherPin } from "@/lib/local-auth";
 import { LAB_ID } from "@/lib/constants";
-import { useHelpRequests, usePresentation, useRequests, useSession, useStudents, useReflections } from "@/lib/hooks";
+import { useHelpRequests, usePresentation, useRequests, useSession, useStudents, useSubmissions, useReflections } from "@/lib/hooks";
 import { Button, Card, Input, Spinner } from "@/components/ui";
 import { StageControlBar } from "@/components/teacher/StageControlBar";
 import { RosterGrid } from "@/components/teacher/RosterGrid";
@@ -77,6 +77,7 @@ function Dashboard({ sessionCode, pin }: { sessionCode: string; pin: string }) {
   const helpRequests = useHelpRequests(sessionCode);
   const reflections = useReflections(sessionCode);
   const presentation = usePresentation(sessionCode);
+  const submissions = useSubmissions(sessionCode);
 
   async function closeLab() {
     if (!confirm("연구소를 마감할까요? 모든 학생 화면이 수료증 화면으로 전환돼요.")) return;
@@ -144,7 +145,7 @@ function Dashboard({ sessionCode, pin }: { sessionCode: string; pin: string }) {
         </div>
 
         {tab === "roster" && <RosterGrid sessionCode={sessionCode} students={students} helpRequests={helpRequests} />}
-        {tab === "requests" && <RequestManager sessionCode={sessionCode} pin={pin} requests={requests} />}
+        {tab === "requests" && <RequestManager sessionCode={sessionCode} pin={pin} requests={requests} students={students} submissions={submissions} />}
         {tab === "help" && <HelpQueue sessionCode={sessionCode} helpRequests={helpRequests} />}
         {tab === "slides" && <SlidesPanel sessionCode={sessionCode} pin={pin} session={session} />}
         {tab === "present" && <PresentationControl sessionCode={sessionCode} presentation={presentation} />}

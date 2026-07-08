@@ -1,11 +1,33 @@
 "use client";
 
 import { useState } from "react";
-import type { Level, RequestDoc } from "@/lib/types";
+import type { Level, ProjectStep, RequestDoc, StudentDoc, SubmissionSummaryDoc } from "@/lib/types";
 import { Button, Card, Input, LevelBadge, Textarea } from "@/components/ui";
 
-export function RequestManager({ sessionCode, pin, requests }: { sessionCode: string; pin: string; requests: RequestDoc[] }) {
+const STEP_LABEL: Record<ProjectStep, string> = {
+  analyze: "의뢰 분석 중",
+  prd: "설계도 작성 중",
+  grillme: "Grill Me 검토 중",
+  coding: "바이브 코딩 중",
+  submit: "해결안 제출 중",
+  done: "완료",
+};
+
+export function RequestManager({
+  sessionCode,
+  pin,
+  requests,
+  students,
+  submissions,
+}: {
+  sessionCode: string;
+  pin: string;
+  requests: RequestDoc[];
+  students: StudentDoc[];
+  submissions: SubmissionSummaryDoc[];
+}) {
   const [showForm, setShowForm] = useState(false);
+  const [detailReq, setDetailReq] = useState<RequestDoc | null>(null);
   const pending = requests.filter((r) => r.approvalStatus === "pending");
   const approved = requests.filter((r) => r.approvalStatus === "approved");
 
@@ -58,8 +80,93 @@ export function RequestManager({ sessionCode, pin, requests }: { sessionCode: st
 
         <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
           {approved.map((r) => (
-            <RequestRow key={r.id} request={r} onUpdate={(payload) => call({ action: "update", requestId: r.id, ...payload })} onDelete={() => call({ action: "delete", requestId: r.id })} />
+            <RequestRow
+              key={r.id}
+              request={r}
+              onUpdate={(payload) => call({ action: "update", requestId: r.id, ...payload })}
+              onDelete={() => call({ action: "delete", requestId: r.id })}
+              onShowDetail={() => setDetailReq(r)}
+            />
           ))}
+        </div>
+      </div>
+
+      {detailReq && (
+        <RequestDetailModal
+          request={detailReq}
+          students={students}
+          submissions={submissions}
+          onClose={() => setDetailReq(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+function RequestDetailModal({
+  request,
+  students,
+  submissions,
+  onClose,
+}: {
+  request: RequestDoc;
+  students: StudentDoc[];
+  submissions: SubmissionSummaryDoc[];
+  onClose: () => void;
+}) {
+  const solvers = students
+    .filter((s) => s.activeRequestId === request.id)
+    .sort((a, b) => a.studentNo.localeCompare(b.studentNo));
+  const subs = submissions
+    .filter((s) => s.requestId === request.id)
+    .sort((a, b) => b.submittedAt - a.submittedAt);
+
+  return (
+    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 px-4" onClick={onClose}>
+      <div className="max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6" onClick={(e) => e.stopPropagation()}>
+        <div className="mb-1 flex items-center justify-between">
+          <h3 className="text-lg font-black">{request.title}</h3>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600">✕</button>
+        </div>
+        <p className="mb-4 text-sm text-slate-500">{request.summary}</p>
+
+        <div className="mb-4">
+          <p className="mb-2 text-sm font-black text-sky-700">🔬 지금 연구 중 ({solvers.length}명)</p>
+          {solvers.length === 0 ? (
+            <p className="text-sm text-slate-400">현재 이 의뢰를 연구 중인 연구원이 없어요.</p>
+          ) : (
+            <div className="space-y-1">
+              {solvers.map((s) => (
+                <div key={s.studentId} className="flex items-center justify-between gap-2 rounded-lg bg-sky-50 px-3 py-2 text-sm">
+                  <span className="font-bold text-slate-700">{s.studentNo} {s.name}</span>
+                  <span className="shrink-0 text-xs font-bold text-sky-600">
+                    {s.activeStep ? STEP_LABEL[s.activeStep] : "진행 중"}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div>
+          <p className="mb-2 text-sm font-black text-emerald-700">✅ 제출한 해결안 ({subs.length}건)</p>
+          {subs.length === 0 ? (
+            <p className="text-sm text-slate-400">아직 제출된 해결안이 없어요.</p>
+          ) : (
+            <div className="space-y-2">
+              {subs.map((s) => (
+                <div key={s.projectId} className="rounded-lg bg-emerald-50 px-3 py-2 text-sm">
+                  <p className="font-bold text-slate-700">{s.studentName}</p>
+                  <p className="text-xs text-slate-600">{s.oneLiner}</p>
+                  {s.url && (
+                    <a href={s.url} target="_blank" rel="noreferrer" className="text-xs font-bold text-rose-500 underline">
+                      산출물 열어보기 →
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -114,10 +221,12 @@ function RequestRow({
   request,
   onUpdate,
   onDelete,
+  onShowDetail,
 }: {
   request: RequestDoc;
   onUpdate: (payload: Record<string, unknown>) => void;
   onDelete: () => void;
+  onShowDetail: () => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(request.title);
@@ -153,10 +262,14 @@ function RequestRow({
             </div>
             <LevelBadge level={request.difficulty} />
           </div>
-          <div className="mt-2 flex items-center gap-2 text-xs text-slate-400">
-            <span>연구 중 {request.activeSolverIds.length}명</span>
-            <span>제출 {request.submissionCount}건</span>
-            <span className="ml-auto flex gap-2">
+          <div className="mt-2 flex items-center gap-2 text-xs">
+            <button onClick={onShowDetail} className="rounded-full bg-sky-100 px-2 py-0.5 font-bold text-sky-700 hover:bg-sky-200">
+              연구 중 {request.activeSolverIds.length}명
+            </button>
+            <button onClick={onShowDetail} className="rounded-full bg-emerald-100 px-2 py-0.5 font-bold text-emerald-700 hover:bg-emerald-200">
+              제출 {request.submissionCount}건
+            </button>
+            <span className="ml-auto flex gap-2 text-slate-400">
               <button onClick={() => setEditing(true)} className="font-bold text-slate-500 hover:underline">
                 수정
               </button>

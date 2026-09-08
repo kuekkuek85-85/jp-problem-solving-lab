@@ -90,7 +90,7 @@ export function CodingStage({
               {copied ? "복사 완료! ✅" : "📋 프롬프트 복사하기"}
             </Button>
             <p className="mt-2 text-xs text-slate-500">
-              캔바 코드가 기본이지만, Gemini · ChatGPT · Claude 같은 다른 AI 도구에도 그대로 붙여넣어 만들 수 있어요.
+              캔바 코드가 기본이지만, Gemini Canvas · Lovable · Replit 같은 도구에도 같은 프롬프트를 그대로 붙여넣어 만들 수 있어요.
             </p>
           </Card>
 

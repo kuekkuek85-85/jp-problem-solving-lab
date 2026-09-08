@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAdminDb } from "@/lib/firebase/admin";
-import { generateJson } from "@/lib/gemini";
+import { generateJson, generateText } from "@/lib/gemini";
 import { checkTeacherPin } from "../../_lib/auth";
 import { LAB_ID } from "@/lib/constants";
 import type { HelpRequestDoc, ProjectDoc, ReflectionDoc, StudentDoc } from "@/lib/types";
@@ -19,10 +19,12 @@ const SYSTEM = `당신은 대한민국 중학교 교사의 학교생활기록부
 5. 입력에 실명·학번 등 개인정보가 섞여 있어도 문구에는 포함하지 않습니다.
 6. 학생의 '역량과 성장' 중심으로 서술합니다: 문제 발견·정의력, 창의적 설계, 디지털·AI 리터러시, 정보윤리 의식, 자기주도성, 협업·나눔, 성찰을 통한 성장.
 7. 분량은 공백 포함 250~450자 내외의, 자연스럽게 이어지는 하나의 특기사항 문단으로 작성합니다.
-8. 활동 근거가 빈약하면 무리하게 늘리지 말고, 확인된 사실만으로 짧고 담백하게 작성합니다.
+8. 활동 근거가 빈약하면 무리하게 늘리지 말고, 확인된 사실만으로 짧고 담백하게 작성합니다.`;
 
-[출력 형식] 아래 JSON만 출력합니다.
+const OUT_JSON = `\n\n[출력 형식] 아래 JSON 하나만 출력합니다(코드펜스·설명 없이).
 {"draft": "특기사항 문단 텍스트", "basis": ["문구가 근거한 활동 사실 3~6개(교사 검토용, 짧은 구)"]}`;
+
+const OUT_TEXT = `\n\n[출력 형식] 특기사항 문단 텍스트만 출력합니다. 머리말·설명·JSON·따옴표 없이 문단만 작성합니다.`;
 
 function summarizeProject(p: ProjectDoc, idx: number): string {
   const lines: string[] = [`[의뢰 ${idx + 1}] ${p.requestTitle} (진행상태: ${p.currentStep === "done" ? "완료·제출" : p.currentStep})`];
@@ -99,10 +101,23 @@ export async function POST(req: Request) {
 
   const userPrompt = `다음은 한 학생이 '문제해결 연구소(AI 바이브 코딩)' 동아리 활동에서 남긴 활동 기록입니다(비식별). 이를 근거로 규칙에 맞는 생기부 특기사항 초안을 작성하세요.\n\n${digest.join("\n")}`;
 
+  // 1차: 구조화(JSON) 생성. 실패하면 2차: 평문 문단으로 폴백해 최대한 초안을 돌려준다.
+  let draft = "";
+  let basis: string[] = [];
   try {
-    const result = await generateJson<{ draft: string; basis: string[] }>(SYSTEM, userPrompt);
-    return NextResponse.json({ ok: true, draft: result.draft ?? "", basis: Array.isArray(result.basis) ? result.basis : [] });
+    const result = await generateJson<{ draft: string; basis: string[] }>(SYSTEM + OUT_JSON, userPrompt);
+    draft = (result.draft ?? "").trim();
+    basis = Array.isArray(result.basis) ? result.basis : [];
   } catch {
-    return NextResponse.json({ ok: false, error: "초안 생성에 실패했어요. 잠시 후 다시 시도해주세요." }, { status: 500 });
+    try {
+      draft = (await generateText(SYSTEM + OUT_TEXT, userPrompt)).trim();
+    } catch {
+      return NextResponse.json({ ok: false, error: "초안 생성에 실패했어요. 잠시 후 다시 시도해주세요." }, { status: 500 });
+    }
   }
+
+  if (!draft) {
+    return NextResponse.json({ ok: false, error: "초안이 비어 있어요. 활동 기록이 충분한지 확인 후 다시 시도해주세요." }, { status: 502 });
+  }
+  return NextResponse.json({ ok: true, draft, basis });
 }

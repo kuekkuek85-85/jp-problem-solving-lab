@@ -26,6 +26,12 @@ const OUT_JSON = `\n\n[출력 형식] 아래 JSON 하나만 출력합니다(코�
 
 const OUT_TEXT = `\n\n[출력 형식] 특기사항 문단 텍스트만 출력합니다. 머리말·설명·JSON·따옴표 없이 문단만 작성합니다.`;
 
+// 오류 원인을 교사에게 간결히 노출(진단용). 민감정보는 담기지 않는다.
+function reason(e: unknown): string {
+  const msg = e instanceof Error ? e.message : String(e);
+  return msg.replace(/\s+/g, " ").slice(0, 240);
+}
+
 function summarizeProject(p: ProjectDoc, idx: number): string {
   const lines: string[] = [`[의뢰 ${idx + 1}] ${p.requestTitle} (진행상태: ${p.currentStep === "done" ? "완료·제출" : p.currentStep})`];
   const a = p.analyze ?? ({} as ProjectDoc["analyze"]);
@@ -62,26 +68,33 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "studentId가 필요합니다." }, { status: 400 });
   }
 
-  const db = getAdminDb();
-  const base = `sessions/${sessionCode}`;
-
-  const [studentSnap, projectsSnap, reflectionSnap, helpSnap] = await Promise.all([
-    db.doc(`${base}/students/${studentId}`).get(),
-    db.collection(`${base}/students/${studentId}/projects`).get(),
-    db.doc(`${base}/reflections/${studentId}`).get(),
-    db.collection(`${base}/helpRequests`).get(),
-  ]);
-
-  if (!studentSnap.exists) {
-    return NextResponse.json({ ok: false, error: "학생을 찾을 수 없습니다." }, { status: 404 });
+  let student: StudentDoc;
+  let projects: ProjectDoc[];
+  let reflection: ReflectionDoc | null;
+  let helpedOthers = 0;
+  let askedHelp = 0;
+  try {
+    const db = getAdminDb();
+    const base = `sessions/${sessionCode}`;
+    const [studentSnap, projectsSnap, reflectionSnap, helpSnap] = await Promise.all([
+      db.doc(`${base}/students/${studentId}`).get(),
+      db.collection(`${base}/students/${studentId}/projects`).get(),
+      db.doc(`${base}/reflections/${studentId}`).get(),
+      db.collection(`${base}/helpRequests`).get(),
+    ]);
+    if (!studentSnap.exists) {
+      return NextResponse.json({ ok: false, error: "학생을 찾을 수 없습니다." }, { status: 404 });
+    }
+    student = studentSnap.data() as StudentDoc;
+    projects = projectsSnap.docs.map((d) => d.data() as ProjectDoc);
+    reflection = reflectionSnap.exists ? (reflectionSnap.data() as ReflectionDoc) : null;
+    const helps = helpSnap.docs.map((d) => d.data() as HelpRequestDoc);
+    helpedOthers = helps.filter((h) => h.helperId === studentId).length;
+    askedHelp = helps.filter((h) => h.requesterId === studentId).length;
+  } catch (e) {
+    console.error("[record-draft] DB read failed:", e);
+    return NextResponse.json({ ok: false, error: "활동 데이터를 불러오지 못했어요: " + reason(e) }, { status: 500 });
   }
-
-  const student = studentSnap.data() as StudentDoc;
-  const projects = projectsSnap.docs.map((d) => d.data() as ProjectDoc);
-  const reflection = reflectionSnap.exists ? (reflectionSnap.data() as ReflectionDoc) : null;
-  const helps = helpSnap.docs.map((d) => d.data() as HelpRequestDoc);
-  const helpedOthers = helps.filter((h) => h.helperId === studentId).length;
-  const askedHelp = helps.filter((h) => h.requesterId === studentId).length;
 
   const levelText = { seedling: "새싹(기초)", growing: "성장(자기주도)", sharing: "나눔(심화·공유)" }[student.level] ?? student.level;
   const doneCount = projects.filter((p) => p.currentStep === "done").length;
@@ -108,11 +121,13 @@ export async function POST(req: Request) {
     const result = await generateJson<{ draft: string; basis: string[] }>(SYSTEM + OUT_JSON, userPrompt);
     draft = (result.draft ?? "").trim();
     basis = Array.isArray(result.basis) ? result.basis : [];
-  } catch {
+  } catch (e1) {
+    console.error("[record-draft] JSON gen failed, falling back to text:", e1);
     try {
       draft = (await generateText(SYSTEM + OUT_TEXT, userPrompt)).trim();
-    } catch {
-      return NextResponse.json({ ok: false, error: "초안 생성에 실패했어요. 잠시 후 다시 시도해주세요." }, { status: 500 });
+    } catch (e2) {
+      console.error("[record-draft] text gen failed:", e2);
+      return NextResponse.json({ ok: false, error: "AI 초안 생성 실패: " + reason(e2) }, { status: 500 });
     }
   }
 

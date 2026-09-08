@@ -1,5 +1,8 @@
 import { GoogleGenerativeAI, HarmBlockThreshold, HarmCategory } from "@google/generative-ai";
 
+// 사용 모델. Google이 구모델을 예고 없이 종료(404)할 수 있으므로, 문제 시 여기만 최신 모델로 교체.
+const MODEL = "gemini-3.6-flash";
+
 let client: GoogleGenerativeAI | null = null;
 
 function getClient(): GoogleGenerativeAI {
@@ -30,7 +33,7 @@ async function withRetry<T>(fn: () => Promise<T>): Promise<T> {
 // 서버 라우트 전용: 학생 개인정보(실명·학번)를 프롬프트에 포함하지 않는다.
 export async function generateJson<T>(systemPrompt: string, userPrompt: string): Promise<T> {
   const model = getClient().getGenerativeModel({
-    model: "gemini-2.5-flash",
+    model: MODEL,
     systemInstruction: systemPrompt,
     safetySettings: SAFETY,
     generationConfig: { responseMimeType: "application/json" },
@@ -54,7 +57,7 @@ function extractJson(raw: string): string {
 
 export async function generateText(systemPrompt: string, userPrompt: string): Promise<string> {
   const model = getClient().getGenerativeModel({
-    model: "gemini-2.5-flash",
+    model: MODEL,
     systemInstruction: systemPrompt,
     safetySettings: SAFETY,
   });

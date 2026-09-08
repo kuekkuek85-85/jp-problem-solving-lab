@@ -26,10 +26,12 @@ function statusText(s: StudentDoc): string {
 
 export function RosterGrid({
   sessionCode,
+  pin,
   students,
   helpRequests,
 }: {
   sessionCode: string;
+  pin: string;
   students: StudentDoc[];
   helpRequests: HelpRequestDoc[];
 }) {
@@ -109,6 +111,7 @@ export function RosterGrid({
       {selected && (
         <StudentDetailModal
           sessionCode={sessionCode}
+          pin={pin}
           student={selected}
           onClose={() => setSelected(null)}
         />
@@ -119,10 +122,12 @@ export function RosterGrid({
 
 function StudentDetailModal({
   sessionCode,
+  pin,
   student,
   onClose,
 }: {
   sessionCode: string;
+  pin: string;
   student: StudentDoc;
   onClose: () => void;
 }) {
@@ -224,7 +229,95 @@ function StudentDetailModal({
             ))}
           </div>
         </div>
+
+        <RecordDraft sessionCode={sessionCode} pin={pin} studentId={student.studentId} />
       </div>
+    </div>
+  );
+}
+
+function RecordDraft({ sessionCode, pin, studentId }: { sessionCode: string; pin: string; studentId: string }) {
+  const [loading, setLoading] = useState(false);
+  const [draft, setDraft] = useState("");
+  const [basis, setBasis] = useState<string[]>([]);
+  const [error, setError] = useState("");
+  const [copied, setCopied] = useState(false);
+
+  async function generate() {
+    setLoading(true);
+    setError("");
+    setCopied(false);
+    try {
+      const res = await fetch("/api/teacher/record-draft", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionCode, pin, studentId }),
+      });
+      const data = await res.json();
+      if (!data.ok) {
+        setError(data.error ?? "생성에 실패했어요.");
+        return;
+      }
+      setDraft(data.draft ?? "");
+      setBasis(Array.isArray(data.basis) ? data.basis : []);
+    } catch {
+      setError("네트워크 오류로 생성에 실패했어요.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function copy() {
+    await navigator.clipboard.writeText(draft);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  return (
+    <div className="mt-4 rounded-lg border border-brand-soft/40 bg-brand/5 p-3">
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <p className="text-sm font-black text-brand-deep">✍️ 생기부 문구 초안</p>
+        <button
+          onClick={generate}
+          disabled={loading}
+          className="rounded-full bg-brand px-3 py-1.5 text-xs font-bold text-white disabled:opacity-40"
+        >
+          {loading ? "생성 중..." : draft ? "다시 생성" : "초안 생성"}
+        </button>
+      </div>
+      <p className="mb-2 text-[11px] leading-relaxed text-slate-500">
+        학생 활동을 근거로 만든 <b>참고용 초안</b>이에요. 상표명은 일반명사로, 명사형 종결(~함)로 작성되며 개인정보는 제외됩니다.
+        <b> 반드시 교사가 사실을 확인하고 다듬어</b> 사용하세요.
+      </p>
+
+      {error && <p className="mb-2 text-xs font-bold text-red-600">{error}</p>}
+
+      {draft && (
+        <>
+          <textarea
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            rows={7}
+            className="w-full rounded-lg border border-slate-200 p-2 text-sm leading-relaxed text-slate-800 outline-none focus:border-brand-soft"
+          />
+          <div className="mt-1 flex items-center justify-between">
+            <span className="text-[11px] text-slate-400">{draft.replace(/\s/g, "").length}자 (공백 제외)</span>
+            <button onClick={copy} className="rounded-full bg-ink-deep px-3 py-1 text-xs font-bold text-white">
+              {copied ? "복사 완료! ✅" : "📋 복사"}
+            </button>
+          </div>
+          {basis.length > 0 && (
+            <div className="mt-2 border-t border-brand-soft/30 pt-2">
+              <p className="mb-1 text-[11px] font-bold text-slate-400">반영한 활동 근거(검토용)</p>
+              <ul className="list-disc space-y-0.5 pl-4 text-[11px] text-slate-500">
+                {basis.map((b, i) => (
+                  <li key={i}>{b}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }

@@ -144,7 +144,7 @@ function Dashboard({ sessionCode, pin }: { sessionCode: string; pin: string }) {
           </TabButton>
         </div>
 
-        {tab === "roster" && <RosterGrid sessionCode={sessionCode} students={students} helpRequests={helpRequests} />}
+        {tab === "roster" && <RosterGrid sessionCode={sessionCode} pin={pin} students={students} helpRequests={helpRequests} />}
         {tab === "requests" && <RequestManager sessionCode={sessionCode} pin={pin} requests={requests} students={students} submissions={submissions} />}
         {tab === "help" && <HelpQueue sessionCode={sessionCode} helpRequests={helpRequests} />}
         {tab === "slides" && <SlidesPanel sessionCode={sessionCode} pin={pin} session={session} />}

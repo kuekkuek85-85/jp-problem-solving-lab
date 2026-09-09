@@ -68,6 +68,18 @@ export function RequestBoard({
     });
   }
 
+  // 완료한 축제(간단 제출) 산출물을 다시 열어 수정하기.
+  async function editSubmission(project: ProjectDoc) {
+    if (student.activeProjectId) return;
+    await updateDoc(doc(db, studentPath(sessionCode, student.studentId)), {
+      activeRequestId: project.requestId,
+      activeProjectId: project.id,
+      activeStep: "submit",
+    });
+  }
+
+  const directSubmitIds = new Set(requests.filter((r) => r.directSubmit).map((r) => r.id));
+
   async function claim(request: RequestDoc) {
     if (student.activeProjectId) return;
     setClaiming(request.id);
@@ -197,6 +209,16 @@ export function RequestBoard({
                         산출물 보러가기
                       </a>
                     )
+                  )}
+                  {directSubmitIds.has(p.requestId) && (
+                    <Button
+                      variant="secondary"
+                      className="mt-3 w-full !py-1.5 text-xs"
+                      disabled={!!student.activeProjectId}
+                      onClick={() => editSubmission(p)}
+                    >
+                      ✏️ 수정하기
+                    </Button>
                   )}
                 </Card>
               ))}

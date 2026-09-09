@@ -32,7 +32,11 @@ export function SimpleSubmitStage({
   const [usage, setUsage] = useState(project.submission.usage ?? "");
   const [etc, setEtc] = useState(project.submission.etc ?? "");
   const [saving, setSaving] = useState(false);
-  const [done, setDone] = useState(project.currentStep === "done");
+  const alreadyDoneAtMount = project.currentStep === "done";
+  const [done, setDone] = useState(alreadyDoneAtMount);
+  const [editing, setEditing] = useState(false);
+  // 이미 제출한 건이면(재진입 편집 또는 방금 제출) 재제출 시 건수·스탬프를 중복 반영하지 않는다.
+  const [submittedOnce, setSubmittedOnce] = useState(alreadyDoneAtMount);
 
   const artifactReady = mode === "url" ? !!url.trim() : !!html.trim() || !!fileUrl.trim();
   const complete = !!title.trim() && artifactReady && !uploading;
@@ -92,26 +96,28 @@ export function SimpleSubmitStage({
     setSaving(true);
     try {
       const now = Date.now();
+      const isEdit = submittedOnce; // 이미 제출한 건의 재제출(수정)이면 건수·스탬프를 다시 반영하지 않음
       // 링크 모드: url. 파일 모드: HTML이면 인라인(html), 그 외 파일이면 업로드 URL(fileUrl).
       const submittedHtml = mode === "file" && html ? html : null;
       const submittedUrl = mode === "url" ? url.trim() : submittedHtml ? "" : fileUrl.trim();
       const submittedFileName = mode === "file" ? fileName || null : null;
-      // 1) 프로젝트 제출 저장(완료)
-      await updateDoc(doc(db, projectPath(sessionCode, student.studentId, project.id)), {
-        submission: {
-          url: submittedUrl,
-          html: submittedHtml,
-          htmlFileName: submittedFileName,
-          oneLiner: title.trim(),
-          usage: usage.trim(),
-          etc: etc.trim(),
-          slidesHtml: null,
-          submittedAt: now,
-        },
-        currentStep: "done",
-        completedAt: now,
-      });
-      // 2) 해결 보고회(발표)용 요약 문서 — 먼저 기록해 발표에서 누락되지 않게 한다.
+      const submissionData = {
+        url: submittedUrl,
+        html: submittedHtml,
+        htmlFileName: submittedFileName,
+        oneLiner: title.trim(),
+        usage: usage.trim(),
+        etc: etc.trim(),
+        slidesHtml: null,
+      };
+      // 1) 프로젝트 제출 저장(신규 제출이면 완료 처리, 수정이면 내용만 갱신)
+      await updateDoc(
+        doc(db, projectPath(sessionCode, student.studentId, project.id)),
+        isEdit
+          ? { submission: { ...submissionData, submittedAt: now } }
+          : { submission: { ...submissionData, submittedAt: now }, currentStep: "done", completedAt: now }
+      );
+      // 2) 해결 보고회(발표)용 요약 문서 — 먼저 기록해 발표에서 누락되지 않게 한다.(수정 시 덮어쓰기)
       await setDoc(doc(db, submissionPath(sessionCode, project.id)), {
         projectId: project.id,
         requestId: project.requestId,
@@ -119,24 +125,22 @@ export function SimpleSubmitStage({
         studentId: student.studentId,
         studentName: student.name,
         level: student.level,
-        oneLiner: title.trim(),
-        url: submittedUrl,
-        html: submittedHtml,
-        htmlFileName: submittedFileName,
-        usage: usage.trim(),
-        etc: etc.trim(),
-        slidesHtml: null,
+        ...submissionData,
         badges: student.badges,
         submittedAt: now,
       });
-      await updateDoc(doc(db, requestPath(sessionCode, project.requestId)), {
-        activeSolverIds: arrayRemove(student.studentId),
-        submissionCount: increment(1),
-      });
-      // 3) 완료 스탬프 지급(활성 프로젝트는 유지 — 완료 화면을 보여준 뒤 버튼으로 게시판 이동)
-      await updateDoc(doc(db, studentPath(sessionCode, student.studentId)), {
-        stamps: arrayUnion(5),
-      });
+      if (!isEdit) {
+        await updateDoc(doc(db, requestPath(sessionCode, project.requestId)), {
+          activeSolverIds: arrayRemove(student.studentId),
+          submissionCount: increment(1),
+        });
+        // 완료 스탬프 지급(활성 프로젝트는 유지 — 완료 화면을 보여준 뒤 버튼으로 게시판 이동)
+        await updateDoc(doc(db, studentPath(sessionCode, student.studentId)), {
+          stamps: arrayUnion(5),
+        });
+      }
+      setSubmittedOnce(true);
+      setEditing(false);
       setDone(true);
     } finally {
       setSaving(false);
@@ -182,7 +186,7 @@ export function SimpleSubmitStage({
     }
   }
 
-  if (done) {
+  if (done && !editing) {
     return (
       <main className="mx-auto max-w-xl px-4 py-10 text-center">
         <Card>
@@ -200,13 +204,16 @@ export function SimpleSubmitStage({
               </a>
             )
           )}
-          <Button className="mt-6 w-full" disabled={adding} onClick={addAnother}>
+          <Button variant="secondary" className="mt-6 w-full" onClick={() => setEditing(true)}>
+            ✏️ 제출한 내용 수정하기
+          </Button>
+          <Button className="mt-2 w-full" disabled={adding} onClick={addAnother}>
             {adding ? "준비 중..." : "➕ 산출물 하나 더 등록하기"}
           </Button>
           <Button variant="secondary" className="mt-2 w-full" onClick={goToBoard}>
             의뢰 게시판으로 이동하기
           </Button>
-          <p className="mt-3 text-xs text-slate-400">축제 부스 프로그램은 여러 개를 등록할 수 있어요.</p>
+          <p className="mt-3 text-xs text-slate-400">제출 후에도 언제든 수정할 수 있고, 여러 개를 등록할 수 있어요.</p>
         </Card>
       </main>
     );
@@ -215,9 +222,11 @@ export function SimpleSubmitStage({
   return (
     <main className="mx-auto max-w-xl px-4 py-6">
       <Card>
-        <h2 className="mb-1 text-lg font-black">🎪 산출물 제출</h2>
+        <h2 className="mb-1 text-lg font-black">{editing ? "✏️ 산출물 수정" : "🎪 산출물 제출"}</h2>
         <p className="mb-5 text-sm text-slate-500">
-          {project.requestTitle} — 만든 프로그램을 간단히 제출해요. (여러 단계 없이 이 화면에서 바로!)
+          {editing
+            ? `${project.requestTitle} — 제출한 내용을 고쳐서 다시 저장해요.`
+            : `${project.requestTitle} — 만든 프로그램을 간단히 제출해요. (여러 단계 없이 이 화면에서 바로!)`}
         </p>
 
         <div className="space-y-4">
@@ -279,8 +288,13 @@ export function SimpleSubmitStage({
         </div>
 
         <Button className="mt-6 w-full" disabled={!complete || saving} onClick={submit}>
-          {saving ? "제출 중..." : "제출하기"}
+          {saving ? "저장 중..." : editing ? "수정 저장하기" : "제출하기"}
         </Button>
+        {editing && (
+          <Button variant="secondary" className="mt-2 w-full" onClick={() => setEditing(false)}>
+            수정 취소
+          </Button>
+        )}
       </Card>
     </main>
   );

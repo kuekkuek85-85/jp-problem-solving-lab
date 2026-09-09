@@ -7,10 +7,8 @@ import { projectPath, requestPath, studentPath, submissionPath } from "@/lib/pat
 import type { ProjectDoc, StudentDoc } from "@/lib/types";
 import { Button, Card, Input } from "@/components/ui";
 import { HtmlArtifactButton } from "@/components/HtmlArtifact";
+import { MAX_INLINE_HTML_BYTES, MAX_UPLOAD_BYTES, isHtmlFile, uploadSubmissionFile } from "@/lib/upload";
 import { StampCelebration } from "./StampCelebration";
-
-// 업로드 HTML은 제출물 문서(발표 슬라이드와 함께)에 인라인 저장되므로 Firestore 1MB 한도를 고려해 넉넉히 제한.
-const MAX_HTML_BYTES = 600 * 1024;
 
 export function SubmitStage({
   sessionCode,
@@ -21,40 +19,61 @@ export function SubmitStage({
   student: StudentDoc;
   project: ProjectDoc;
 }) {
-  const [mode, setMode] = useState<"url" | "html">(project.submission.html ? "html" : "url");
+  const [mode, setMode] = useState<"url" | "file">(project.submission.html || project.submission.htmlFileName ? "file" : "url");
   const [url, setUrl] = useState(project.submission.url ?? "");
   const [html, setHtml] = useState(project.submission.html ?? "");
+  const [fileUrl, setFileUrl] = useState(project.submission.html ? "" : project.submission.url ?? "");
   const [fileName, setFileName] = useState(project.submission.htmlFileName ?? "");
   const [fileError, setFileError] = useState("");
+  const [uploading, setUploading] = useState(false);
   const [oneLiner, setOneLiner] = useState(project.submission.oneLiner ?? "");
   const [saving, setSaving] = useState(false);
   const [progress, setProgress] = useState(0);
   const [phase, setPhase] = useState("");
   const [celebrate, setCelebrate] = useState(false);
 
-  const artifactReady = mode === "url" ? !!url.trim() : !!html.trim();
-  const complete = artifactReady && oneLiner.trim();
+  const artifactReady = mode === "url" ? !!url.trim() : !!html.trim() || !!fileUrl.trim();
+  const complete = artifactReady && !!oneLiner.trim() && !uploading;
 
-  function onPickFile(e: React.ChangeEvent<HTMLInputElement>) {
+  // 확장자 제한 없음. HTML은 발표에서 바로 렌더링하도록 인라인 저장, 그 외 파일은 Storage에 올려 링크로 저장.
+  async function onPickFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    e.target.value = ""; // 같은 파일 다시 선택 가능하도록 초기화
+    e.target.value = "";
     if (!file) return;
     setFileError("");
-    if (!/\.html?$/i.test(file.name)) {
-      setFileError("HTML 파일(.html)만 올릴 수 있어요.");
+    setHtml("");
+    setFileUrl("");
+    setFileName("");
+
+    if (isHtmlFile(file)) {
+      if (file.size > MAX_INLINE_HTML_BYTES) {
+        setFileError("HTML 파일이 너무 커요(최대 600KB). 이미지가 많다면 ZIP으로 올리거나 링크로 제출해주세요.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        setHtml(String(reader.result ?? ""));
+        setFileName(file.name);
+      };
+      reader.onerror = () => setFileError("파일을 읽지 못했어요. 다시 시도해주세요.");
+      reader.readAsText(file);
       return;
     }
-    if (file.size > MAX_HTML_BYTES) {
-      setFileError("파일이 너무 커요(최대 600KB). 이미지가 많다면 링크(URL)로 제출해주세요.");
+
+    if (file.size > MAX_UPLOAD_BYTES) {
+      setFileError("파일이 너무 커요(최대 25MB). 더 작게 압축하거나 링크로 제출해주세요.");
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      setHtml(String(reader.result ?? ""));
-      setFileName(file.name);
-    };
-    reader.onerror = () => setFileError("파일을 읽지 못했어요. 다시 시도해주세요.");
-    reader.readAsText(file);
+    setUploading(true);
+    try {
+      const { url: uploadedUrl, fileName: name } = await uploadSubmissionFile(sessionCode, student.studentId, project.id, file);
+      setFileUrl(uploadedUrl);
+      setFileName(name);
+    } catch {
+      setFileError("업로드에 실패했어요. 파일 크기를 줄이거나 링크로 제출해보세요.");
+    } finally {
+      setUploading(false);
+    }
   }
   const willCompleteAllStamps = !student.stamps.includes(5) && [1, 2, 3, 4].every((n) => student.stamps.includes(n));
 
@@ -66,9 +85,9 @@ export function SubmitStage({
     let timer: ReturnType<typeof setInterval> | null = null;
     try {
       const now = Date.now();
-      const submittedUrl = mode === "url" ? url.trim() : "";
-      const submittedHtml = mode === "html" ? html : null;
-      const submittedFileName = mode === "html" ? (fileName || "산출물.html") : null;
+      const submittedHtml = mode === "file" && html ? html : null;
+      const submittedUrl = mode === "url" ? url.trim() : submittedHtml ? "" : fileUrl.trim();
+      const submittedFileName = mode === "file" ? fileName || null : null;
       const priorSlidesHtml: string | null = project.submission.slidesHtml ?? null;
 
       // 1) 프로젝트 문서를 제출 완료 상태로 저장.
@@ -196,7 +215,7 @@ export function SubmitStage({
     <main className="mx-auto max-w-xl px-4 py-6">
       <Card>
         <h2 className="mb-1 text-lg font-black">해결안 제출 · 배포</h2>
-        <p className="mb-5 text-sm text-slate-500">완성한 산출물의 링크를 내거나, HTML 파일을 올려주세요.</p>
+        <p className="mb-5 text-sm text-slate-500">완성한 산출물의 링크를 내거나, 파일을 올려주세요.</p>
 
         <div className="space-y-4">
           <div>
@@ -210,10 +229,10 @@ export function SubmitStage({
               </button>
               <button
                 type="button"
-                onClick={() => setMode("html")}
-                className={`rounded-full px-4 py-1.5 ${mode === "html" ? "bg-white text-brand-deep shadow" : "text-slate-500"}`}
+                onClick={() => setMode("file")}
+                className={`rounded-full px-4 py-1.5 ${mode === "file" ? "bg-white text-brand-deep shadow" : "text-slate-500"}`}
               >
-                📄 HTML 파일
+                📄 파일 업로드
               </button>
             </div>
 
@@ -224,10 +243,10 @@ export function SubmitStage({
               </div>
             ) : (
               <div>
-                <label className="mb-1 block text-sm font-bold text-slate-800">HTML 파일 업로드</label>
-                <label className="flex cursor-pointer items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm font-bold text-slate-500 hover:border-brand-soft hover:bg-brand-soft/5">
-                  <input type="file" accept=".html,.htm,text/html" onChange={onPickFile} className="hidden" />
-                  {fileName ? `📄 ${fileName} (다시 선택하려면 클릭)` : "📄 .html 파일을 선택하세요"}
+                <label className="mb-1 block text-sm font-bold text-slate-800">파일 업로드</label>
+                <label className={`flex cursor-pointer items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-4 py-6 text-sm font-bold ${uploading ? "border-slate-200 bg-slate-100 text-slate-400" : "border-slate-300 bg-slate-50 text-slate-500 hover:border-brand-soft hover:bg-brand-soft/5"}`}>
+                  <input type="file" onChange={onPickFile} className="hidden" disabled={uploading} />
+                  {uploading ? "⏳ 업로드 중..." : fileName ? `📄 ${fileName} (다시 선택하려면 클릭)` : "📄 파일을 선택하세요 (HTML·ZIP·이미지 등 무엇이든)"}
                 </label>
                 {fileError && <p className="mt-1.5 text-xs font-bold text-red-600">{fileError}</p>}
                 {html.trim() && (
@@ -240,7 +259,10 @@ export function SubmitStage({
                     />
                   </div>
                 )}
-                <p className="mt-1.5 text-xs text-slate-400">업로드한 HTML은 발표회에서 바로 화면으로 보여줘요. (최대 600KB)</p>
+                {!html.trim() && fileUrl.trim() && (
+                  <p className="mt-2 text-xs font-bold text-emerald-600">✅ 업로드 완료: {fileName}</p>
+                )}
+                <p className="mt-1.5 text-xs text-slate-400">HTML은 발표회에서 바로 화면으로 보여주고, ZIP 등 다른 파일은 다운로드 링크로 공유돼요. (최대 25MB)</p>
               </div>
             )}
           </div>

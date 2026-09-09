@@ -131,7 +131,7 @@ export default function StudentPage() {
     return (
       <div>
         <StageHeader student={student} stage="submit" requestTitle={project.requestTitle} onGoToBoard={goToBoard} />
-        <SimpleSubmitStage sessionCode={sessionCode} student={student} project={project} />
+        <SimpleSubmitStage key={project.id} sessionCode={sessionCode} student={student} project={project} />
       </div>
     );
   }

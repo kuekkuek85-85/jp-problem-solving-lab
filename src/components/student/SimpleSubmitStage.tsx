@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { arrayRemove, arrayUnion, doc, increment, setDoc, updateDoc } from "firebase/firestore";
+import { arrayRemove, arrayUnion, collection, doc, increment, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
-import { projectPath, requestPath, studentPath, submissionPath } from "@/lib/paths";
+import { projectPath, projectsPath, requestPath, studentPath, submissionPath } from "@/lib/paths";
+import { emptyProject } from "@/lib/factories";
 import type { ProjectDoc, StudentDoc } from "@/lib/types";
 import { Button, Card, Input, Textarea } from "@/components/ui";
 
@@ -87,6 +88,37 @@ export function SimpleSubmitStage({
     });
   }
 
+  // 같은 축제 의뢰로 산출물을 하나 더 등록: 새 프로젝트를 만들어 바로 제출 화면으로 전환.
+  const [adding, setAdding] = useState(false);
+  async function addAnother() {
+    if (adding) return;
+    setAdding(true);
+    try {
+      const now = Date.now();
+      const projectRef = doc(collection(db, projectsPath(sessionCode, student.studentId)));
+      const np = emptyProject({
+        id: projectRef.id,
+        requestId: project.requestId,
+        requestTitle: project.requestTitle,
+        now,
+        level: student.level,
+      });
+      np.currentStep = "submit";
+      await setDoc(projectRef, np);
+      await updateDoc(doc(db, requestPath(sessionCode, project.requestId)), {
+        activeSolverIds: arrayUnion(student.studentId),
+      });
+      await updateDoc(doc(db, studentPath(sessionCode, student.studentId)), {
+        activeRequestId: project.requestId,
+        activeProjectId: projectRef.id,
+        activeStep: "submit",
+      });
+      // activeProjectId가 새 프로젝트로 바뀌면 상위 페이지가 새 SimpleSubmitStage로 리마운트(key=project.id)한다.
+    } finally {
+      setAdding(false);
+    }
+  }
+
   if (done) {
     return (
       <main className="mx-auto max-w-xl px-4 py-10 text-center">
@@ -99,9 +131,13 @@ export function SimpleSubmitStage({
               🔗 제출한 산출물 열어보기
             </a>
           )}
-          <Button className="mt-6 w-full" onClick={goToBoard}>
+          <Button className="mt-6 w-full" disabled={adding} onClick={addAnother}>
+            {adding ? "준비 중..." : "➕ 산출물 하나 더 등록하기"}
+          </Button>
+          <Button variant="secondary" className="mt-2 w-full" onClick={goToBoard}>
             의뢰 게시판으로 이동하기
           </Button>
+          <p className="mt-3 text-xs text-slate-400">축제 부스 프로그램은 여러 개를 등록할 수 있어요.</p>
         </Card>
       </main>
     );

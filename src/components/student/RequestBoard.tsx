@@ -81,11 +81,14 @@ export function RequestBoard({
         now,
         level: student.level,
       });
+      // 간단 제출(축제 부스형) 의뢰는 단계를 생략하고 바로 제출 단계로 시작한다.
+      const initialStep = request.directSubmit ? "submit" : "analyze";
+      project.currentStep = initialStep;
       await setDoc(projectRef, project);
       await updateDoc(doc(db, studentPath(sessionCode, student.studentId)), {
         activeRequestId: request.id,
         activeProjectId: projectRef.id,
-        activeStep: "analyze",
+        activeStep: initialStep,
       });
       await updateDoc(doc(db, requestPath(sessionCode, request.id)), {
         activeSolverIds: arrayUnion(student.studentId),

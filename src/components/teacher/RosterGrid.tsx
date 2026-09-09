@@ -205,6 +205,8 @@ function StudentDetailModal({
                     {project.submission.url}
                   </a>
                   <p>{project.submission.oneLiner}</p>
+                  {project.submission.usage && <p>🕹️ 사용법: {project.submission.usage}</p>}
+                  {project.submission.etc && <p>기타: {project.submission.etc}</p>}
                 </Section>
               )
             )}

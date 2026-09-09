@@ -118,6 +118,8 @@ function SubmissionCard({
       </div>
       <h4 className="font-black text-slate-900">{submission.studentName} 연구원</h4>
       <p className="mt-1 text-sm text-slate-600">{submission.oneLiner}</p>
+      {submission.usage && <p className="mt-1 text-xs text-slate-500">🕹️ 사용법: {submission.usage}</p>}
+      {submission.etc && <p className="mt-0.5 text-xs text-slate-400">기타: {submission.etc}</p>}
       {submission.badges?.length > 0 && (
         <div className="mt-1 flex gap-1 text-xs">
           {submission.badges.includes("helper") && <span>🤝</span>}

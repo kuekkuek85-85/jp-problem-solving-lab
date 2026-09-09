@@ -85,6 +85,8 @@ export interface RequestDoc {
   activeSolverIds: string[];
   submissionCount: number;
   createdAt: number;
+  // true이면 단계(분석·설계도·Grill Me·코딩)를 생략하고 산출물만 내는 간단 제출 의뢰(예: 축제 부스).
+  directSubmit?: boolean;
 }
 
 export interface DiagnosticAnswers {
@@ -167,6 +169,8 @@ export interface SubmissionData {
   html: string | null; // 학생이 URL 대신 업로드한 HTML 파일 내용(있으면 바로 렌더링)
   htmlFileName: string | null;
   oneLiner: string;
+  usage?: string | null; // 간단 제출(축제 부스): 사용법 설명
+  etc?: string | null; // 간단 제출: 기타 메모
   slidesHtml: string | null;
   submittedAt: number | null;
 }
@@ -208,6 +212,8 @@ export interface SubmissionSummaryDoc {
   url: string;
   html: string | null;
   htmlFileName: string | null;
+  usage?: string | null;
+  etc?: string | null;
   slidesHtml: string | null;
   badges: Badge[];
   submittedAt: number;

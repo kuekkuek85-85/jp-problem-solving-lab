@@ -159,6 +159,8 @@ function RequestDetailModal({
                 <div key={s.projectId} className="rounded-lg bg-emerald-50 px-3 py-2 text-sm">
                   <p className="font-bold text-slate-700">{s.studentName}</p>
                   <p className="text-xs text-slate-600">{s.oneLiner}</p>
+                  {s.usage && <p className="text-xs text-slate-500">🕹️ 사용법: {s.usage}</p>}
+                  {s.etc && <p className="text-xs text-slate-400">기타: {s.etc}</p>}
                   {s.html ? (
                     <HtmlArtifactButton html={s.html} title={s.htmlFileName || s.requestTitle} />
                   ) : (
@@ -182,12 +184,13 @@ function NewRequestForm({
   onSubmit,
   onDone,
 }: {
-  onSubmit: (payload: { title: string; summary: string; difficulty: Level }) => void;
+  onSubmit: (payload: { title: string; summary: string; difficulty: Level; directSubmit: boolean }) => void;
   onDone: () => void;
 }) {
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
   const [difficulty, setDifficulty] = useState<Level>("growing");
+  const [directSubmit, setDirectSubmit] = useState(false);
 
   return (
     <Card className="mb-3">
@@ -205,13 +208,18 @@ function NewRequestForm({
             </button>
           ))}
         </div>
+        <label className="flex cursor-pointer items-center gap-2 text-xs font-bold text-slate-600">
+          <input type="checkbox" checked={directSubmit} onChange={(e) => setDirectSubmit(e.target.checked)} />
+          🎪 간단 제출(단계 생략, 산출물만) — 축제 부스형 의뢰
+        </label>
         <Button
           className="w-full"
           onClick={() => {
             if (!title.trim() || !summary.trim()) return;
-            onSubmit({ title, summary, difficulty });
+            onSubmit({ title, summary, difficulty, directSubmit });
             setTitle("");
             setSummary("");
+            setDirectSubmit(false);
             onDone();
           }}
         >
@@ -236,6 +244,7 @@ function RequestRow({
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(request.title);
   const [summary, setSummary] = useState(request.summary);
+  const [directSubmit, setDirectSubmit] = useState(!!request.directSubmit);
 
   return (
     <Card>
@@ -243,11 +252,15 @@ function RequestRow({
         <div className="space-y-2">
           <Input value={title} onChange={(e) => setTitle(e.target.value)} />
           <Textarea rows={2} value={summary} onChange={(e) => setSummary(e.target.value)} />
+          <label className="flex cursor-pointer items-center gap-2 text-xs font-bold text-slate-600">
+            <input type="checkbox" checked={directSubmit} onChange={(e) => setDirectSubmit(e.target.checked)} />
+            🎪 간단 제출(단계 생략, 산출물만)
+          </label>
           <div className="flex gap-2">
             <Button
               className="flex-1 !py-1.5 text-xs"
               onClick={() => {
-                onUpdate({ title, summary });
+                onUpdate({ title, summary, directSubmit });
                 setEditing(false);
               }}
             >
@@ -264,6 +277,9 @@ function RequestRow({
             <div>
               <p className="font-bold">{request.title}</p>
               <p className="text-xs text-slate-500">{request.summary}</p>
+              {request.directSubmit && (
+                <span className="mt-1 inline-block rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-bold text-amber-700">🎪 간단 제출</span>
+              )}
             </div>
             <LevelBadge level={request.difficulty} />
           </div>

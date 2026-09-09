@@ -21,6 +21,7 @@ import { PrdStage } from "@/components/student/PrdStage";
 import { GrillmeStage } from "@/components/student/GrillmeStage";
 import { CodingStage } from "@/components/student/CodingStage";
 import { SubmitStage } from "@/components/student/SubmitStage";
+import { SimpleSubmitStage } from "@/components/student/SimpleSubmitStage";
 import { ClosingStage } from "@/components/student/ClosingStage";
 import { SubmissionGallery } from "@/components/gallery/SubmissionGallery";
 
@@ -120,6 +121,17 @@ export default function StudentPage() {
           myProjects={myProjects}
           submissions={submissions}
         />
+      </div>
+    );
+  }
+
+  // 축제 부스형(간단 제출) 의뢰는 단계를 생략하고 1페이지 산출물 제출 화면만 보여준다.
+  const activeRequest = requests.find((r) => r.id === project.requestId);
+  if (activeRequest?.directSubmit) {
+    return (
+      <div>
+        <StageHeader student={student} stage="submit" requestTitle={project.requestTitle} onGoToBoard={goToBoard} />
+        <SimpleSubmitStage sessionCode={sessionCode} student={student} project={project} />
       </div>
     );
   }

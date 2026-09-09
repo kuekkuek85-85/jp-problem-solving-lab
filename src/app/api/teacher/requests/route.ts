@@ -17,7 +17,7 @@ export async function POST(req: Request) {
   const col = db.collection(`sessions/${sessionCode}/requests`);
 
   if (action === "create") {
-    const { title, summary, difficulty } = body;
+    const { title, summary, difficulty, directSubmit } = body;
     if (!title || !summary || !difficulty) {
       return NextResponse.json({ ok: false, error: "제목/설명/난이도를 모두 입력해주세요." }, { status: 400 });
     }
@@ -36,18 +36,20 @@ export async function POST(req: Request) {
       activeSolverIds: [],
       submissionCount: 0,
       createdAt: Date.now(),
+      directSubmit: directSubmit === true,
     };
     await ref.set(doc);
     return NextResponse.json({ ok: true, id: ref.id });
   }
 
   if (action === "update") {
-    const { requestId, title, summary, difficulty } = body;
+    const { requestId, title, summary, difficulty, directSubmit } = body;
     if (!requestId) return NextResponse.json({ ok: false, error: "requestId 필요" }, { status: 400 });
     const update: Record<string, unknown> = {};
     if (title) update.title = title;
     if (summary) update.summary = summary;
     if (difficulty) update.difficulty = difficulty;
+    if (typeof directSubmit === "boolean") update.directSubmit = directSubmit;
     await col.doc(requestId).update(update);
     return NextResponse.json({ ok: true });
   }

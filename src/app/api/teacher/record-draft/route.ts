@@ -53,7 +53,9 @@ function summarizeProject(p: ProjectDoc, idx: number): string {
     lines.push(`- AI의 날카로운 질문에 대한 답변(비판적 사고): ${qa}`);
   }
   if (p.codingNotes) lines.push(`- 제작 메모: ${p.codingNotes}`);
-  if (p.submission?.oneLiner) lines.push(`- 산출물 소개: ${p.submission.oneLiner}${p.submission.url || p.submission.html ? " (실제 결과물 제출함)" : ""}`);
+  if (p.submission?.oneLiner) lines.push(`- 산출물 제목/소개: ${p.submission.oneLiner}${p.submission.url || p.submission.html ? " (실제 결과물 제출함)" : ""}`);
+  if (p.submission?.usage) lines.push(`- 산출물 사용법 설명: ${p.submission.usage}`);
+  if (p.submission?.etc) lines.push(`- 기타: ${p.submission.etc}`);
   return lines.join("\n");
 }
 

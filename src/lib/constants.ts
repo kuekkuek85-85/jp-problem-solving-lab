@@ -107,8 +107,8 @@ export const SEEDLING_PRD_TEMPLATE = {
 };
 
 // ── 의뢰 게시판 초기 시드 데이터(교사 준비 공식 의뢰) ────────────
-export const SEED_REQUESTS: { title: string; summary: string; difficulty: Level }[] = [
-  { title: "🎪 장평제 축제 부스 프로그램 만들기", summary: "장평제(학교 축제) 부스에서 친구들이 즐길 프로그램을 직접 만들어요. 캐주얼 게임, 카메라로 인식하는 AI 게임(엔트리), 햄스터 로봇 미로탈출·축구 등 무엇이든 좋아요!", difficulty: "growing" },
+export const SEED_REQUESTS: { title: string; summary: string; difficulty: Level; directSubmit?: boolean }[] = [
+  { title: "🎪 장평제 축제 부스 프로그램 만들기", summary: "장평제(학교 축제) 부스에서 친구들이 즐길 프로그램을 직접 만들어요. 캐주얼 게임, 카메라로 인식하는 AI 게임(엔트리), 햄스터 로봇 미로탈출·축구 등 무엇이든 좋아요! (단계 없이 산출물만 제출)", difficulty: "growing", directSubmit: true },
   { title: "컴퓨터실 예약", summary: "여러 학급이 겹치지 않게 컴퓨터실을 예약할 수 있는 서비스", difficulty: "growing" },
   { title: "분실물 안내", summary: "학교에서 주운 분실물을 등록하고 찾아갈 수 있게 안내하는 서비스", difficulty: "seedling" },
   { title: "하트이로봇 동아리 홍보·포트폴리오", summary: "동아리 활동을 소개하고 결과물을 모아 보여주는 포트폴리오 사이트", difficulty: "growing" },

@@ -50,6 +50,7 @@ export async function POST(req: Request) {
       activeSolverIds: [],
       submissionCount: 0,
       createdAt: now,
+      directSubmit: seed.directSubmit ?? false,
     };
     batch.set(ref, requestDoc);
   }

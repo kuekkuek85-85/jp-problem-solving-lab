@@ -141,7 +141,7 @@ function RequestDetailModal({
                 <div key={s.studentId} className="flex items-center justify-between gap-2 rounded-lg bg-sky-50 px-3 py-2 text-sm">
                   <span className="font-bold text-slate-700">{s.studentNo} {s.name}</span>
                   <span className="shrink-0 text-xs font-bold text-sky-600">
-                    {s.activeStep ? STEP_LABEL[s.activeStep] : "진행 중"}
+                    {request.directSubmit ? "산출물 제출 중" : s.activeStep ? STEP_LABEL[s.activeStep] : "진행 중"}
                   </span>
                 </div>
               ))}

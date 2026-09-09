@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { arrayRemove, arrayUnion, collection, doc, increment, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import { projectPath, projectsPath, requestPath, studentPath, submissionPath } from "@/lib/paths";
@@ -35,6 +35,14 @@ export function SimpleSubmitStage({
 
   const artifactReady = mode === "url" ? !!url.trim() : !!html.trim();
   const complete = !!title.trim() && artifactReady;
+
+  // 간단 제출 화면에 있는데 저장된 진행단계(activeStep)가 옛 단계로 남아 있으면(토글 켜기 전 맡은 경우)
+  // 교사 화면에 정확히 보이도록 'submit'으로 한 번 교정한다.
+  useEffect(() => {
+    if (project.currentStep !== "done" && student.activeStep !== "submit") {
+      updateDoc(doc(db, studentPath(sessionCode, student.studentId)), { activeStep: "submit" }).catch(() => {});
+    }
+  }, [sessionCode, student.studentId, student.activeStep, project.currentStep]);
 
   function onPickFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];

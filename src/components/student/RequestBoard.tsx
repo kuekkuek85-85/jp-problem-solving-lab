@@ -78,6 +78,17 @@ export function RequestBoard({
     });
   }
 
+  // 완료한 단계형 해결안을 다시 열어 설계도·산출물 편집(editMode).
+  async function editStaged(project: ProjectDoc) {
+    if (student.activeProjectId) return;
+    await updateDoc(doc(db, studentPath(sessionCode, student.studentId)), {
+      activeRequestId: project.requestId,
+      activeProjectId: project.id,
+      activeStep: "submit",
+      editMode: true,
+    });
+  }
+
   const directSubmitIds = new Set(requests.filter((r) => r.directSubmit).map((r) => r.id));
 
   async function claim(request: RequestDoc) {
@@ -210,16 +221,14 @@ export function RequestBoard({
                       </a>
                     )
                   )}
-                  {directSubmitIds.has(p.requestId) && (
-                    <Button
-                      variant="secondary"
-                      className="mt-3 w-full !py-1.5 text-xs"
-                      disabled={!!student.activeProjectId}
-                      onClick={() => editSubmission(p)}
-                    >
-                      ✏️ 수정하기
-                    </Button>
-                  )}
+                  <Button
+                    variant="secondary"
+                    className="mt-3 w-full !py-1.5 text-xs"
+                    disabled={!!student.activeProjectId}
+                    onClick={() => (directSubmitIds.has(p.requestId) ? editSubmission(p) : editStaged(p))}
+                  >
+                    ✏️ 수정하기
+                  </Button>
                 </Card>
               ))}
             </div>

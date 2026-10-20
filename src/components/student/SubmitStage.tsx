@@ -15,10 +15,14 @@ export function SubmitStage({
   sessionCode,
   student,
   project,
+  editMode,
+  onDone,
 }: {
   sessionCode: string;
   student: StudentDoc;
   project: ProjectDoc;
+  editMode?: boolean;
+  onDone?: () => void;
 }) {
   const [mode, setMode] = useState<"url" | "file">(project.submission.html || project.submission.htmlFileName ? "file" : "url");
   const [url, setUrl] = useState(project.submission.url ?? "");
@@ -86,6 +90,38 @@ export function SubmitStage({
     }
   }
   const willCompleteAllStamps = !student.stamps.includes(5) && [1, 2, 3, 4].every((n) => student.stamps.includes(n));
+
+  // 제출 완료된 해결안의 '산출물'만 수정 저장(제출 건수·스탬프·슬라이드 재처리 없음).
+  async function saveEdit() {
+    if (!complete || saving) return;
+    setSaving(true);
+    try {
+      const now = Date.now();
+      const submittedHtml = training ? (html || null) : mode === "file" && html ? html : null;
+      const submittedUrl = training ? url.trim() : mode === "url" ? url.trim() : submittedHtml ? "" : fileUrl.trim();
+      const submittedFileName = training ? fileName || null : mode === "file" ? fileName || null : null;
+      await updateDoc(doc(db, projectPath(sessionCode, student.studentId, project.id)), {
+        submission: {
+          url: submittedUrl,
+          html: submittedHtml,
+          htmlFileName: submittedFileName,
+          oneLiner,
+          usage: project.submission.usage ?? null,
+          etc: project.submission.etc ?? null,
+          slidesHtml: project.submission.slidesHtml ?? null,
+          submittedAt: now,
+        },
+      });
+      await setDoc(
+        doc(db, submissionPath(sessionCode, project.id)),
+        { url: submittedUrl, html: submittedHtml, htmlFileName: submittedFileName, oneLiner, submittedAt: now },
+        { merge: true }
+      );
+      onDone?.();
+    } finally {
+      setSaving(false);
+    }
+  }
 
   async function submit() {
     if (!complete) return;
@@ -188,7 +224,7 @@ export function SubmitStage({
     });
   }
 
-  if (project.currentStep === "done") {
+  if (project.currentStep === "done" && !editMode) {
     return (
       <main className="mx-auto max-w-xl px-4 py-10 text-center">
         <Card>
@@ -309,12 +345,18 @@ export function SubmitStage({
           </div>
         </div>
 
-        <Button className="mt-6 w-full" disabled={!complete || saving} onClick={submit}>
-          {saving ? "제출 중..." : "해결안 제출하기"}
-        </Button>
+        {editMode ? (
+          <Button className="mt-6 w-full" disabled={!complete || saving} onClick={saveEdit}>
+            {saving ? "저장 중..." : "산출물 수정 저장"}
+          </Button>
+        ) : (
+          <Button className="mt-6 w-full" disabled={!complete || saving} onClick={submit}>
+            {saving ? "제출 중..." : "해결안 제출하기"}
+          </Button>
+        )}
       </Card>
 
-      {saving && <SubmitProgress progress={progress} phase={phase} />}
+      {saving && !editMode && <SubmitProgress progress={progress} phase={phase} />}
 
       {celebrate && (
         <StampCelebration stamp={5} allDone={willCompleteAllStamps} onDone={() => setCelebrate(false)} />

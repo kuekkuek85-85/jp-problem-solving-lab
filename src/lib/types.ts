@@ -130,6 +130,7 @@ export interface StudentDoc {
   activeProjectId: string | null;
   activeStep: ProjectStep | null; // 현재 활성 프로젝트 진행 단계(교사 로스터 상황 표시용 비정규화)
   helperModeOn?: boolean;
+  editMode?: boolean; // 제출 완료 해결안을 다시 열어 설계도·산출물을 수정 중일 때
   instructorFeedback?: { text: string; sentAt: number } | null; // 교사 연수: 강사(이승엽)가 보낸 피드백
 }
 

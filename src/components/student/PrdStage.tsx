@@ -29,10 +29,14 @@ export function PrdStage({
   sessionCode,
   student,
   project,
+  editMode,
+  onDone,
 }: {
   sessionCode: string;
   student: StudentDoc;
   project: ProjectDoc;
+  editMode?: boolean;
+  onDone?: () => void;
 }) {
   const [prd, setPrd] = useState<PrdData>(() =>
     student.level === "seedling" ? withSeedlingDefaults(project.prd) : project.prd
@@ -254,9 +258,22 @@ export function PrdStage({
           </FieldWithHelp>
         </div>
 
-        <Button className="mt-6 w-full" disabled={!complete} onClick={submit}>
-          설계도 완성하고 다음 단계로
-        </Button>
+        {editMode ? (
+          <Button
+            className="mt-6 w-full"
+            disabled={!complete}
+            onClick={async () => {
+              await updateDoc(doc(db, projectPath(sessionCode, student.studentId, project.id)), { prd }).catch(() => {});
+              onDone?.();
+            }}
+          >
+            설계도 저장하고 닫기
+          </Button>
+        ) : (
+          <Button className="mt-6 w-full" disabled={!complete} onClick={submit}>
+            설계도 완성하고 다음 단계로
+          </Button>
+        )}
       </Card>
 
       {celebrate && <StampCelebration stamp={2} onDone={() => setCelebrate(false)} />}

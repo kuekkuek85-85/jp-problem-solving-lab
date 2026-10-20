@@ -23,6 +23,7 @@ import { GrillmeStage } from "@/components/student/GrillmeStage";
 import { CodingStage } from "@/components/student/CodingStage";
 import { SubmitStage } from "@/components/student/SubmitStage";
 import { SimpleSubmitStage } from "@/components/student/SimpleSubmitStage";
+import { EditSolution } from "@/components/student/EditSolution";
 import { TrainingReviewPanel } from "@/components/student/TrainingReviewPanel";
 import { ClosingStage } from "@/components/student/ClosingStage";
 import { SubmissionGallery } from "@/components/gallery/SubmissionGallery";
@@ -71,6 +72,7 @@ export default function StudentPage() {
       activeRequestId: null,
       activeProjectId: null,
       activeStep: null,
+      editMode: false,
     });
   }
 
@@ -137,6 +139,16 @@ export default function StudentPage() {
       <div>
         <StageHeader student={student} stage="submit" requestTitle={project.requestTitle} onGoToBoard={goToBoard} />
         <SimpleSubmitStage key={project.id} sessionCode={sessionCode} student={student} project={project} />
+      </div>
+    );
+  }
+
+  // 제출 완료한 단계형 해결안을 '내 해결안 > 수정하기'로 다시 열면 설계도·산출물 편집 화면을 보여준다.
+  if (project.currentStep === "done" && student.editMode) {
+    return (
+      <div>
+        <StageHeader student={student} stage="submit" requestTitle={project.requestTitle} onGoToBoard={goToBoard} />
+        <EditSolution sessionCode={sessionCode} student={student} project={project} onDone={goToBoard} />
       </div>
     );
   }

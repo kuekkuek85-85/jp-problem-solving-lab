@@ -100,6 +100,17 @@ body {
 .jp-office-cheer { animation: jp-office-cheer 1.6s ease-in-out infinite; }
 .jp-office-idle { animation: jp-office-bob 3.6s ease-in-out infinite; }
 
+/* 방 안에서 캐릭터가 서성이는(roam) 움직임 — 참가자마다 duration/delay를 달리해 자연스럽게 */
+@keyframes jp-office-roam {
+  0%   { transform: translate(0, 0); }
+  20%  { transform: translate(7px, -2px); }
+  45%  { transform: translate(-3px, -5px); }
+  60%  { transform: translate(-8px, -1px); }
+  80%  { transform: translate(2px, -4px); }
+  100% { transform: translate(0, 0); }
+}
+.jp-office-roam { animation: jp-office-roam 7s ease-in-out infinite; }
+
 /* 발표 슬라이드: Gemini가 생성한 HTML(인라인 style)을 컨테이너에 맞게 강제 조정 */
 .presentation-slide {
   width: 100%;

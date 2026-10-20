@@ -161,15 +161,14 @@ function RequestDetailModal({
                   <p className="text-xs text-slate-600">{s.oneLiner}</p>
                   {s.usage && <p className="text-xs text-slate-500">🕹️ 사용법: {s.usage}</p>}
                   {s.etc && <p className="text-xs text-slate-400">기타: {s.etc}</p>}
-                  {s.html ? (
-                    <HtmlArtifactButton html={s.html} title={s.htmlFileName || s.requestTitle} />
-                  ) : (
-                    s.url && (
+                  <div className="flex flex-wrap items-center gap-3">
+                    {s.html && <HtmlArtifactButton html={s.html} title={s.htmlFileName || s.requestTitle} label="📄 화면 미리보기" />}
+                    {s.url && (
                       <a href={s.url} target="_blank" rel="noreferrer" className="text-xs font-bold text-brand underline">
-                        산출물 열어보기 →
+                        🔗 링크 열기 →
                       </a>
-                    )
-                  )}
+                    )}
+                  </div>
                 </div>
               ))}
             </div>

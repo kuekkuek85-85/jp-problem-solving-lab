@@ -75,17 +75,16 @@ export function TrainingReviewPanel({
               <p className="font-bold text-slate-800">{targetSub.studentName} 님 · {targetSub.requestTitle}</p>
               <p className="mt-0.5 text-sm text-slate-600">{targetSub.oneLiner}</p>
               {targetSub.usage && <p className="mt-0.5 text-xs text-slate-500">🕹️ 사용법: {targetSub.usage}</p>}
-              {targetSub.html ? (
-                <div className="mt-1">
-                  <HtmlArtifactButton html={targetSub.html} title={targetSub.htmlFileName || targetSub.requestTitle} />
-                </div>
-              ) : (
-                targetSub.url && (
-                  <a href={targetSub.url} target="_blank" rel="noreferrer" className="mt-1 inline-block text-xs font-bold text-brand underline">
-                    산출물 열어보기 →
+              <div className="mt-1 flex flex-wrap items-center gap-3">
+                {targetSub.html && (
+                  <HtmlArtifactButton html={targetSub.html} title={targetSub.htmlFileName || targetSub.requestTitle} label="📄 화면 미리보기" />
+                )}
+                {targetSub.url && (
+                  <a href={targetSub.url} target="_blank" rel="noreferrer" className="text-xs font-bold text-brand underline">
+                    🔗 링크 열기 →
                   </a>
-                )
-              )}
+                )}
+              </div>
             </div>
 
             {alreadyReviewed ? (

@@ -8,6 +8,7 @@ import type { ProjectDoc, StudentDoc } from "@/lib/types";
 import { Button, Card, Input } from "@/components/ui";
 import { HtmlArtifactButton } from "@/components/HtmlArtifact";
 import { MAX_INLINE_HTML_BYTES, MAX_UPLOAD_BYTES, isHtmlFile, uploadSubmissionFile } from "@/lib/upload";
+import { isTrainingLab } from "@/lib/constants";
 import { StampCelebration } from "./StampCelebration";
 
 export function SubmitStage({
@@ -32,10 +33,14 @@ export function SubmitStage({
   const [phase, setPhase] = useState("");
   const [celebrate, setCelebrate] = useState(false);
 
+  // 교사 연수용은 토글 없이 '링크 + HTML 파일'을 둘 다 필수로 받는다. 학생용은 기존 토글(둘 중 하나).
+  const training = isTrainingLab(sessionCode);
   const artifactReady = mode === "url" ? !!url.trim() : !!html.trim() || !!fileUrl.trim();
-  const complete = artifactReady && !!oneLiner.trim() && !uploading;
+  const complete = training
+    ? !!url.trim() && !!html.trim() && !!oneLiner.trim() && !uploading
+    : artifactReady && !!oneLiner.trim() && !uploading;
 
-  // 확장자 제한 없음. HTML은 발표에서 바로 렌더링하도록 인라인 저장, 그 외 파일은 Storage에 올려 링크로 저장.
+  // 확장자 제한 없음(학생). 교사 연수는 HTML 파일만. HTML은 인라인 저장, 그 외 파일은 Storage 업로드.
   async function onPickFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     e.target.value = "";
@@ -44,6 +49,11 @@ export function SubmitStage({
     setHtml("");
     setFileUrl("");
     setFileName("");
+
+    if (training && !isHtmlFile(file)) {
+      setFileError("HTML 파일(.html)을 올려주세요.");
+      return;
+    }
 
     if (isHtmlFile(file)) {
       if (file.size > MAX_INLINE_HTML_BYTES) {
@@ -85,9 +95,10 @@ export function SubmitStage({
     let timer: ReturnType<typeof setInterval> | null = null;
     try {
       const now = Date.now();
-      const submittedHtml = mode === "file" && html ? html : null;
-      const submittedUrl = mode === "url" ? url.trim() : submittedHtml ? "" : fileUrl.trim();
-      const submittedFileName = mode === "file" ? fileName || null : null;
+      // 교사 연수: 링크 + HTML 둘 다 저장. 학생: 토글(url 또는 파일) 중 하나.
+      const submittedHtml = training ? (html || null) : mode === "file" && html ? html : null;
+      const submittedUrl = training ? url.trim() : mode === "url" ? url.trim() : submittedHtml ? "" : fileUrl.trim();
+      const submittedFileName = training ? fileName || null : mode === "file" ? fileName || null : null;
       const priorSlidesHtml: string | null = project.submission.slidesHtml ?? null;
 
       // 1) 프로젝트 문서를 제출 완료 상태로 저장.
@@ -185,21 +196,22 @@ export function SubmitStage({
           <h2 className="mt-3 text-lg font-black">해결안을 제출했어요!</h2>
           <p className="mt-1 text-sm text-slate-500">{project.requestTitle} 의뢰가 해결됐습니다.</p>
 
-          {project.submission.html ? (
-            <div className="mt-4">
-              <HtmlArtifactButton
-                html={project.submission.html}
-                title={project.submission.htmlFileName || project.requestTitle}
-                label="📄 제출한 산출물 열어보기"
-                className="text-sm font-bold text-brand underline"
-              />
+          {(project.submission.html || project.submission.url) && (
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-4">
+              {project.submission.html && (
+                <HtmlArtifactButton
+                  html={project.submission.html}
+                  title={project.submission.htmlFileName || project.requestTitle}
+                  label="📄 화면 미리보기"
+                  className="text-sm font-bold text-brand underline"
+                />
+              )}
+              {project.submission.url && (
+                <a href={project.submission.url} target="_blank" rel="noreferrer" className="text-sm font-bold text-brand underline">
+                  🔗 링크 열기
+                </a>
+              )}
             </div>
-          ) : (
-            project.submission.url && (
-              <a href={project.submission.url} target="_blank" rel="noreferrer" className="mt-4 inline-block text-sm font-bold text-brand underline">
-                🔗 제출한 산출물 열어보기
-              </a>
-            )
           )}
 
           <Button className="mt-6 w-full" onClick={goToBoard}>
@@ -215,9 +227,33 @@ export function SubmitStage({
     <main className="mx-auto max-w-xl px-4 py-6">
       <Card>
         <h2 className="mb-1 text-lg font-black">해결안 제출 · 배포</h2>
-        <p className="mb-5 text-sm text-slate-500">완성한 산출물의 링크를 내거나, 파일을 올려주세요.</p>
+        <p className="mb-5 text-sm text-slate-500">
+          {training ? "산출물 링크와 HTML 파일을 모두 제출해주세요. (둘 다 필수)" : "완성한 산출물의 링크를 내거나, 파일을 올려주세요."}
+        </p>
 
         <div className="space-y-4">
+          {training ? (
+            <>
+              <div>
+                <label className="mb-1 block text-sm font-bold text-slate-800">산출물 링크(URL) <span className="text-red-500">*</span></label>
+                <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://... (배포 주소·공유 링크)" />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-bold text-slate-800">HTML 파일 <span className="text-red-500">*</span></label>
+                <label className="flex cursor-pointer items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm font-bold text-slate-500 hover:border-brand-soft hover:bg-brand-soft/5">
+                  <input type="file" accept=".html,.htm,text/html" onChange={onPickFile} className="hidden" />
+                  {fileName ? `📄 ${fileName} (다시 선택하려면 클릭)` : "📄 .html 파일을 선택하세요"}
+                </label>
+                {fileError && <p className="mt-1.5 text-xs font-bold text-red-600">{fileError}</p>}
+                {html.trim() && (
+                  <div className="mt-2">
+                    <HtmlArtifactButton html={html} title={fileName || "산출물 미리보기"} label="👀 업로드한 화면 미리보기" className="text-xs font-bold text-brand underline" />
+                  </div>
+                )}
+                <p className="mt-1.5 text-xs text-slate-400">HTML 파일은 강사 검토의 ‘설계–산출물 일치도’ 분석과 발표회 화면 표시에 쓰여요.</p>
+              </div>
+            </>
+          ) : (
           <div>
             <div className="mb-2 inline-flex rounded-full bg-slate-200 p-1 text-xs font-bold">
               <button
@@ -266,6 +302,7 @@ export function SubmitStage({
               </div>
             )}
           </div>
+          )}
           <div>
             <label className="mb-1 block text-sm font-bold text-slate-800">한 줄 소개</label>
             <Input value={oneLiner} onChange={(e) => setOneLiner(e.target.value)} placeholder="어떤 문제를 어떻게 해결했나요?" />

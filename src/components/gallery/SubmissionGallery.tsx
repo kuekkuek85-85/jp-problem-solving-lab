@@ -126,16 +126,17 @@ function SubmissionCard({
           {submission.badges.includes("challenger") && <span>🚀</span>}
         </div>
       )}
-      {submission.html ? (
-        <div className="mt-2">
-          <HtmlArtifactButton html={submission.html} title={submission.htmlFileName || submission.requestTitle} />
+      {(submission.html || submission.url) && (
+        <div className="mt-2 flex flex-wrap items-center gap-3">
+          {submission.html && (
+            <HtmlArtifactButton html={submission.html} title={submission.htmlFileName || submission.requestTitle} label="📄 화면 미리보기" />
+          )}
+          {submission.url && (
+            <a href={submission.url} target="_blank" rel="noreferrer" className="text-xs font-bold text-brand underline">
+              🔗 링크 열기 →
+            </a>
+          )}
         </div>
-      ) : (
-        submission.url && (
-          <a href={submission.url} target="_blank" rel="noreferrer" className="mt-2 inline-block text-xs font-bold text-brand underline">
-            산출물 열어보기 →
-          </a>
-        )
       )}
 
       {isMine && (

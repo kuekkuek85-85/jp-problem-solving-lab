@@ -189,27 +189,27 @@ function StudentDetailModal({
                 ))}
               </Section>
             )}
-            {project.submission.html ? (
+            {(project.submission.html || project.submission.url) && (
               <Section title="제출된 산출물">
-                <HtmlArtifactButton
-                  html={project.submission.html}
-                  title={project.submission.htmlFileName || project.requestTitle}
-                  label={`📄 ${project.submission.htmlFileName || "HTML 산출물"} 열어보기`}
-                  className="text-brand underline"
-                />
+                <div className="flex flex-wrap items-center gap-3">
+                  {project.submission.html && (
+                    <HtmlArtifactButton
+                      html={project.submission.html}
+                      title={project.submission.htmlFileName || project.requestTitle}
+                      label={`📄 ${project.submission.htmlFileName || "HTML 산출물"} 열어보기`}
+                      className="text-brand underline"
+                    />
+                  )}
+                  {project.submission.url && (
+                    <a href={project.submission.url} target="_blank" className="text-brand underline">
+                      🔗 링크 열기
+                    </a>
+                  )}
+                </div>
                 <p>{project.submission.oneLiner}</p>
+                {project.submission.usage && <p>🕹️ 사용법: {project.submission.usage}</p>}
+                {project.submission.etc && <p>기타: {project.submission.etc}</p>}
               </Section>
-            ) : (
-              project.submission.url && (
-                <Section title="제출된 산출물">
-                  <a href={project.submission.url} target="_blank" className="text-brand underline">
-                    {project.submission.url}
-                  </a>
-                  <p>{project.submission.oneLiner}</p>
-                  {project.submission.usage && <p>🕹️ 사용법: {project.submission.usage}</p>}
-                  {project.submission.etc && <p>기타: {project.submission.etc}</p>}
-                </Section>
-              )
             )}
           </div>
         ) : (

@@ -97,36 +97,35 @@ function slotIn(room: Room, i: number, n: number): { left: number; top: number }
   return { left, top };
 }
 
-/* ── 고양이 팔레트(8종) ─────────────────────────── */
-interface Palette { b: string; d: string; e: string; l: string; p: string; i: string }
+/* ── 고양이 팔레트(8종) — s: 줄무늬색(태비). 없으면 몸색과 동일(단색) ── */
+interface Palette { b: string; d: string; e: string; l: string; p: string; i: string; s: string }
 const CATS: Palette[] = [
-  { b: "#f2a44c", d: "#9a4f1f", e: "#2a2a2a", l: "#ffe3c0", p: "#e06a86", i: "#f4b9c6" }, // 치즈
-  { b: "#a7b0ba", d: "#525c66", e: "#2a2a2a", l: "#e6ebf0", p: "#e06a86", i: "#f4b9c6" }, // 회색
-  { b: "#3c414b", d: "#202329", e: "#9be36a", l: "#5a5f69", p: "#e06a86", i: "#7a4a55" }, // 검정
-  { b: "#f3f1ec", d: "#b7b3aa", e: "#2a2a2a", l: "#ffffff", p: "#e06a86", i: "#f4b9c6" }, // 흰색
-  { b: "#b2794b", d: "#5f3d22", e: "#2a2a2a", l: "#e8c9a6", p: "#e06a86", i: "#d79a86" }, // 갈색
-  { b: "#ead7b0", d: "#9a7b4f", e: "#2a2a2a", l: "#fff3d8", p: "#e06a86", i: "#f0c7a0" }, // 크림
-  { b: "#8fb6cf", d: "#4a6b84", e: "#2a2a2a", l: "#dcecf5", p: "#e06a86", i: "#f4b9c6" }, // 블루
-  { b: "#33373f", d: "#1c2026", e: "#9be36a", l: "#f3f1ec", p: "#e06a86", i: "#7a4a55" }, // 턱시도
+  { b: "#f2a44c", d: "#9a4f1f", e: "#2a2a2a", l: "#ffe3c0", p: "#e06a86", i: "#f4b9c6", s: "#c9742e" }, // 치즈 태비
+  { b: "#a7b0ba", d: "#525c66", e: "#2a2a2a", l: "#e6ebf0", p: "#e06a86", i: "#f4b9c6", s: "#717c88" }, // 회색 태비
+  { b: "#3c414b", d: "#202329", e: "#9be36a", l: "#5a5f69", p: "#e06a86", i: "#7a4a55", s: "#3c414b" }, // 검정(단색)
+  { b: "#f3f1ec", d: "#b7b3aa", e: "#2a2a2a", l: "#ffffff", p: "#e06a86", i: "#f4b9c6", s: "#f3f1ec" }, // 흰색(단색)
+  { b: "#b2794b", d: "#5f3d22", e: "#2a2a2a", l: "#e8c9a6", p: "#e06a86", i: "#d79a86", s: "#7d4f2c" }, // 갈색 태비
+  { b: "#ead7b0", d: "#9a7b4f", e: "#2a2a2a", l: "#fff3d8", p: "#e06a86", i: "#f0c7a0", s: "#cbb386" }, // 크림 태비
+  { b: "#8fb6cf", d: "#4a6b84", e: "#2a2a2a", l: "#dcecf5", p: "#e06a86", i: "#f4b9c6", s: "#6e96b0" }, // 블루 태비
+  { b: "#33373f", d: "#1c2026", e: "#9be36a", l: "#f3f1ec", p: "#e06a86", i: "#7a4a55", s: "#33373f" }, // 턱시도(단색)
 ];
 
-// 12x11 픽셀 고양이 맵
+// 12행(0~9 몸통) 픽셀 고양이 맵. s=줄무늬. 다리(10행)는 2프레임으로 별도 렌더.
 const CAT_MAP = [
   ".dd......dd.",
   ".did....did.",
   ".dbbdddddbbd",
-  ".dbbbbbbbbbd",
+  ".dbbsbsbsbbd", // 이마 줄무늬
   ".dbebbbbebbd",
   ".dbbbppbbbd.",
   "..dbbllbbd..",
   "...dbbbbd...",
-  "..dbbbbbbd.d",
-  ".dbbbbbbbbdd",
-  "..dd....dd..",
+  "..dbsbsbbd.d", // 몸통 줄무늬
+  ".dbbsbsbsbdd", // 몸통 줄무늬 + 꼬리
 ];
 const CELL = 4;
-function PixelCat({ pal }: { pal: Palette }) {
-  const color: Record<string, string> = { d: pal.d, b: pal.b, e: pal.e, l: pal.l, p: pal.p, i: pal.i };
+function PixelCat({ pal, online = true }: { pal: Palette; online?: boolean }) {
+  const color: Record<string, string> = { d: pal.d, b: pal.b, e: pal.e, l: pal.l, p: pal.p, i: pal.i, s: pal.s };
   const rects: ReactNode[] = [];
   CAT_MAP.forEach((rowStr, y) => {
     for (let x = 0; x < rowStr.length; x++) {
@@ -138,9 +137,25 @@ function PixelCat({ pal }: { pal: Palette }) {
   });
   const w = 12 * CELL;
   const h = 11 * CELL;
+  const fy = 10 * CELL; // 다리 y
+  // 프레임A: 다리 벌림 / 프레임B: 다리 모음 → 교대하면 걷는 것처럼 보인다
+  const feetA = (
+    <g className={online ? "jp-cat-legA" : ""}>
+      <rect x={2 * CELL} y={fy} width={2 * CELL} height={CELL} fill={pal.d} />
+      <rect x={8 * CELL} y={fy} width={2 * CELL} height={CELL} fill={pal.d} />
+    </g>
+  );
+  const feetB = online ? (
+    <g className="jp-cat-legB">
+      <rect x={3 * CELL} y={fy} width={2 * CELL} height={CELL} fill={pal.d} />
+      <rect x={7 * CELL} y={fy} width={2 * CELL} height={CELL} fill={pal.d} />
+    </g>
+  ) : null;
   return (
     <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} shapeRendering="crispEdges" className="jp-pixel block">
       {rects}
+      {feetA}
+      {feetB}
     </svg>
   );
 }
@@ -300,7 +315,7 @@ function Cat({
           )}
           <div className={`relative ${online ? "jp-office-idle" : ""} ${light === "red" && online ? "jp-cat-alert" : ""} ${selected ? "ring-2 ring-amber-300 rounded-full" : ""}`}>
             <div className={online ? "" : "opacity-50 grayscale"}>
-              <PixelCat pal={pal} />
+              <PixelCat pal={pal} online={online} />
             </div>
             {student.helperModeOn && online && (
               <span className="absolute -left-2 top-3 rounded-full bg-emerald-500 px-1 text-[8px] font-bold text-white shadow">🤝</span>

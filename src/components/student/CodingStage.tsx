@@ -96,7 +96,7 @@ export function CodingStage({
 
           <Card>
             <h3 className="mb-2 font-black">진행 메모장</h3>
-            <Textarea rows={5} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="캔바 코드로 작업하며 메모를 남겨보세요" />
+            <Textarea rows={5} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="바이브 코딩하며 메모를 남겨보세요" />
           </Card>
 
           {!project.codingFirstDone ? (

@@ -302,10 +302,9 @@ export const SEED_SLIDES_TRAINING: string[] = [
 ];
 
 export const HELP_CATEGORY_LABELS: Record<string, string> = {
-  prd: "설계도",
-  prompt: "프롬프트",
-  canva: "캔바 조작",
-  error: "오류",
+  design: "설계",
+  build: "구현",
+  debug: "디버깅",
   etc: "기타",
 };
 

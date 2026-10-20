@@ -233,7 +233,7 @@ export interface SubmissionSummaryDoc {
   submittedAt: number;
 }
 
-export type HelpCategory = "prd" | "prompt" | "canva" | "error" | "etc";
+export type HelpCategory = "design" | "build" | "debug" | "etc";
 export type HelpStatus = "open" | "claimed" | "resolved";
 
 export interface HelpRequestDoc {

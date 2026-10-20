@@ -27,7 +27,7 @@ export function HelpWidget({
   existingOpenHelpId: string | null;
 }) {
   const [open, setOpen] = useState(false);
-  const [category, setCategory] = useState<HelpCategory>("prd");
+  const [category, setCategory] = useState<HelpCategory>("design");
   const [memo, setMemo] = useState("");
   const [sending, setSending] = useState(false);
 

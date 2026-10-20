@@ -3,8 +3,10 @@ import type { Level } from "./types";
 export const LAB_NAME = "장평 문제해결연구소";
 export const CLUB_NAME = "하트이로봇 동아리";
 
-// 세션 코드 개념을 없애고 단일 고정 연구소로 운영한다. 모든 데이터는 sessions/main 아래에 저장.
-export const LAB_ID = "main";
+// 학생용은 sessions/main, 교사 연수용은 sessions/training 으로 데이터를 완전히 분리한다.
+export const LAB_ID = "main"; // 학생용(기본)
+export const TRAINING_LAB_ID = "training"; // 교사 연수용
+export const isTrainingLab = (sessionCode: string) => sessionCode === TRAINING_LAB_ID;
 
 // ── 0단계(A) 수준 자가 진단 5문항 ────────────────────────────────
 export interface DiagnosticQuestion {
@@ -46,6 +48,32 @@ export function levelFromScore(score: number): Level {
   if (score <= 3) return "seedling";
   if (score <= 7) return "growing";
   return "sharing";
+}
+
+// ── 교사 연수 사전 설문 ──────────────────────────────────────
+export const TRAINING_TOOLS: string[] = [
+  "Canva AI",
+  "Antigravity",
+  "Claude Code",
+  "Codex",
+  "Lovable",
+  "Replit",
+  "Cursor",
+];
+
+export const VIBE_CODING_ONELINE =
+  "바이브 코딩이란, 코드를 직접 작성하지 않고 AI에게 자연어로 요청해 앱·웹을 만들어내는 방식이에요.";
+
+export function levelFromSurvey(s: {
+  tools: string[];
+  toolsOther: string;
+  vibeExperience: "yes" | "no";
+  vibeApps: string;
+}): Level {
+  if (s.vibeExperience === "no") return "seedling";
+  const toolCount = s.tools.length + (s.toolsOther.trim() ? 1 : 0);
+  if (toolCount >= 3 || s.vibeApps.trim()) return "sharing";
+  return "growing";
 }
 
 // ── 0단계(B) AI 윤리 가이드 체크 서약 ────────────────────────────
@@ -123,7 +151,10 @@ export const SEED_REQUESTS: { title: string; summary: string; difficulty: Level;
   { title: "다국어 가정통신문 변환기(이주배경 학생)", summary: "가정통신문을 여러 언어로 바꿔주는 서비스", difficulty: "sharing" },
   { title: "어려운 안내문을 쉬운 말로 바꿔주는 도우미", summary: "어려운 학교 안내문을 쉬운 말로 풀어주는 서비스", difficulty: "sharing" },
   { title: "단계별 그림 안내(느린 학습자)", summary: "복잡한 절차를 그림과 단계로 쉽게 안내하는 서비스", difficulty: "sharing" },
-  // ── 교사 연수(행정 업무) 샘플 의뢰 ───────────────────────────
+];
+
+// 교사 연수용(sessions/training) 샘플 의뢰 — 행정 업무 중심. 학생용과 완전히 분리.
+export const SEED_REQUESTS_TRAINING: { title: string; summary: string; difficulty: Level; directSubmit?: boolean }[] = [
   { title: "가정통신문 회신 취합기", summary: "가정통신문 동의/부동의와 인원을 온라인으로 받아 자동으로 집계하는 서비스", difficulty: "growing" },
   { title: "방과후·동아리 수요조사 신청·집계", summary: "학생 신청을 받아 강좌·반별로 자동 집계해 보여주는 서비스", difficulty: "growing" },
   { title: "학부모 상담 예약 시스템", summary: "상담 가능한 시간대를 열어두고 학부모가 겹치지 않게 예약하는 서비스", difficulty: "growing" },
@@ -279,3 +310,11 @@ export const REFLECTION_QUESTIONS = [
   { id: "aiLiteracy", label: "③ AI가 만든 것 중 그대로 믿으면 안 됐던 부분은? 어떻게 확인했나요?" },
   { id: "next", label: "④ 실제 학교에서 쓰려면 무엇을 더 해야 할까요?" },
 ] as const;
+
+// lab(학생용/연수용)에 맞는 시드 선택
+export function seedRequestsForLab(sessionCode: string) {
+  return isTrainingLab(sessionCode) ? SEED_REQUESTS_TRAINING : SEED_REQUESTS;
+}
+export function seedSlidesForLab(sessionCode: string) {
+  return isTrainingLab(sessionCode) ? SEED_SLIDES_TRAINING : SEED_SLIDES;
+}

@@ -232,6 +232,24 @@ function StudentDetailModal({
           </div>
         </div>
 
+        {student.trainingSurvey && (
+          <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm">
+            <p className="mb-2 text-xs font-bold text-amber-700">🧑‍🏫 연수 사전 설문</p>
+            <div className="space-y-1 text-slate-700">
+              <p>
+                <b>사용 도구:</b>{" "}
+                {[...student.trainingSurvey.tools, student.trainingSurvey.toolsOther].filter(Boolean).join(", ") || "없음"}
+              </p>
+              <p><b>바이브 코딩 경험:</b> {student.trainingSurvey.vibeExperience === "yes" ? "있다" : "없다"}</p>
+              {student.trainingSurvey.vibeApps && <p><b>만들어 본 앱:</b> {student.trainingSurvey.vibeApps}</p>}
+              <p><b>오늘 만들고 싶은 것:</b> {student.trainingSurvey.workIdea}</p>
+              {student.trainingSurvey.antiOutsourcing && (
+                <p><b>사고의 외주화 방지 노력:</b> {student.trainingSurvey.antiOutsourcing}</p>
+              )}
+            </div>
+          </div>
+        )}
+
         <RecordDraft sessionCode={sessionCode} pin={pin} studentId={student.studentId} />
       </div>
     </div>

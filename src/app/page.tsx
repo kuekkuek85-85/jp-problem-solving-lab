@@ -6,7 +6,7 @@ import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import { sessionPath, studentPath } from "@/lib/paths";
 import { emptyStudent } from "@/lib/factories";
-import { LAB_ID } from "@/lib/constants";
+import { LAB_ID, TRAINING_LAB_ID } from "@/lib/constants";
 import { saveStudentAuth, saveTeacherPin } from "@/lib/local-auth";
 import { Button, Card, Input } from "@/components/ui";
 // 교장선생님 말씀(환영) 팝업은 2회차 수업부터 숨김. 다시 켜려면 아래 <WelcomePopup />를 복원.
@@ -70,6 +70,8 @@ function StudentLogin() {
       return;
     }
     // 이름만 입장(연수)은 학번 검증 생략. ID는 이름에서 생성하고 학번은 비움.
+    // 로그인 방식으로 소속 연구소를 가른다: 학번 → 학생용(main), 이름 → 교사 연수용(training).
+    const lab = mode === "nameOnly" ? TRAINING_LAB_ID : LAB_ID;
     const id = mode === "nameOnly" ? idFromName(trimmedName) : no;
     const noForDoc = mode === "nameOnly" ? "" : no;
     if (mode === "studentNo" && (no.length !== 5 || !/^\d{5}$/.test(no))) {
@@ -79,14 +81,18 @@ function StudentLogin() {
 
     setLoading(true);
     try {
-      const sessionSnap = await getDoc(doc(db, sessionPath(LAB_ID)));
+      const sessionSnap = await getDoc(doc(db, sessionPath(lab)));
       if (!sessionSnap.exists()) {
-        setError("아직 연구소가 열리지 않았어요. 선생님께 확인해주세요.");
+        setError(
+          mode === "nameOnly"
+            ? "아직 연수가 열리지 않았어요. 진행 선생님께 확인해주세요."
+            : "아직 연구소가 열리지 않았어요. 선생님께 확인해주세요."
+        );
         setLoading(false);
         return;
       }
 
-      const studentRef = doc(db, studentPath(LAB_ID, id));
+      const studentRef = doc(db, studentPath(lab, id));
       const studentSnap = await getDoc(studentRef);
       const now = Date.now();
       if (studentSnap.exists()) {
@@ -95,7 +101,7 @@ function StudentLogin() {
         await setDoc(studentRef, emptyStudent({ studentId: id, name: trimmedName, studentNo: noForDoc, now }));
       }
 
-      saveStudentAuth({ studentId: id, name: trimmedName });
+      saveStudentAuth({ studentId: id, name: trimmedName, lab });
       router.push("/student");
     } catch (err) {
       console.error(err);

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { loadTeacherPin, saveTeacherPin } from "@/lib/local-auth";
-import { LAB_ID } from "@/lib/constants";
+import { LAB_ID, TRAINING_LAB_ID } from "@/lib/constants";
 import { useHelpRequests, usePresentation, useRequests, useSession, useStudents, useSubmissions, useReflections } from "@/lib/hooks";
 import { Button, Card, Input, Spinner } from "@/components/ui";
 import { StageControlBar } from "@/components/teacher/StageControlBar";
@@ -17,12 +17,14 @@ type Tab = "roster" | "requests" | "help" | "slides" | "present" | "reflections"
 
 export default function TeacherPage() {
   const [pin, setPin] = useState<string | null>(() => loadTeacherPin());
+  const [mode, setMode] = useState<"student" | "training">("student");
 
   if (!pin) {
     return <PinGate onAuthed={setPin} />;
   }
 
-  return <Dashboard sessionCode={LAB_ID} pin={pin} />;
+  const sessionCode = mode === "training" ? TRAINING_LAB_ID : LAB_ID;
+  return <Dashboard key={sessionCode} sessionCode={sessionCode} pin={pin} mode={mode} setMode={setMode} />;
 }
 
 function PinGate({ onAuthed }: { onAuthed: (pin: string) => void }) {
@@ -69,8 +71,26 @@ function PinGate({ onAuthed }: { onAuthed: (pin: string) => void }) {
   );
 }
 
-function Dashboard({ sessionCode, pin }: { sessionCode: string; pin: string }) {
+function Dashboard({
+  sessionCode,
+  pin,
+  mode,
+  setMode,
+}: {
+  sessionCode: string;
+  pin: string;
+  mode: "student" | "training";
+  setMode: (m: "student" | "training") => void;
+}) {
   const [tab, setTab] = useState<Tab>("roster");
+  // 선택한 모드의 연구소(main/training)가 없으면 개소(해당 모드 시드 포함). 멱등.
+  useEffect(() => {
+    fetch("/api/teacher/session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pin, sessionCode }),
+    }).catch(() => {});
+  }, [pin, sessionCode]);
   const { session, loading } = useSession(sessionCode);
   const students = useStudents(sessionCode);
   const requests = useRequests(sessionCode);
@@ -88,8 +108,9 @@ function Dashboard({ sessionCode, pin }: { sessionCode: string; pin: string }) {
     });
   }
 
+  const modeLabel = mode === "training" ? "교사 연수용" : "학생용";
   async function resetData() {
-    if (!confirm("연구원 데이터(학생·설계도·제출물·발표·성찰·도움요청)를 모두 삭제하고 새 수업을 준비할까요?\n\n공식 의뢰와 브리핑 슬라이드는 그대로 유지돼요. 이 작업은 되돌릴 수 없어요.")) return;
+    if (!confirm(`[${modeLabel}] 참가자 데이터(참가자·설계도·제출물·발표·성찰·도움요청)를 모두 삭제할까요?\n\n공식 의뢰와 브리핑 슬라이드는 그대로 유지돼요. ${mode === "training" ? "학생용" : "교사 연수용"} 데이터는 영향받지 않아요.`)) return;
     if (!confirm("정말 초기화할까요? 마지막 확인이에요.")) return;
     const res = await fetch("/api/teacher/reset", {
       method: "POST",
@@ -97,37 +118,7 @@ function Dashboard({ sessionCode, pin }: { sessionCode: string; pin: string }) {
       body: JSON.stringify({ sessionCode, pin }),
     });
     const data = await res.json();
-    alert(data.ok ? "초기화 완료! 깨끗한 상태로 새 수업을 시작할 수 있어요." : `초기화 실패: ${data.error ?? "알 수 없는 오류"}`);
-  }
-
-  async function resetTrainingData() {
-    if (!confirm("연수 참가자(이름으로 입장한 사람) 데이터만 삭제할까요?\n\n학번으로 입장한 학생 데이터와 공식 의뢰·슬라이드는 그대로 보존돼요.")) return;
-    const res = await fetch("/api/teacher/reset-training", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sessionCode, pin }),
-    });
-    const data = await res.json();
-    alert(
-      data.ok
-        ? `연수 데이터 초기화 완료! (참가자 ${data.removedParticipants}명 삭제 · 학생 ${data.keptStudents}명 보존)`
-        : `초기화 실패: ${data.error ?? "알 수 없는 오류"}`
-    );
-  }
-
-  async function resetStudentsData() {
-    if (!confirm("학번으로 입장한 학생 데이터만 삭제할까요?\n\n연수 참가자(이름으로 입장)와 공식 의뢰·슬라이드는 그대로 보존돼요.")) return;
-    const res = await fetch("/api/teacher/reset-students", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sessionCode, pin }),
-    });
-    const data = await res.json();
-    alert(
-      data.ok
-        ? `학생 데이터 초기화 완료! (학생 ${data.removedParticipants}명 삭제 · 연수 참가자 ${data.keptStudents}명 보존)`
-        : `초기화 실패: ${data.error ?? "알 수 없는 오류"}`
-    );
+    alert(data.ok ? `[${modeLabel}] 초기화 완료! 깨끗한 상태로 시작할 수 있어요.` : `초기화 실패: ${data.error ?? "알 수 없는 오류"}`);
   }
 
   if (loading || !session) {
@@ -143,12 +134,33 @@ function Dashboard({ sessionCode, pin }: { sessionCode: string; pin: string }) {
 
   return (
     <div>
-      <StageControlBar sessionCode={sessionCode} pin={pin} session={session} onCloseLab={closeLab} onReset={resetData} onResetTraining={resetTrainingData} onResetStudents={resetStudentsData} />
+      <div className="mx-auto flex max-w-6xl items-center gap-2 px-4 pt-3">
+        <span className="text-xs font-bold text-slate-400">모드</span>
+        <div className="inline-flex rounded-full bg-slate-200 p-1 text-xs font-bold">
+          <button
+            onClick={() => setMode("student")}
+            className={`rounded-full px-4 py-1.5 ${mode === "student" ? "bg-white text-brand-deep shadow" : "text-slate-500"}`}
+          >
+            🎒 학생용
+          </button>
+          <button
+            onClick={() => setMode("training")}
+            className={`rounded-full px-4 py-1.5 ${mode === "training" ? "bg-white text-amber-700 shadow" : "text-slate-500"}`}
+          >
+            🧑‍🏫 교사 연수용
+          </button>
+        </div>
+        <span className="text-xs text-slate-400">
+          {mode === "training" ? "교사 연수 데이터(이름 입장)" : "학생 데이터(학번 입장)"} — 서로 분리돼요
+        </span>
+      </div>
+
+      <StageControlBar sessionCode={sessionCode} pin={pin} session={session} onCloseLab={closeLab} onReset={resetData} />
 
       <div className="mx-auto max-w-6xl px-4 py-4">
         <div className="mb-4 flex items-center justify-between">
-          <div className="text-sm text-slate-500">연구원 {students.length}명</div>
-          <a href="/gallery" target="_blank" className="text-xs font-bold text-brand underline">
+          <div className="text-sm text-slate-500">{mode === "training" ? "참가자" : "연구원"} {students.length}명</div>
+          <a href={mode === "training" ? "/gallery?lab=training" : "/gallery"} target="_blank" className="text-xs font-bold text-brand underline">
             참관자용 해결 보고회 링크 →
           </a>
         </div>

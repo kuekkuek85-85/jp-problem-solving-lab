@@ -28,9 +28,9 @@ import { SubmissionGallery } from "@/components/gallery/SubmissionGallery";
 const LOOP_STAGES: Stage[] = ["analyze", "prd", "grillme", "coding", "submit"];
 
 export default function StudentPage() {
-  const sessionCode = LAB_ID;
   const router = useRouter();
   const auth = useMemo(() => loadStudentAuth(), []);
+  const sessionCode = auth?.lab ?? LAB_ID;
 
   useEffect(() => {
     if (!auth) {

@@ -4,6 +4,7 @@
 export interface StudentAuthInfo {
   studentId: string;
   name: string;
+  lab?: string; // 소속 연구소(학생용 main / 연수용 training). 없으면 main으로 간주(구버전 호환).
 }
 
 const STUDENT_KEY = "jp-lab-student";

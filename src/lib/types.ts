@@ -94,6 +94,17 @@ export interface DiagnosticAnswers {
   score: number;
 }
 
+// 교사 연수 참가자(이름 로그인)용 사전 설문
+export interface TrainingSurvey {
+  tools: string[]; // 사용해 본 도구(복수)
+  toolsOther: string; // 기타(주관식)
+  vibeExperience: "yes" | "no"; // 바이브 코딩 경험
+  vibeApps: string; // 만들어 본 앱(있다일 때, 콤마 구분)
+  workIdea: string; // 오늘 만들고 싶은 업무 아이디어
+  antiOutsourcing: string; // 사고의 외주화 방지 노력(선택)
+  submittedAt: number;
+}
+
 export interface EthicsPledge {
   checkedAll: boolean;
   pledgedAt: number | null;
@@ -110,6 +121,7 @@ export interface StudentDoc {
   lastActiveAt: number;
   level: Level;
   diagnostic: DiagnosticAnswers | null;
+  trainingSurvey?: TrainingSurvey | null; // 교사 연수 참가자 사전 설문(이름 로그인 시)
   ethicsPledge: EthicsPledge;
   trafficLight: TrafficLight;
   stamps: number[]; // 1..5

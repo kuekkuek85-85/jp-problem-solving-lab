@@ -43,8 +43,16 @@ export default function LandingPage() {
   );
 }
 
+// 이름만으로 입장(교사 연수 참가자용)할 때, 같은 이름이면 같은 계정으로 돌아오도록 이름에서 안정적인 ID를 만든다.
+function idFromName(name: string): string {
+  let h = 5381;
+  for (let i = 0; i < name.length; i++) h = ((h << 5) + h + name.charCodeAt(i)) >>> 0;
+  return "edu-" + h.toString(36);
+}
+
 function StudentLogin() {
   const router = useRouter();
+  const [mode, setMode] = useState<"studentNo" | "nameOnly">("studentNo");
   const [name, setName] = useState("");
   const [studentNo, setStudentNo] = useState("");
   const [error, setError] = useState("");
@@ -61,7 +69,10 @@ function StudentLogin() {
       setError("이름을 입력해주세요.");
       return;
     }
-    if (no.length !== 5 || !/^\d{5}$/.test(no)) {
+    // 이름만 입장(연수)은 학번 검증 생략. ID는 이름에서 생성하고 학번은 비움.
+    const id = mode === "nameOnly" ? idFromName(trimmedName) : no;
+    const noForDoc = mode === "nameOnly" ? "" : no;
+    if (mode === "studentNo" && (no.length !== 5 || !/^\d{5}$/.test(no))) {
       setError("학번 5자리(예: 20301)를 입력해주세요.");
       return;
     }
@@ -75,16 +86,16 @@ function StudentLogin() {
         return;
       }
 
-      const studentRef = doc(db, studentPath(LAB_ID, no));
+      const studentRef = doc(db, studentPath(LAB_ID, id));
       const studentSnap = await getDoc(studentRef);
       const now = Date.now();
       if (studentSnap.exists()) {
         await updateDoc(studentRef, { lastActiveAt: now, name: trimmedName });
       } else {
-        await setDoc(studentRef, emptyStudent({ studentId: no, name: trimmedName, studentNo: no, now }));
+        await setDoc(studentRef, emptyStudent({ studentId: id, name: trimmedName, studentNo: noForDoc, now }));
       }
 
-      saveStudentAuth({ studentId: no, name: trimmedName });
+      saveStudentAuth({ studentId: id, name: trimmedName });
       router.push("/student");
     } catch (err) {
       console.error(err);
@@ -96,19 +107,41 @@ function StudentLogin() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label className="mb-1 block text-sm font-bold text-slate-800">학번 (5자리)</label>
-        <Input
-          value={studentNo}
-          onChange={(e) => setStudentNo(e.target.value.replace(/\D/g, "").slice(0, 5))}
-          placeholder="예: 20301 (2학년 3반 1번)"
-          inputMode="numeric"
-        />
+      <div className="inline-flex w-full rounded-full bg-slate-200 p-1 text-xs font-bold">
+        <button
+          type="button"
+          onClick={() => { setMode("studentNo"); setError(""); }}
+          className={`flex-1 rounded-full px-3 py-1.5 ${mode === "studentNo" ? "bg-white text-brand-deep shadow" : "text-slate-500"}`}
+        >
+          학번으로 입장
+        </button>
+        <button
+          type="button"
+          onClick={() => { setMode("nameOnly"); setError(""); }}
+          className={`flex-1 rounded-full px-3 py-1.5 ${mode === "nameOnly" ? "bg-white text-brand-deep shadow" : "text-slate-500"}`}
+        >
+          이름으로 입장(연수)
+        </button>
       </div>
+
+      {mode === "studentNo" && (
+        <div>
+          <label className="mb-1 block text-sm font-bold text-slate-800">학번 (5자리)</label>
+          <Input
+            value={studentNo}
+            onChange={(e) => setStudentNo(e.target.value.replace(/\D/g, "").slice(0, 5))}
+            placeholder="예: 20301 (2학년 3반 1번)"
+            inputMode="numeric"
+          />
+        </div>
+      )}
       <div>
         <label className="mb-1 block text-sm font-bold text-slate-800">이름</label>
         <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="홍길동" />
       </div>
+      {mode === "nameOnly" && (
+        <p className="text-xs text-slate-400">교사 연수 참가자는 성함만 입력하면 입장할 수 있어요. (같은 이름으로 다시 들어오면 이어서 진행돼요)</p>
+      )}
       {error && <p className="text-sm font-bold text-red-600">{error}</p>}
       <Button type="submit" disabled={loading} className="w-full">
         {loading ? "입장하는 중..." : "연구소 입장하기"}

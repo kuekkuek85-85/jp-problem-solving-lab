@@ -124,6 +124,15 @@ export const SEED_REQUESTS: { title: string; summary: string; difficulty: Level;
   { title: "다국어 가정통신문 변환기(이주배경 학생)", summary: "가정통신문을 여러 언어로 바꿔주는 서비스", difficulty: "sharing" },
   { title: "어려운 안내문을 쉬운 말로 바꿔주는 도우미", summary: "어려운 학교 안내문을 쉬운 말로 풀어주는 서비스", difficulty: "sharing" },
   { title: "단계별 그림 안내(느린 학습자)", summary: "복잡한 절차를 그림과 단계로 쉽게 안내하는 서비스", difficulty: "sharing" },
+  // ── 교사 연수(행정 업무) 샘플 의뢰 ───────────────────────────
+  { title: "가정통신문 회신 취합기", summary: "가정통신문 동의/부동의와 인원을 온라인으로 받아 자동으로 집계하는 서비스", difficulty: "growing" },
+  { title: "방과후·동아리 수요조사 신청·집계", summary: "학생 신청을 받아 강좌·반별로 자동 집계해 보여주는 서비스", difficulty: "growing" },
+  { title: "학부모 상담 예약 시스템", summary: "상담 가능한 시간대를 열어두고 학부모가 겹치지 않게 예약하는 서비스", difficulty: "growing" },
+  { title: "특별실(과학실·음악실 등) 사용 예약", summary: "특별실 사용 일정을 신청하고 겹침을 막아주는 예약 서비스", difficulty: "seedling" },
+  { title: "학교 행사 일정 안내·D-day 알림", summary: "학교 행사 일정을 모아 보여주고 디데이를 안내하는 서비스", difficulty: "seedling" },
+  { title: "비품 신청·재고 관리", summary: "교사가 비품을 신청하고 남은 재고를 확인할 수 있는 서비스", difficulty: "growing" },
+  { title: "간단 설문 생성·자동 집계 도우미", summary: "간단한 설문을 만들고 응답을 자동으로 집계·시각화하는 서비스", difficulty: "growing" },
+  { title: "공문·안내문 쉬운 말 요약 도우미", summary: "복잡한 공문이나 안내문을 쉬운 말로 요약해주는 AI 도우미", difficulty: "sharing" },
 ];
 
 // ── 브리핑 슬라이드 자동 생성(단계별 교사 안내) ──────────────────

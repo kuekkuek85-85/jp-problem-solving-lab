@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getAdminDb } from "@/lib/firebase/admin";
 import { generateJson, generateText } from "@/lib/gemini";
 import { checkTeacherPin } from "../../_lib/auth";
-import { LAB_ID } from "@/lib/constants";
+import { LAB_ID, isTrainingLab } from "@/lib/constants";
 import type { HelpRequestDoc, ProjectDoc, ReflectionDoc, StudentDoc } from "@/lib/types";
 
 // 생기부(창의적 체험활동 동아리활동 특기사항 / 교과 세부능력 및 특기사항) 문구 초안 생성.
@@ -21,10 +21,23 @@ const SYSTEM = `당신은 대한민국 중학교 교사의 학교생활기록부
 7. 분량은 공백 포함 250~450자 내외의, 자연스럽게 이어지는 하나의 특기사항 문단으로 작성합니다.
 8. 활동 근거가 빈약하면 무리하게 늘리지 말고, 확인된 사실만으로 짧고 담백하게 작성합니다.`;
 
-const OUT_JSON = `\n\n[출력 형식] 아래 JSON 하나만 출력합니다(코드펜스·설명 없이).
-{"draft": "특기사항 문단 텍스트", "basis": ["문구가 근거한 활동 사실 3~6개(교사 검토용, 짧은 구)"]}`;
+// 교사 연수용: 강사 '이승엽'이 참가 선생님께 드리는 피드백 초안(생기부 아님).
+const SYSTEM_TRAINING = `당신은 교사 연수의 강사 '이승엽'입니다. 연수에 참여한 한 선생님이 '바이브 코딩'으로 학교 행정 업무 문제를 해결해 본 활동 기록을 바탕으로, 그 선생님께 드리는 따뜻하고 구체적인 '피드백 초안'을 작성합니다. (학생 생활기록부가 아닙니다.)
 
-const OUT_TEXT = `\n\n[출력 형식] 특기사항 문단 텍스트만 출력합니다. 머리말·설명·JSON·따옴표 없이 문단만 작성합니다.`;
+[작성 지침]
+1. 제공된 활동 '사실'에 근거해, 잘하신 점과 더 발전시키면 좋을 점을 균형 있게 담습니다.
+2. 바이브 코딩·AI 활용 관점에서 구체적으로 짚어 줍니다: 문제 정의, 설계, 프롬프트 활용, 정보윤리 고려, 산출물 등.
+3. 실제 학교 업무에 적용·확장할 수 있는 현실적인 제안을 한 가지 덧붙입니다.
+4. 존댓말로, 격려하는 따뜻한 어조로 씁니다. 과장 없이 담백하게.
+5. 분량은 공백 포함 200~350자 내외의 자연스러운 한 문단.
+6. 도구·제품명(캔바, Gemini, ChatGPT, Claude 등)은 자유롭게 언급해도 됩니다.
+7. 대상 선생님의 실명은 본문에 넣지 않습니다(강사가 대상자와 매칭합니다). 호칭은 '선생님'을 사용합니다.
+8. 활동 근거가 빈약하면 무리하게 늘리지 말고, 확인된 내용만으로 짧고 담백하게 작성합니다.`;
+
+const OUT_JSON = `\n\n[출력 형식] 아래 JSON 하나만 출력합니다(코드펜스·설명 없이).
+{"draft": "문단 텍스트", "basis": ["문구가 근거한 활동 사실 3~6개(검토용, 짧은 구)"]}`;
+
+const OUT_TEXT = `\n\n[출력 형식] 문단 텍스트만 출력합니다. 머리말·설명·JSON·따옴표 없이 문단만 작성합니다.`;
 
 // 오류 원인을 교사에게 간결히 노출(진단용). 민감정보는 담기지 않는다.
 function reason(e: unknown): string {
@@ -114,19 +127,30 @@ export async function POST(req: Request) {
     );
   }
 
-  const userPrompt = `다음은 한 학생이 '문제해결 연구소(AI 바이브 코딩)' 동아리 활동에서 남긴 활동 기록입니다(비식별). 이를 근거로 규칙에 맞는 생기부 특기사항 초안을 작성하세요.\n\n${digest.join("\n")}`;
+  const training = isTrainingLab(sessionCode);
+  if (training && student.trainingSurvey) {
+    const sv = student.trainingSurvey;
+    digest.push(
+      `사전 설문: 사용 도구=${[...sv.tools, sv.toolsOther].filter(Boolean).join(", ") || "없음"} / 바이브 코딩 경험=${sv.vibeExperience === "yes" ? "있음" : "없음"}${sv.vibeApps ? ` / 만들어 본 앱=${sv.vibeApps}` : ""} / 오늘 만들고 싶은 것=${sv.workIdea || "-"}${sv.antiOutsourcing ? ` / 사고의 외주화 방지 노력=${sv.antiOutsourcing}` : ""}`
+    );
+  }
+
+  const SYS = training ? SYSTEM_TRAINING : SYSTEM;
+  const userPrompt = training
+    ? `다음은 교사 연수에 참여한 한 선생님이 '바이브 코딩'으로 행정 업무 문제를 해결해 본 활동 기록입니다(비식별). 이를 근거로 지침에 맞는 '선생님 피드백 초안'을 작성하세요.\n\n${digest.join("\n")}`
+    : `다음은 한 학생이 '문제해결 연구소(AI 바이브 코딩)' 동아리 활동에서 남긴 활동 기록입니다(비식별). 이를 근거로 규칙에 맞는 생기부 특기사항 초안을 작성하세요.\n\n${digest.join("\n")}`;
 
   // 1차: 구조화(JSON) 생성. 실패하면 2차: 평문 문단으로 폴백해 최대한 초안을 돌려준다.
   let draft = "";
   let basis: string[] = [];
   try {
-    const result = await generateJson<{ draft: string; basis: string[] }>(SYSTEM + OUT_JSON, userPrompt);
+    const result = await generateJson<{ draft: string; basis: string[] }>(SYS + OUT_JSON, userPrompt);
     draft = (result.draft ?? "").trim();
     basis = Array.isArray(result.basis) ? result.basis : [];
   } catch (e1) {
     console.error("[record-draft] JSON gen failed, falling back to text:", e1);
     try {
-      draft = (await generateText(SYSTEM + OUT_TEXT, userPrompt)).trim();
+      draft = (await generateText(SYS + OUT_TEXT, userPrompt)).trim();
     } catch (e2) {
       console.error("[record-draft] text gen failed:", e2);
       return NextResponse.json({ ok: false, error: "AI 초안 생성 실패: " + reason(e2) }, { status: 500 });

@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import { studentPath } from "@/lib/paths";
+import { TRAINING_LAB_ID } from "@/lib/constants";
 import { useMyProjects, useProject, useSubmissions } from "@/lib/hooks";
 import { STAGE_LABELS, type HelpRequestDoc, type Level, type ProjectStep, type StudentDoc } from "@/lib/types";
 import { Card, LevelBadge, TrafficDot } from "@/components/ui";
@@ -257,6 +258,7 @@ function StudentDetailModal({
 }
 
 function RecordDraft({ sessionCode, pin, studentId }: { sessionCode: string; pin: string; studentId: string }) {
+  const training = sessionCode === TRAINING_LAB_ID;
   const [loading, setLoading] = useState(false);
   const [draft, setDraft] = useState("");
   const [basis, setBasis] = useState<string[]>([]);
@@ -296,7 +298,7 @@ function RecordDraft({ sessionCode, pin, studentId }: { sessionCode: string; pin
   return (
     <div className="mt-4 rounded-lg border border-brand-soft/40 bg-brand/5 p-3">
       <div className="mb-2 flex items-center justify-between gap-2">
-        <p className="text-sm font-black text-brand-deep">✍️ 생기부 문구 초안</p>
+        <p className="text-sm font-black text-brand-deep">✍️ {training ? "선생님 피드백 초안" : "생기부 문구 초안"}</p>
         <button
           onClick={generate}
           disabled={loading}
@@ -306,8 +308,17 @@ function RecordDraft({ sessionCode, pin, studentId }: { sessionCode: string; pin
         </button>
       </div>
       <p className="mb-2 text-[11px] leading-relaxed text-slate-500">
-        학생 활동을 근거로 만든 <b>참고용 초안</b>이에요. 상표명은 일반명사로, 명사형 종결(~함)로 작성되며 개인정보는 제외됩니다.
-        <b> 반드시 교사가 사실을 확인하고 다듬어</b> 사용하세요.
+        {training ? (
+          <>
+            참가 선생님의 활동을 근거로 강사(이승엽)가 드리는 <b>피드백 초안</b>이에요.
+            <b> 보내기 전에 확인하고 다듬어</b> 사용하세요.
+          </>
+        ) : (
+          <>
+            학생 활동을 근거로 만든 <b>참고용 초안</b>이에요. 상표명은 일반명사로, 명사형 종결(~함)로 작성되며 개인정보는 제외됩니다.
+            <b> 반드시 교사가 사실을 확인하고 다듬어</b> 사용하세요.
+          </>
+        )}
       </p>
 
       {error && <p className="mb-2 text-xs font-bold text-red-600">{error}</p>}

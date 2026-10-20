@@ -12,6 +12,7 @@ import type { Stage } from "@/lib/types";
 import { Spinner } from "@/components/ui";
 import { StageHeader } from "@/components/student/StageHeader";
 import { HelpWidget } from "@/components/student/HelpWidget";
+import { PeerHelpWidget } from "@/components/student/PeerHelpWidget";
 import { Onboarding } from "@/components/student/Onboarding";
 import { LectureOverlay } from "@/components/student/LectureOverlay";
 import { PresentationOverlay } from "@/components/PresentationOverlay";
@@ -162,6 +163,10 @@ export default function StudentPage() {
           trafficLight={student.trafficLight}
           existingOpenHelpId={myOpenHelp?.id ?? null}
         />
+      )}
+
+      {isTrainingLab(sessionCode) && LOOP_STAGES.includes(stage) && (
+        <PeerHelpWidget sessionCode={sessionCode} meStudentId={studentId} meName={student.name} helpRequests={helpRequests} />
       )}
     </div>
   );

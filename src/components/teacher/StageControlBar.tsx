@@ -13,6 +13,7 @@ export function StageControlBar({
   onCloseLab,
   onReset,
   onResetTraining,
+  onResetStudents,
 }: {
   sessionCode: string;
   pin: string;
@@ -20,6 +21,7 @@ export function StageControlBar({
   onCloseLab: () => void;
   onReset: () => void;
   onResetTraining: () => void;
+  onResetStudents: () => void;
 }) {
   const [busy, setBusy] = useState(false);
 
@@ -62,6 +64,9 @@ export function StageControlBar({
           )}
           <Button variant="secondary" onClick={onResetTraining} className="!px-3 !py-1.5 text-xs !text-amber-700">
             🧑‍🏫 연수 데이터만 초기화
+          </Button>
+          <Button variant="secondary" onClick={onResetStudents} className="!px-3 !py-1.5 text-xs !text-sky-700">
+            🎒 학생 데이터만 초기화
           </Button>
           <Button variant="secondary" onClick={onReset} className="!px-3 !py-1.5 text-xs !text-red-600">
             🗑️ 전체 초기화(학생 포함)

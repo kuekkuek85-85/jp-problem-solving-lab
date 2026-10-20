@@ -115,6 +115,21 @@ function Dashboard({ sessionCode, pin }: { sessionCode: string; pin: string }) {
     );
   }
 
+  async function resetStudentsData() {
+    if (!confirm("학번으로 입장한 학생 데이터만 삭제할까요?\n\n연수 참가자(이름으로 입장)와 공식 의뢰·슬라이드는 그대로 보존돼요.")) return;
+    const res = await fetch("/api/teacher/reset-students", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sessionCode, pin }),
+    });
+    const data = await res.json();
+    alert(
+      data.ok
+        ? `학생 데이터 초기화 완료! (학생 ${data.removedParticipants}명 삭제 · 연수 참가자 ${data.keptStudents}명 보존)`
+        : `초기화 실패: ${data.error ?? "알 수 없는 오류"}`
+    );
+  }
+
   if (loading || !session) {
     return (
       <main className="flex flex-1 items-center justify-center">
@@ -128,7 +143,7 @@ function Dashboard({ sessionCode, pin }: { sessionCode: string; pin: string }) {
 
   return (
     <div>
-      <StageControlBar sessionCode={sessionCode} pin={pin} session={session} onCloseLab={closeLab} onReset={resetData} onResetTraining={resetTrainingData} />
+      <StageControlBar sessionCode={sessionCode} pin={pin} session={session} onCloseLab={closeLab} onReset={resetData} onResetTraining={resetTrainingData} onResetStudents={resetStudentsData} />
 
       <div className="mx-auto max-w-6xl px-4 py-4">
         <div className="mb-4 flex items-center justify-between">

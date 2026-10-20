@@ -12,8 +12,9 @@ import { HelpQueue } from "@/components/teacher/HelpQueue";
 import { SlidesPanel } from "@/components/teacher/SlidesPanel";
 import { ReflectionsPanel } from "@/components/teacher/ReflectionsPanel";
 import { PresentationControl } from "@/components/teacher/PresentationControl";
+import { PromptGuide } from "@/components/teacher/PromptGuide";
 
-type Tab = "roster" | "requests" | "help" | "slides" | "present" | "reflections";
+type Tab = "roster" | "requests" | "help" | "slides" | "present" | "reflections" | "prompt";
 
 export default function TeacherPage() {
   const [pin, setPin] = useState<string | null>(() => loadTeacherPin());
@@ -184,6 +185,11 @@ function Dashboard({
           <TabButton active={tab === "reflections"} onClick={() => setTab("reflections")}>
             성찰 후기 ({reflections.length})
           </TabButton>
+          {mode === "training" && (
+            <TabButton active={tab === "prompt"} onClick={() => setTab("prompt")}>
+              🧭 프롬프트 가이드
+            </TabButton>
+          )}
         </div>
 
         {tab === "roster" && <RosterGrid sessionCode={sessionCode} pin={pin} students={students} helpRequests={helpRequests} />}
@@ -192,6 +198,7 @@ function Dashboard({
         {tab === "slides" && <SlidesPanel sessionCode={sessionCode} pin={pin} session={session} />}
         {tab === "present" && <PresentationControl sessionCode={sessionCode} presentation={presentation} />}
         {tab === "reflections" && <ReflectionsPanel reflections={reflections} students={students} />}
+        {tab === "prompt" && <PromptGuide />}
       </div>
     </div>
   );

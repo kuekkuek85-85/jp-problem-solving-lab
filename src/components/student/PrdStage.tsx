@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import { projectPath } from "@/lib/paths";
-import { PRD_FIELDS, SEEDLING_PRD_TEMPLATE } from "@/lib/constants";
+import { PRD_FIELDS, SEEDLING_PRD_TEMPLATE, peerText } from "@/lib/constants";
 import { advanceProject } from "@/lib/actions";
 import type { PrdData, ProjectDoc, StudentDoc } from "@/lib/types";
 import { Button, Card, Field, Input, Textarea } from "@/components/ui";
@@ -298,7 +298,7 @@ function FieldWithHelp({
         </div>
       )}
       {student.level === "growing" && <p className="mt-1 text-xs text-slate-400">💬 {field.hint}</p>}
-      {student.level === "sharing" && <p className="mt-1 text-xs text-teal-600">🌳 {field.deepQuestion}</p>}
+      {student.level === "sharing" && <p className="mt-1 text-xs text-teal-600">🌳 {peerText(student.studentId, field.deepQuestion)}</p>}
     </div>
   );
 }

@@ -11,6 +11,7 @@ import {
   VIBE_CODING_ONELINE,
   levelFromScore,
   levelFromSurvey,
+  peerText,
 } from "@/lib/constants";
 import { LEVEL_LABELS, type StudentDoc } from "@/lib/types";
 import { Button, Card, Input, LevelBadge, Textarea } from "@/components/ui";
@@ -246,7 +247,7 @@ export function Onboarding({ sessionCode, student }: { sessionCode: string; stud
           <div className="mt-3 flex justify-center">
             <LevelBadge level={student.level} />
           </div>
-          <p className="mt-3 text-sm text-slate-500">{LEVEL_LABELS[student.level].tagline}</p>
+          <p className="mt-3 text-sm text-slate-500">{peerText(student.studentId, LEVEL_LABELS[student.level].tagline)}</p>
           <p className="mt-4 text-sm text-slate-500">잠시 후 의뢰 게시판이 열려요. 선생님의 안내를 기다려주세요.</p>
         </Card>
       )}

@@ -1,6 +1,7 @@
 "use client";
 
 import { LEVEL_LABELS, STAGE_LABELS, type Stage, type StudentDoc } from "@/lib/types";
+import { peerText } from "@/lib/constants";
 import { LevelBadge } from "@/components/ui";
 
 export function StageHeader({
@@ -29,7 +30,7 @@ export function StageHeader({
           <div className="flex items-center gap-2">
             <span className="font-black text-slate-900">{student.name}</span>
             <LevelBadge level={student.level} />
-            <span className="text-xs text-slate-400">{LEVEL_LABELS[student.level].tagline}</span>
+            <span className="text-xs text-slate-400">{peerText(student.studentId, LEVEL_LABELS[student.level].tagline)}</span>
           </div>
           {requestTitle && <div className="text-xs text-slate-500 mt-0.5">맡은 의뢰: {requestTitle}</div>}
         </div>

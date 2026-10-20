@@ -8,6 +8,11 @@ export const LAB_ID = "main"; // 학생용(기본)
 export const TRAINING_LAB_ID = "training"; // 교사 연수용
 export const isTrainingLab = (sessionCode: string) => sessionCode === TRAINING_LAB_ID;
 
+// 교사 연수 참가자(이름 로그인, id 'edu-')에게는 '친구'를 '동료'로 표기한다. 학생에겐 그대로.
+export function peerText(studentId: string, text: string): string {
+  return studentId.startsWith("edu-") ? text.replace(/친구/g, "동료") : text;
+}
+
 // ── 0단계(A) 수준 자가 진단 5문항 ────────────────────────────────
 export interface DiagnosticQuestion {
   id: string;

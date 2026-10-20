@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { SessionDoc, Slide } from "@/lib/types";
-import { SEED_SLIDES } from "@/lib/constants";
+import { SEED_SLIDES, SEED_SLIDES_TRAINING } from "@/lib/constants";
 import { Button, Card, Textarea } from "@/components/ui";
 
 export function SlidesPanel({ sessionCode, pin, session }: { sessionCode: string; pin: string; session: SessionDoc }) {
@@ -45,6 +45,18 @@ export function SlidesPanel({ sessionCode, pin, session }: { sessionCode: string
     setSaving(true);
     try {
       await call({ slides: defaults, currentSlideIndex: 0 });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function loadTraining() {
+    if (!confirm("현재 슬라이드를 '교사 연수용'(행정 업무 + Gemini·ChatGPT·Claude)으로 교체할까요? 편집한 내용은 사라져요.")) return;
+    const set = SEED_SLIDES_TRAINING.map((markdown, index) => ({ index, markdown }));
+    setSlides(set);
+    setSaving(true);
+    try {
+      await call({ slides: set, currentSlideIndex: 0 });
     } finally {
       setSaving(false);
     }
@@ -104,13 +116,18 @@ export function SlidesPanel({ sessionCode, pin, session }: { sessionCode: string
       </Card>
 
       <Card>
-        <div className="mb-1 flex items-center justify-between gap-2">
+        <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
           <p className="font-bold">슬라이드 ({slides.length}장)</p>
-          <Button variant="secondary" className="!px-3 !py-1.5 text-xs" disabled={saving} onClick={loadDefaults}>
-            ↺ 기본 안내 슬라이드 불러오기
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="secondary" className="!px-3 !py-1.5 text-xs" disabled={saving} onClick={loadTraining}>
+              🧑‍🏫 교사 연수용 불러오기
+            </Button>
+            <Button variant="secondary" className="!px-3 !py-1.5 text-xs" disabled={saving} onClick={loadDefaults}>
+              ↺ 기본(학생용) 불러오기
+            </Button>
+          </div>
         </div>
-        <p className="mb-3 text-xs text-slate-500">단계별 안내 슬라이드가 미리 준비돼 있어요. 그대로 브리핑해도 되고, 필요하면 수정·추가하세요.</p>
+        <p className="mb-3 text-xs text-slate-500">단계별 안내 슬라이드가 미리 준비돼 있어요. 학생용/교사 연수용 중 골라 불러오고, 필요하면 수정·추가하세요.</p>
         <div className="space-y-3">
           {slides.map((s, i) => (
             <div key={i} className="rounded-lg border border-slate-200 p-3">

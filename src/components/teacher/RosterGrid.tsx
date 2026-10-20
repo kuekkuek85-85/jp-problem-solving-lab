@@ -5,8 +5,8 @@ import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import { studentPath } from "@/lib/paths";
 import { TRAINING_LAB_ID } from "@/lib/constants";
-import { useMyProjects, useProject, useSubmissions } from "@/lib/hooks";
-import { STAGE_LABELS, type HelpRequestDoc, type Level, type ProjectStep, type StudentDoc } from "@/lib/types";
+import { useMyProjects, useSubmissions } from "@/lib/hooks";
+import { STAGE_LABELS, type HelpRequestDoc, type Level, type ProjectDoc, type ProjectStep, type StudentDoc } from "@/lib/types";
 import { Card, LevelBadge, TrafficDot } from "@/components/ui";
 import { HtmlArtifactButton } from "@/components/HtmlArtifact";
 
@@ -132,7 +132,6 @@ function StudentDetailModal({
   student: StudentDoc;
   onClose: () => void;
 }) {
-  const { project } = useProject(sessionCode, student.studentId, student.activeProjectId);
   const allProjects = useMyProjects(sessionCode, student.studentId);
 
   async function setLevel(level: Level) {
@@ -166,71 +165,13 @@ function StudentDetailModal({
           ))}
         </div>
 
-        {project ? (
-          <div className="space-y-4 text-sm">
-            <p className="font-bold text-slate-700">현재 진행 중: {project.requestTitle} ({STAGE_LABELS[project.currentStep === "done" ? "board" : project.currentStep]})</p>
-            <Section title="의뢰 분석">
-              <p>누가: {project.analyze.who}</p>
-              <p>언제: {project.analyze.when}</p>
-              <p>무엇 때문에: {project.analyze.what}</p>
-              <p>좋아지는 점: {project.analyze.benefit}</p>
-            </Section>
-            <Section title="설계도">
-              <p>한 줄 소개: {project.prd.oneLiner}</p>
-              <p>핵심 기능: {project.prd.coreFeatures.filter(Boolean).join(", ")}</p>
-              <p>AI 기능: {project.prd.aiFeature.needed === "yes" ? project.prd.aiFeature.description : "불필요"}</p>
-            </Section>
-            {project.grillme.questions.length > 0 && (
-              <Section title="Grill Me 답변">
-                {project.grillme.questions.map((q, i) => (
-                  <p key={i}>
-                    Q. {q.text} → {project.grillme.answers[i]}
-                  </p>
-                ))}
-              </Section>
-            )}
-            {(project.submission.html || project.submission.url) && (
-              <Section title="제출된 산출물">
-                <div className="flex flex-wrap items-center gap-3">
-                  {project.submission.html && (
-                    <HtmlArtifactButton
-                      html={project.submission.html}
-                      title={project.submission.htmlFileName || project.requestTitle}
-                      label={`📄 ${project.submission.htmlFileName || "HTML 산출물"} 열어보기`}
-                      className="text-brand underline"
-                    />
-                  )}
-                  {project.submission.url && (
-                    <a href={project.submission.url} target="_blank" className="text-brand underline">
-                      🔗 링크 열기
-                    </a>
-                  )}
-                </div>
-                <p>{project.submission.oneLiner}</p>
-                {project.submission.usage && <p>🕹️ 사용법: {project.submission.usage}</p>}
-                {project.submission.etc && <p>기타: {project.submission.etc}</p>}
-              </Section>
-            )}
-          </div>
-        ) : (
-          <p className="text-sm text-slate-400">현재 진행 중인 의뢰가 없어요.</p>
-        )}
-
-        <div className="mt-4 border-t border-slate-100 pt-3">
-          <p className="mb-2 text-xs font-bold text-slate-400">맡은 의뢰 {allProjects.length}건</p>
-          <div className="space-y-1">
-            {allProjects.length === 0 && <p className="text-sm text-slate-400">아직 맡은 의뢰가 없어요.</p>}
-            {allProjects.map((p) => (
-              <div key={p.id} className="flex items-center justify-between gap-2 rounded-lg bg-slate-50 px-3 py-2 text-sm">
-                <span className="truncate font-bold text-slate-700">{p.requestTitle}</span>
-                {p.currentStep === "done" ? (
-                  <span className="shrink-0 text-xs font-bold text-emerald-600">✅ 완료</span>
-                ) : (
-                  <span className="shrink-0 text-xs font-bold text-sky-600">진행 중 · {STAGE_LABELS[p.currentStep]}</span>
-                )}
-              </div>
-            ))}
-          </div>
+        <div className="space-y-3">
+          <p className="text-xs font-bold text-slate-400">맡은 의뢰 {allProjects.length}건 — 과정별 보기</p>
+          {allProjects.length === 0 ? (
+            <p className="text-sm text-slate-400">아직 맡은 의뢰가 없어요.</p>
+          ) : (
+            allProjects.map((p) => <ProjectProcess key={p.id} project={p} />)
+          )}
         </div>
 
         {student.trainingSurvey && (
@@ -369,6 +310,93 @@ function RecordDraft({ sessionCode, pin, studentId }: { sessionCode: string; pin
           )}
         </>
       )}
+    </div>
+  );
+}
+
+function ProjectProcess({ project }: { project: ProjectDoc }) {
+  const a = project.analyze ?? ({} as ProjectDoc["analyze"]);
+  const prd = project.prd ?? ({} as ProjectDoc["prd"]);
+  const core = (prd.coreFeatures ?? []).filter(Boolean);
+  const gq = project.grillme?.questions ?? [];
+  const ga = project.grillme?.answers ?? [];
+  const ethics = [
+    prd.ethicsCheck?.privacy?.note && `개인정보: ${prd.ethicsCheck.privacy.note}`,
+    prd.ethicsCheck?.copyright?.note && `저작권: ${prd.ethicsCheck.copyright.note}`,
+    prd.ethicsCheck?.fairness?.note && `공정성: ${prd.ethicsCheck.fairness.note}`,
+  ].filter(Boolean) as string[];
+  const done = project.currentStep === "done";
+
+  return (
+    <div className="rounded-xl border border-slate-200 p-3">
+      <p className="mb-2 font-black text-slate-800">
+        {project.requestTitle}{" "}
+        {done ? (
+          <span className="text-xs font-bold text-emerald-600">✅ 완료</span>
+        ) : (
+          <span className="text-xs font-bold text-sky-600">진행 중 · {STAGE_LABELS[project.currentStep === "done" ? "submit" : project.currentStep]}</span>
+        )}
+      </p>
+      <div className="space-y-3 text-sm">
+        {(a.who || a.when || a.what || a.benefit) && (
+          <Section title="① 의뢰 분석">
+            {a.who && <p>누가: {a.who}</p>}
+            {a.when && <p>언제: {a.when}</p>}
+            {a.what && <p>무엇 때문에: {a.what}</p>}
+            {a.benefit && <p>좋아지는 점: {a.benefit}</p>}
+          </Section>
+        )}
+
+        <Section title="② 설계도(작업지시서)">
+          {prd.problem && <p>문제 상황: {prd.problem}</p>}
+          {prd.oneLiner && <p>한 줄 소개: {prd.oneLiner}</p>}
+          {prd.usersNote && <p>사용자: {prd.usersNote}</p>}
+          {core.length > 0 && <p>핵심 기능: {core.join(" / ")}</p>}
+          {prd.niceToHave && <p>있으면 좋은 기능: {prd.niceToHave}</p>}
+          <p>AI 기능: {prd.aiFeature?.needed === "yes" ? prd.aiFeature.description || "사용" : "불필요"}</p>
+          {prd.screen && <p>화면 구성: {prd.screen}</p>}
+          {prd.dataToStore && <p>저장할 정보: {prd.dataToStore}</p>}
+          {prd.successMetric && <p>성공 기준: {prd.successMetric}</p>}
+          {ethics.length > 0 && <p>지켜야 할 것: {ethics.join(" · ")}</p>}
+        </Section>
+
+        {gq.length > 0 && (
+          <Section title="③ AI Grill Me 검토">
+            {gq.map((q, i) => (
+              <p key={i}>Q. {q.text} → {ga[i] || "-"}</p>
+            ))}
+          </Section>
+        )}
+
+        {project.codingNotes && (
+          <Section title="④ 코딩 메모">
+            <p className="whitespace-pre-wrap">{project.codingNotes}</p>
+          </Section>
+        )}
+
+        {(project.submission.html || project.submission.url) && (
+          <Section title="⑤ 제출된 산출물">
+            <div className="flex flex-wrap items-center gap-3">
+              {project.submission.html && (
+                <HtmlArtifactButton
+                  html={project.submission.html}
+                  title={project.submission.htmlFileName || project.requestTitle}
+                  label={`📄 ${project.submission.htmlFileName || "HTML 산출물"} 열어보기`}
+                  className="text-brand underline"
+                />
+              )}
+              {project.submission.url && (
+                <a href={project.submission.url} target="_blank" className="text-brand underline">
+                  🔗 링크 열기
+                </a>
+              )}
+            </div>
+            {project.submission.oneLiner && <p>{project.submission.oneLiner}</p>}
+            {project.submission.usage && <p>🕹️ 사용법: {project.submission.usage}</p>}
+            {project.submission.etc && <p>기타: {project.submission.etc}</p>}
+          </Section>
+        )}
+      </div>
     </div>
   );
 }

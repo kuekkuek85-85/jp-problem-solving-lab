@@ -74,6 +74,32 @@ body {
 }
 .jp-float { animation: jp-float 3s ease-in-out infinite; }
 
+/* 사무실 뷰(교사 연수 실시간 현황) 캐릭터 동작 */
+@keyframes jp-office-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+@keyframes jp-office-work {
+  0%, 100% { transform: translateY(0) rotate(-1.5deg); }
+  50% { transform: translateY(-3px) rotate(1.5deg); }
+}
+@keyframes jp-office-cheer {
+  0%, 100% { transform: translateY(0) scale(1); }
+  30% { transform: translateY(-10px) scale(1.04); }
+  60% { transform: translateY(-2px) scale(1); }
+}
+@keyframes jp-office-stuck {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  25% { transform: translateX(-2px) rotate(-2deg); }
+  75% { transform: translateX(2px) rotate(2deg); }
+}
+/* 작업 중(초록): 편안한 끄덕임 / 고민 중(노랑): 꼼지락 / 막힘(빨강): 좌우 흔들림 / 완료: 환호 */
+.jp-office-green { animation: jp-office-bob 2.4s ease-in-out infinite; }
+.jp-office-yellow { animation: jp-office-work 1.1s ease-in-out infinite; }
+.jp-office-red { animation: jp-office-stuck 0.5s ease-in-out infinite; }
+.jp-office-cheer { animation: jp-office-cheer 1.6s ease-in-out infinite; }
+.jp-office-idle { animation: jp-office-bob 3.6s ease-in-out infinite; }
+
 /* 발표 슬라이드: Gemini가 생성한 HTML(인라인 style)을 컨테이너에 맞게 강제 조정 */
 .presentation-slide {
   width: 100%;

@@ -53,6 +53,25 @@ export default function StudentPage() {
   const presentation = usePresentation(sessionCode);
   const submissions = useSubmissions(sessionCode);
 
+  // 프레즌스 하트비트 — 교사 "사무실 뷰"에서 접속 상태를 보여주기 위해 30초마다 lastActiveAt 갱신
+  useEffect(() => {
+    if (!studentId) return;
+    const ref = doc(db, studentPath(sessionCode, studentId));
+    const beat = () => {
+      updateDoc(ref, { lastActiveAt: Date.now() }).catch(() => {});
+    };
+    beat();
+    const id = setInterval(beat, 30_000);
+    const onVisible = () => {
+      if (document.visibilityState === "visible") beat();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [sessionCode, studentId]);
+
   if (!studentId) return null;
   if (sessionLoading || studentLoading || !session || !student) {
     return (

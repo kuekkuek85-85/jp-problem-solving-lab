@@ -13,6 +13,7 @@ import { SlidesPanel } from "@/components/teacher/SlidesPanel";
 import { ReflectionsPanel } from "@/components/teacher/ReflectionsPanel";
 import { PresentationControl } from "@/components/teacher/PresentationControl";
 import { PromptGuide } from "@/components/teacher/PromptGuide";
+import { OfficeView } from "@/components/teacher/OfficeView";
 
 type Tab = "roster" | "requests" | "help" | "slides" | "present" | "reflections" | "prompt";
 
@@ -84,6 +85,7 @@ function Dashboard({
   setMode: (m: "student" | "training") => void;
 }) {
   const [tab, setTab] = useState<Tab>("roster");
+  const [rosterView, setRosterView] = useState<"office" | "card">("office");
   // 선택한 모드의 연구소(main/training)가 없으면 개소(해당 모드 시드 포함). 멱등.
   useEffect(() => {
     fetch("/api/teacher/session", {
@@ -192,7 +194,40 @@ function Dashboard({
           )}
         </div>
 
-        {tab === "roster" && <RosterGrid sessionCode={sessionCode} pin={pin} students={students} helpRequests={helpRequests} />}
+        {tab === "roster" && (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between gap-2">
+              <div className="inline-flex rounded-full bg-slate-200 p-1 text-xs font-bold">
+                <button
+                  onClick={() => setRosterView("office")}
+                  className={`rounded-full px-4 py-1.5 ${rosterView === "office" ? "bg-white text-brand-deep shadow" : "text-slate-500"}`}
+                >
+                  🏢 사무실
+                </button>
+                <button
+                  onClick={() => setRosterView("card")}
+                  className={`rounded-full px-4 py-1.5 ${rosterView === "card" ? "bg-white text-brand-deep shadow" : "text-slate-500"}`}
+                >
+                  🗂️ 카드
+                </button>
+              </div>
+              {rosterView === "office" && (
+                <a
+                  href={mode === "training" ? "/office?lab=training" : "/office"}
+                  target="_blank"
+                  className="text-xs font-bold text-brand underline"
+                >
+                  송출용 전체화면 →
+                </a>
+              )}
+            </div>
+            {rosterView === "office" ? (
+              <OfficeView students={students} submissions={submissions} />
+            ) : (
+              <RosterGrid sessionCode={sessionCode} pin={pin} students={students} helpRequests={helpRequests} />
+            )}
+          </div>
+        )}
         {tab === "requests" && <RequestManager sessionCode={sessionCode} pin={pin} requests={requests} students={students} submissions={submissions} />}
         {tab === "help" && <HelpQueue sessionCode={sessionCode} helpRequests={helpRequests} />}
         {tab === "slides" && <SlidesPanel sessionCode={sessionCode} pin={pin} session={session} />}

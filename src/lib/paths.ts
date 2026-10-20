@@ -26,6 +26,7 @@ export const submissionPath = (sessionCode: string, projectId: string) =>
 export const reactionsPath = (sessionCode: string) => `sessions/${sessionCode}/reactions`;
 
 export const presentationPath = (sessionCode: string) => `sessions/${sessionCode}/meta/presentation`;
+export const peerReviewPath = (sessionCode: string) => `sessions/${sessionCode}/meta/peerReview`;
 
 export const reflectionsPath = (sessionCode: string) => `sessions/${sessionCode}/reflections`;
 export const reflectionPath = (sessionCode: string, studentId: string) =>

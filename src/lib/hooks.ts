@@ -5,6 +5,7 @@ import { collection, doc, onSnapshot, orderBy, query, where } from "firebase/fir
 import { db } from "./firebase/client";
 import {
   helpRequestsPath,
+  peerReviewPath,
   presentationPath,
   projectPath,
   projectsPath,
@@ -171,6 +172,25 @@ export function usePresentation(sessionCode: string | null) {
     if (!sessionCode) return;
     const unsub = onSnapshot(doc(db, presentationPath(sessionCode)), (snap) => {
       setState(snap.exists() ? (snap.data() as PresentationState) : null);
+    });
+    return unsub;
+  }, [sessionCode]);
+
+  return state;
+}
+
+export interface PeerReviewState {
+  assignments: Record<string, string>; // reviewerStudentId -> 검토 대상 projectId
+  createdAt: number;
+}
+
+export function usePeerReview(sessionCode: string | null) {
+  const [state, setState] = useState<PeerReviewState | null>(null);
+
+  useEffect(() => {
+    if (!sessionCode) return;
+    const unsub = onSnapshot(doc(db, peerReviewPath(sessionCode)), (snap) => {
+      setState(snap.exists() ? (snap.data() as PeerReviewState) : null);
     });
     return unsub;
   }, [sessionCode]);

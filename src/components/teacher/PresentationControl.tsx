@@ -1,6 +1,10 @@
 "use client";
 
-import { useSubmissions } from "@/lib/hooks";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase/client";
+import { peerReviewPath } from "@/lib/paths";
+import { isTrainingLab } from "@/lib/constants";
+import { usePeerReview, useSubmissions } from "@/lib/hooks";
 import { endPresentation, startPresentation } from "@/lib/actions";
 import type { PresentationState } from "@/lib/types";
 import { Button, Card, LevelBadge } from "@/components/ui";
@@ -14,6 +18,8 @@ export function PresentationControl({
   presentation: PresentationState | null;
 }) {
   const submissions = useSubmissions(sessionCode);
+  const peer = usePeerReview(sessionCode);
+  const training = isTrainingLab(sessionCode);
   const ordered = [...submissions].sort((a, b) => a.submittedAt - b.submittedAt);
   const activeId = presentation?.activeSubmissionId ?? null;
   const activeIdx = ordered.findIndex((s) => s.projectId === activeId);
@@ -23,12 +29,45 @@ export function PresentationControl({
     if (s) startPresentation(sessionCode, s.projectId, s.studentName);
   }
 
+  async function assignPeerReview() {
+    if (submissions.length < 2) {
+      alert("제출이 2건 이상 쌓인 뒤에 배정할 수 있어요.");
+      return;
+    }
+    if (peer && !confirm("동료 검토를 다시 배정할까요? 기존 배정이 바뀌어요. (이미 작성된 검토는 유지)")) return;
+    const shuffled = [...submissions].sort(() => Math.random() - 0.5);
+    const assignments: Record<string, string> = {};
+    for (let i = 0; i < shuffled.length; i++) {
+      assignments[shuffled[i].studentId] = shuffled[(i + 1) % shuffled.length].projectId;
+    }
+    await setDoc(doc(db, peerReviewPath(sessionCode)), { assignments, createdAt: Date.now() });
+    alert("동료 검토를 배정했어요. 참가자 해결 보고회 화면에 '내가 검토할 동료 산출물'로 나타나요.");
+  }
+
   if (submissions.length === 0) {
     return <p className="text-sm text-slate-400">아직 제출된 해결안이 없어요. 발표할 내용이 쌓이면 여기서 진행할 수 있어요.</p>;
   }
 
   return (
     <div className="space-y-4">
+      {training && (
+        <Card className="border-amber-200 bg-amber-50">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <p className="text-sm font-black text-amber-800">🧑‍🤝‍🧑 동료 검토</p>
+              <p className="text-xs text-slate-500">
+                {peer
+                  ? `배정 완료 (${Object.keys(peer.assignments ?? {}).length}명) · 참가자 화면에 표시 중`
+                  : "제출이 어느 정도 쌓이면 랜덤으로 1:1 배정하세요."}
+              </p>
+            </div>
+            <Button variant="secondary" className="!px-3 !py-1.5 text-xs" onClick={assignPeerReview}>
+              {peer ? "↻ 다시 배정" : "🎲 동료 검토 배정"}
+            </Button>
+          </div>
+        </Card>
+      )}
+
       <Card className={activeId ? "border-brand-soft bg-brand/5" : ""}>
         {activeId ? (
           <div className="flex flex-wrap items-center gap-3">

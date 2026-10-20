@@ -6,7 +6,7 @@ import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import { studentPath } from "@/lib/paths";
 import { loadStudentAuth } from "@/lib/local-auth";
-import { LAB_ID } from "@/lib/constants";
+import { LAB_ID, isTrainingLab } from "@/lib/constants";
 import { useHelpRequests, useMyProjects, usePresentation, useProject, useRequests, useSession, useStudent, useStudents, useSubmissions } from "@/lib/hooks";
 import type { Stage } from "@/lib/types";
 import { Spinner } from "@/components/ui";
@@ -22,6 +22,7 @@ import { GrillmeStage } from "@/components/student/GrillmeStage";
 import { CodingStage } from "@/components/student/CodingStage";
 import { SubmitStage } from "@/components/student/SubmitStage";
 import { SimpleSubmitStage } from "@/components/student/SimpleSubmitStage";
+import { TrainingReviewPanel } from "@/components/student/TrainingReviewPanel";
 import { ClosingStage } from "@/components/student/ClosingStage";
 import { SubmissionGallery } from "@/components/gallery/SubmissionGallery";
 
@@ -100,6 +101,9 @@ export default function StudentPage() {
     return (
       <div>
         <StageHeader student={student} stage="gallery" />
+        {isTrainingLab(sessionCode) && (
+          <TrainingReviewPanel sessionCode={sessionCode} student={student} submissions={submissions} />
+        )}
         <SubmissionGallery sessionCode={sessionCode} canReact fromName={student.name} meStudentId={studentId} />
       </div>
     );

@@ -130,6 +130,7 @@ export interface StudentDoc {
   activeProjectId: string | null;
   activeStep: ProjectStep | null; // 현재 활성 프로젝트 진행 단계(교사 로스터 상황 표시용 비정규화)
   helperModeOn?: boolean;
+  instructorFeedback?: { text: string; sentAt: number } | null; // 교사 연수: 강사(이승엽)가 보낸 피드백
 }
 
 export interface AnalyzeData {
@@ -255,6 +256,11 @@ export interface ReactionDoc {
   fromName: string;
   emoji?: string;
   comment?: string;
+  // 교사 연수 동료 검토용(reactions 재사용)
+  kind?: "peer";
+  reviewerId?: string;
+  good?: string;
+  improve?: string;
   createdAt: number;
 }
 

@@ -295,6 +295,16 @@ function RecordDraft({ sessionCode, pin, studentId }: { sessionCode: string; pin
     setTimeout(() => setCopied(false), 2000);
   }
 
+  const [sent, setSent] = useState(false);
+  async function sendToParticipant() {
+    if (!draft.trim()) return;
+    await updateDoc(doc(db, studentPath(sessionCode, studentId)), {
+      instructorFeedback: { text: draft.trim(), sentAt: Date.now() },
+    });
+    setSent(true);
+    setTimeout(() => setSent(false), 2500);
+  }
+
   return (
     <div className="mt-4 rounded-lg border border-brand-soft/40 bg-brand/5 p-3">
       <div className="mb-2 flex items-center justify-between gap-2">
@@ -333,10 +343,20 @@ function RecordDraft({ sessionCode, pin, studentId }: { sessionCode: string; pin
           />
           <div className="mt-1 flex items-center justify-between">
             <span className="text-[11px] text-slate-400">{draft.replace(/\s/g, "").length}자 (공백 제외)</span>
-            <button onClick={copy} className="rounded-full bg-ink-deep px-3 py-1 text-xs font-bold text-white">
-              {copied ? "복사 완료! ✅" : "📋 복사"}
-            </button>
+            <div className="flex gap-1.5">
+              {training && (
+                <button onClick={sendToParticipant} className="rounded-full bg-brand px-3 py-1 text-xs font-bold text-white">
+                  {sent ? "전송 완료! ✅" : "📣 참가자에게 보내기"}
+                </button>
+              )}
+              <button onClick={copy} className="rounded-full bg-ink-deep px-3 py-1 text-xs font-bold text-white">
+                {copied ? "복사 완료! ✅" : "📋 복사"}
+              </button>
+            </div>
           </div>
+          {training && (
+            <p className="mt-1 text-[11px] text-slate-400">‘보내기’를 누르면 해당 선생님 화면(해결 보고회)에 ‘강사 피드백’으로 표시돼요.</p>
+          )}
           {basis.length > 0 && (
             <div className="mt-2 border-t border-brand-soft/30 pt-2">
               <p className="mb-1 text-[11px] font-bold text-slate-400">반영한 활동 근거(검토용)</p>

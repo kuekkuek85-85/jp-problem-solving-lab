@@ -57,7 +57,7 @@ export function Certificate({ student, projects }: { student: StudentDoc; projec
         <div>{today}</div>
         <div>
           <div>{training ? LAB_NAME : `${CLUB_NAME} · ${LAB_NAME}`}</div>
-          <div className="mt-1 font-bold">연구소장(지도교사) 드림</div>
+          <div className="mt-1 font-bold">{training ? "강사 이승엽 드림" : "연구소장(지도교사) 드림"}</div>
         </div>
       </div>
     </div>

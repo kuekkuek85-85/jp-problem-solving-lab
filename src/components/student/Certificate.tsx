@@ -4,6 +4,7 @@ import type { ProjectDoc, StudentDoc } from "@/lib/types";
 export function Certificate({ student, projects }: { student: StudentDoc; projects: ProjectDoc[] }) {
   const solved = projects.filter((p) => p.currentStep === "done");
   const today = new Date().toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric" });
+  const training = student.studentId.startsWith("edu-"); // 교사 연수(이름 로그인) 참가자
 
   return (
     <div className="mx-auto aspect-[297/210] w-full max-w-3xl border-8 border-double border-brand-soft bg-white p-10 text-center shadow-lg print:aspect-auto print:h-screen print:w-screen print:border-[12px]">
@@ -11,9 +12,10 @@ export function Certificate({ student, projects }: { student: StudentDoc; projec
       <h1 className="mt-2 text-3xl font-black text-slate-900">수료증</h1>
 
       <p className="mt-8 text-lg">
-        {student.grade}학년 {student.class}반 {student.number}번 <span className="font-black">{student.name}</span> 연구원
+        {!training && <>{student.grade}학년 {student.class}반 {student.number}번 </>}
+        <span className="font-black">{student.name}</span> 연구원
       </p>
-      <p className="mt-2 text-sm text-slate-500">학번 {student.studentNo}</p>
+      {!training && <p className="mt-2 text-sm text-slate-500">학번 {student.studentNo}</p>}
 
       <p className="mx-auto mt-6 max-w-lg text-sm leading-relaxed text-slate-700">
         위 연구원은 {LAB_NAME}에서 아래 의뢰를 해결하며 AI 윤리 서약을 지키며 수료하였음을 증명합니다.
@@ -54,7 +56,7 @@ export function Certificate({ student, projects }: { student: StudentDoc; projec
       <div className="mt-10 flex items-end justify-between text-xs text-slate-500">
         <div>{today}</div>
         <div>
-          <div>{CLUB_NAME} · {LAB_NAME}</div>
+          <div>{training ? LAB_NAME : `${CLUB_NAME} · ${LAB_NAME}`}</div>
           <div className="mt-1 font-bold">연구소장(지도교사) 드림</div>
         </div>
       </div>

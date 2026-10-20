@@ -197,7 +197,7 @@ function Dashboard({
         {tab === "help" && <HelpQueue sessionCode={sessionCode} helpRequests={helpRequests} />}
         {tab === "slides" && <SlidesPanel sessionCode={sessionCode} pin={pin} session={session} />}
         {tab === "present" && <PresentationControl sessionCode={sessionCode} presentation={presentation} />}
-        {tab === "reflections" && <ReflectionsPanel reflections={reflections} students={students} />}
+        {tab === "reflections" && <ReflectionsPanel sessionCode={sessionCode} reflections={reflections} students={students} />}
         {tab === "prompt" && <PromptGuide />}
       </div>
     </div>

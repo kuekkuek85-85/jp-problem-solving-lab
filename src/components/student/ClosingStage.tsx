@@ -5,7 +5,7 @@ import { doc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import { reflectionPath } from "@/lib/paths";
 import { useMyProjects, useReflection } from "@/lib/hooks";
-import { REFLECTION_QUESTIONS } from "@/lib/constants";
+import { reflectionQuestionsForLab } from "@/lib/constants";
 import type { StudentDoc } from "@/lib/types";
 import { Button, Card, Textarea } from "@/components/ui";
 import { Certificate } from "./Certificate";
@@ -13,11 +13,12 @@ import { Certificate } from "./Certificate";
 export function ClosingStage({ sessionCode, student }: { sessionCode: string; student: StudentDoc }) {
   const projects = useMyProjects(sessionCode, student.studentId);
   const { reflection, loading } = useReflection(sessionCode, student.studentId);
+  const questions = reflectionQuestionsForLab(sessionCode);
   const [answers, setAnswers] = useState<Record<string, string>>({ proud: "", hard: "", aiLiteracy: "", next: "" });
   const [saving, setSaving] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const allFilled = REFLECTION_QUESTIONS.every((q) => answers[q.id]?.trim());
+  const allFilled = questions.every((q) => answers[q.id]?.trim());
 
   async function submit() {
     if (!allFilled) return;
@@ -57,7 +58,7 @@ export function ClosingStage({ sessionCode, student }: { sessionCode: string; st
           <p className="text-sm text-slate-500">이미 성찰 후기를 제출했어요. 참여해줘서 고마워요!</p>
         ) : (
           <div className="space-y-4">
-            {REFLECTION_QUESTIONS.map((q) => (
+            {questions.map((q) => (
               <div key={q.id}>
                 <label className="mb-1 block text-sm font-bold text-slate-800">{q.label}</label>
                 <Textarea

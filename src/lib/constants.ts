@@ -315,6 +315,17 @@ export const REFLECTION_QUESTIONS = [
   { id: "next", label: "④ 실제 학교에서 쓰려면 무엇을 더 해야 할까요?" },
 ] as const;
 
+// 교사 연수용 성찰 문항(3문항). ReflectionDoc 필드(proud/aiLiteracy/next)에 매핑.
+export const REFLECTION_QUESTIONS_TRAINING = [
+  { id: "proud", label: "① 오늘 연수에서 얻은 인사이트는?" },
+  { id: "aiLiteracy", label: "② 생성형 인공지능을 사용할 때 사고의 외주화를 막는 아이디어는?" },
+  { id: "next", label: "③ 향후 학교에 돌아가서 나의 다짐" },
+] as const;
+
+export function reflectionQuestionsForLab(sessionCode: string) {
+  return isTrainingLab(sessionCode) ? REFLECTION_QUESTIONS_TRAINING : REFLECTION_QUESTIONS;
+}
+
 // lab(학생용/연수용)에 맞는 시드 선택
 export function seedRequestsForLab(sessionCode: string) {
   return isTrainingLab(sessionCode) ? SEED_REQUESTS_TRAINING : SEED_REQUESTS;

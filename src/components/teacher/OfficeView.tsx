@@ -97,17 +97,17 @@ function slotIn(room: Room, i: number, n: number): { left: number; top: number }
   return { left, top };
 }
 
-/* ── 고양이 팔레트(8종) — s: 줄무늬색(태비). 없으면 몸색과 동일(단색) ── */
+/* ── 고양이 팔레트(8종) — 밝고 선명한 색. s: 줄무늬색(태비) ── */
 interface Palette { b: string; d: string; e: string; l: string; p: string; i: string; s: string }
 const CATS: Palette[] = [
-  { b: "#f2a44c", d: "#9a4f1f", e: "#2a2a2a", l: "#ffe3c0", p: "#e06a86", i: "#f4b9c6", s: "#c9742e" }, // 치즈 태비
-  { b: "#a7b0ba", d: "#525c66", e: "#2a2a2a", l: "#e6ebf0", p: "#e06a86", i: "#f4b9c6", s: "#717c88" }, // 회색 태비
-  { b: "#3c414b", d: "#202329", e: "#9be36a", l: "#5a5f69", p: "#e06a86", i: "#7a4a55", s: "#3c414b" }, // 검정(단색)
-  { b: "#f3f1ec", d: "#b7b3aa", e: "#2a2a2a", l: "#ffffff", p: "#e06a86", i: "#f4b9c6", s: "#f3f1ec" }, // 흰색(단색)
-  { b: "#b2794b", d: "#5f3d22", e: "#2a2a2a", l: "#e8c9a6", p: "#e06a86", i: "#d79a86", s: "#7d4f2c" }, // 갈색 태비
-  { b: "#ead7b0", d: "#9a7b4f", e: "#2a2a2a", l: "#fff3d8", p: "#e06a86", i: "#f0c7a0", s: "#cbb386" }, // 크림 태비
-  { b: "#8fb6cf", d: "#4a6b84", e: "#2a2a2a", l: "#dcecf5", p: "#e06a86", i: "#f4b9c6", s: "#6e96b0" }, // 블루 태비
-  { b: "#33373f", d: "#1c2026", e: "#9be36a", l: "#f3f1ec", p: "#e06a86", i: "#7a4a55", s: "#33373f" }, // 턱시도(단색)
+  { b: "#f83b3b", d: "#a81414", e: "#22262e", l: "#ffd0d0", p: "#7a2130", i: "#ff9ec4", s: "#d12525" }, // 빨강
+  { b: "#ff8a1e", d: "#c25608", e: "#22262e", l: "#ffe2bf", p: "#7a3b16", i: "#ff9ec4", s: "#e06e0d" }, // 주황
+  { b: "#ffcf21", d: "#c79700", e: "#22262e", l: "#fff4bf", p: "#7a5a12", i: "#ff9ec4", s: "#ecb400" }, // 노랑
+  { b: "#3ecb63", d: "#1f8a3c", e: "#22262e", l: "#ccf3d5", p: "#1c5a2e", i: "#ff9ec4", s: "#27a74c" }, // 초록
+  { b: "#1fc9c9", d: "#128a8a", e: "#22262e", l: "#c3f4f4", p: "#145a5a", i: "#ff9ec4", s: "#15a8a8" }, // 청록
+  { b: "#3d86fb", d: "#1a52ba", e: "#22262e", l: "#cfe0ff", p: "#1c3a7a", i: "#ff9ec4", s: "#2f6ed8" }, // 파랑
+  { b: "#a95bf5", d: "#6c2fba", e: "#22262e", l: "#e7d4ff", p: "#3f1c7a", i: "#ff9ec4", s: "#8b47d8" }, // 보라
+  { b: "#ff5bb0", d: "#c2367f", e: "#22262e", l: "#ffd6ec", p: "#7a1c52", i: "#ffd0e8", s: "#ef479e" }, // 분홍
 ];
 
 // 12행(0~9 몸통) 픽셀 고양이 맵. s=줄무늬. 다리(10행)는 2프레임으로 별도 렌더.

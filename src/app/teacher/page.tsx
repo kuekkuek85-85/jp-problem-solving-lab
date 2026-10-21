@@ -14,8 +14,9 @@ import { ReflectionsPanel } from "@/components/teacher/ReflectionsPanel";
 import { PresentationControl } from "@/components/teacher/PresentationControl";
 import { PromptGuide } from "@/components/teacher/PromptGuide";
 import { OfficeView } from "@/components/teacher/OfficeView";
+import { AwardsPanel } from "@/components/teacher/AwardsPanel";
 
-type Tab = "roster" | "requests" | "help" | "slides" | "present" | "reflections" | "prompt";
+type Tab = "roster" | "requests" | "help" | "slides" | "present" | "reflections" | "prompt" | "awards";
 
 export default function TeacherPage() {
   const [pin, setPin] = useState<string | null>(() => loadTeacherPin());
@@ -192,6 +193,11 @@ function Dashboard({
               🧭 프롬프트 가이드
             </TabButton>
           )}
+          {mode === "training" && (
+            <TabButton active={tab === "awards"} onClick={() => setTab("awards")}>
+              🎁 시상
+            </TabButton>
+          )}
         </div>
 
         {tab === "roster" && (
@@ -234,6 +240,7 @@ function Dashboard({
         {tab === "present" && <PresentationControl sessionCode={sessionCode} presentation={presentation} />}
         {tab === "reflections" && <ReflectionsPanel sessionCode={sessionCode} reflections={reflections} students={students} />}
         {tab === "prompt" && <PromptGuide />}
+        {tab === "awards" && <AwardsPanel students={students} submissions={submissions} reflections={reflections} />}
       </div>
     </div>
   );

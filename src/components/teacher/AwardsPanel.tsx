@@ -33,7 +33,8 @@ export function AwardsPanel({
   const [dedupe, setDedupe] = useState(true);
   const [winners, setWinners] = useState<Record<AwardKey, string | null>>({ growth: null, craft: null, multi: null });
   const [lotto, setLotto] = useState<string[]>([]);
-  const [rolling, setRolling] = useState<AwardKey | "lotto" | null>(null);
+  const [simple, setSimple] = useState<string[]>([]);
+  const [rolling, setRolling] = useState<AwardKey | "lotto" | "simple" | null>(null);
   const rollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const stats = useMemo<Stat[]>(() => {
@@ -132,11 +133,37 @@ export function AwardsPanel({
     }, 70);
   }
 
+  // 초간단: 완주자 전원 중 동일 확률로 비복원 3명
+  function drawSimple() {
+    stopRoll();
+    const base = stats.filter((s) => s.completed);
+    if (base.length === 0) return;
+    setRolling("simple");
+    let ticks = 0;
+    rollRef.current = setInterval(() => {
+      ticks++;
+      const pool = base.map((s) => s.student.studentId);
+      const chosen: string[] = [];
+      const n = Math.min(3, pool.length);
+      for (let k = 0; k < n; k++) {
+        const idx = Math.floor(Math.random() * pool.length);
+        chosen.push(pool[idx]);
+        pool.splice(idx, 1);
+      }
+      setSimple(chosen);
+      if (ticks >= 16) {
+        stopRoll();
+        setRolling(null);
+      }
+    }, 70);
+  }
+
   function resetAll() {
     stopRoll();
     setRolling(null);
     setWinners({ growth: null, craft: null, multi: null });
     setLotto([]);
+    setSimple([]);
   }
 
   const nameOf = (id: string) => byId[id]?.student.name ?? id;
@@ -161,6 +188,28 @@ export function AwardsPanel({
           <Button variant="ghost" onClick={resetAll}>초기화</Button>
         </div>
       </div>
+
+      {/* 초간단 모드 */}
+      <Card className="border-2 border-brand/30 bg-brand/5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-1.5 text-base font-black">⚡ 초간단 추첨</div>
+            <p className="text-xs text-slate-500">복잡한 기준 없이 — 완주자({stats.filter((s) => s.completed).length}명) 전원 동일 확률로 무작위 3명.</p>
+          </div>
+          <Button onClick={drawSimple} disabled={rolling !== null || stats.every((s) => !s.completed)}>
+            🎲 3명 뽑기
+          </Button>
+        </div>
+        {simple.length > 0 && (
+          <div className="mt-3 flex flex-wrap justify-center gap-2">
+            {simple.map((id, i) => (
+              <span key={id} className={`rounded-xl bg-amber-50 px-4 py-2 text-lg font-black text-amber-700 ${rolling === "simple" ? "" : "jp-pop-in"}`}>
+                🏆 {i + 1}. {nameOf(id)}
+              </span>
+            ))}
+          </div>
+        )}
+      </Card>
 
       {/* 상 3개 */}
       <div className="grid gap-3 md:grid-cols-3">

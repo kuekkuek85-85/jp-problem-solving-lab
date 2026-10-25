@@ -9,11 +9,13 @@ export function StageHeader({
   stage,
   requestTitle,
   onGoToBoard,
+  cohortLabel,
 }: {
   student: StudentDoc;
   stage: Stage;
   requestTitle?: string | null;
   onGoToBoard?: () => void;
+  cohortLabel?: string; // 교사 연수 기수·날짜 표기(예: "교사 연수 2기 (10/28)")
 }) {
   return (
     <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur px-4 py-3">
@@ -27,9 +29,12 @@ export function StageHeader({
           </button>
         )}
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <span className="font-black text-slate-900">{student.name}</span>
             <LevelBadge level={student.level} />
+            {cohortLabel && (
+              <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-bold text-amber-800">{cohortLabel}</span>
+            )}
             <span className="text-xs text-slate-400">{peerText(student.studentId, LEVEL_LABELS[student.level].tagline)}</span>
           </div>
           {requestTitle && <div className="text-xs text-slate-500 mt-0.5">맡은 의뢰: {requestTitle}</div>}

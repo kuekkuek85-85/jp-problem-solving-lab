@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import { studentPath } from "@/lib/paths";
-import { TRAINING_LAB_ID } from "@/lib/constants";
+import { isTrainingLab } from "@/lib/constants";
 import { useMyProjects, useSubmissions } from "@/lib/hooks";
 import { STAGE_LABELS, type HelpRequestDoc, type Level, type ProjectDoc, type ProjectStep, type StudentDoc } from "@/lib/types";
 import { Card, LevelBadge, TrafficDot } from "@/components/ui";
@@ -199,7 +199,7 @@ function StudentDetailModal({
 }
 
 function RecordDraft({ sessionCode, pin, studentId }: { sessionCode: string; pin: string; studentId: string }) {
-  const training = sessionCode === TRAINING_LAB_ID;
+  const training = isTrainingLab(sessionCode);
   const [loading, setLoading] = useState(false);
   const [draft, setDraft] = useState("");
   const [basis, setBasis] = useState<string[]>([]);

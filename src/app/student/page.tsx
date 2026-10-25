@@ -6,7 +6,7 @@ import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import { studentPath } from "@/lib/paths";
 import { loadStudentAuth } from "@/lib/local-auth";
-import { LAB_ID, isTrainingLab } from "@/lib/constants";
+import { LAB_ID, isTrainingLab, trainingLabel } from "@/lib/constants";
 import { useHelpRequests, useMyProjects, usePresentation, useProject, useRequests, useSession, useStudent, useStudents, useSubmissions } from "@/lib/hooks";
 import type { Stage } from "@/lib/types";
 import { Spinner } from "@/components/ui";
@@ -83,6 +83,7 @@ export default function StudentPage() {
 
   const solverNameLookup = Object.fromEntries(students.map((s) => [s.studentId, s.name]));
   const myOpenHelp = helpRequests.find((h) => h.requesterId === studentId && h.status !== "resolved");
+  const cohortLabel = isTrainingLab(sessionCode) ? trainingLabel(sessionCode) : undefined;
 
   // 언제든 의뢰 목록으로 돌아가기 — 진행 중이던 의뢰는 "내 해결안 > 진행 중"에서 이어서 할 수 있다.
   async function goToBoard() {
@@ -122,7 +123,7 @@ export default function StudentPage() {
   if (session.currentStage === "gallery") {
     return (
       <div>
-        <StageHeader student={student} stage="gallery" />
+        <StageHeader student={student} stage="gallery" cohortLabel={cohortLabel} />
         {isTrainingLab(sessionCode) && (
           <TrainingReviewPanel sessionCode={sessionCode} student={student} submissions={submissions} />
         )}
@@ -138,7 +139,7 @@ export default function StudentPage() {
   if (!student.activeProjectId || !project) {
     return (
       <div>
-        <StageHeader student={student} stage="board" />
+        <StageHeader student={student} stage="board" cohortLabel={cohortLabel} />
         <RequestBoard
           sessionCode={sessionCode}
           student={student}
@@ -156,7 +157,7 @@ export default function StudentPage() {
   if (activeRequest?.directSubmit) {
     return (
       <div>
-        <StageHeader student={student} stage="submit" requestTitle={project.requestTitle} onGoToBoard={goToBoard} />
+        <StageHeader student={student} stage="submit" requestTitle={project.requestTitle} onGoToBoard={goToBoard} cohortLabel={cohortLabel} />
         <SimpleSubmitStage key={project.id} sessionCode={sessionCode} student={student} project={project} />
       </div>
     );
@@ -166,7 +167,7 @@ export default function StudentPage() {
   if (project.currentStep === "done" && student.editMode) {
     return (
       <div>
-        <StageHeader student={student} stage="submit" requestTitle={project.requestTitle} onGoToBoard={goToBoard} />
+        <StageHeader student={student} stage="submit" requestTitle={project.requestTitle} onGoToBoard={goToBoard} cohortLabel={cohortLabel} />
         <EditSolution sessionCode={sessionCode} student={student} project={project} onDone={goToBoard} />
       </div>
     );
@@ -177,7 +178,7 @@ export default function StudentPage() {
 
   return (
     <div>
-      <StageHeader student={student} stage={stage} requestTitle={project.requestTitle} onGoToBoard={goToBoard} />
+      <StageHeader student={student} stage={stage} requestTitle={project.requestTitle} onGoToBoard={goToBoard} cohortLabel={cohortLabel} />
 
       {stage === "analyze" && <AnalyzeStage sessionCode={sessionCode} student={student} project={project} />}
       {stage === "prd" && <PrdStage sessionCode={sessionCode} student={student} project={project} />}

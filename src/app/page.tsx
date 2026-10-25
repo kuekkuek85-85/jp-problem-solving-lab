@@ -6,7 +6,7 @@ import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import { sessionPath, studentPath } from "@/lib/paths";
 import { emptyStudent } from "@/lib/factories";
-import { LAB_ID, TRAINING_LAB_ID } from "@/lib/constants";
+import { LAB_ID, ACTIVE_TRAINING_LAB_ID, trainingLabel } from "@/lib/constants";
 import { saveStudentAuth, saveTeacherPin } from "@/lib/local-auth";
 import { Button, Card, Input } from "@/components/ui";
 // 교장선생님 말씀(환영) 팝업은 2회차 수업부터 숨김. 다시 켜려면 아래 <WelcomePopup />를 복원.
@@ -70,8 +70,8 @@ function StudentLogin() {
       return;
     }
     // 이름만 입장(연수)은 학번 검증 생략. ID는 이름에서 생성하고 학번은 비움.
-    // 로그인 방식으로 소속 연구소를 가른다: 학번 → 학생용(main), 이름 → 교사 연수용(training).
-    const lab = mode === "nameOnly" ? TRAINING_LAB_ID : LAB_ID;
+    // 로그인 방식으로 소속 연구소를 가른다: 학번 → 학생용(main), 이름 → 현재 진행 중인 교사 연수 기수.
+    const lab = mode === "nameOnly" ? ACTIVE_TRAINING_LAB_ID : LAB_ID;
     const id = mode === "nameOnly" ? idFromName(trimmedName) : no;
     const noForDoc = mode === "nameOnly" ? "" : no;
     if (mode === "studentNo" && (no.length !== 5 || !/^\d{5}$/.test(no))) {
@@ -146,7 +146,9 @@ function StudentLogin() {
         <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="홍길동" />
       </div>
       {mode === "nameOnly" && (
-        <p className="text-xs text-slate-400">교사 연수 참가자는 성함만 입력하면 입장할 수 있어요. (같은 이름으로 다시 들어오면 이어서 진행돼요)</p>
+        <p className="text-xs text-slate-400">
+          <span className="font-bold text-amber-700">{trainingLabel(ACTIVE_TRAINING_LAB_ID)}</span> 참가자는 성함만 입력하면 입장할 수 있어요. (같은 이름으로 다시 들어오면 이어서 진행돼요)
+        </p>
       )}
       {error && <p className="text-sm font-bold text-red-600">{error}</p>}
       <Button type="submit" disabled={loading} className="w-full">

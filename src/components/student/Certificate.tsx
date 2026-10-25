@@ -1,7 +1,7 @@
 import { CLUB_NAME, LAB_NAME, STAMP_LABELS } from "@/lib/constants";
 import type { ProjectDoc, StudentDoc } from "@/lib/types";
 
-export function Certificate({ student, projects }: { student: StudentDoc; projects: ProjectDoc[] }) {
+export function Certificate({ student, projects, cohortLabel }: { student: StudentDoc; projects: ProjectDoc[]; cohortLabel?: string }) {
   const solved = projects.filter((p) => p.currentStep === "done");
   const today = new Date().toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric" });
   const training = student.studentId.startsWith("edu-"); // 교사 연수(이름 로그인) 참가자
@@ -9,6 +9,7 @@ export function Certificate({ student, projects }: { student: StudentDoc; projec
   return (
     <div className="mx-auto aspect-[297/210] w-full max-w-3xl border-8 border-double border-brand-soft bg-white p-10 text-center shadow-lg print:aspect-auto print:h-screen print:w-screen print:border-[12px]">
       <div className="text-sm font-bold tracking-widest text-brand-soft">{LAB_NAME}</div>
+      {training && cohortLabel && <div className="mt-1 text-xs font-bold text-amber-700">{cohortLabel}</div>}
       <h1 className="mt-2 text-3xl font-black text-slate-900">수료증</h1>
 
       <p className="mt-8 text-lg">

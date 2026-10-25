@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { loadTeacherPin, saveTeacherPin } from "@/lib/local-auth";
-import { LAB_ID, TRAINING_LAB_ID } from "@/lib/constants";
+import { LAB_ID, ACTIVE_TRAINING_LAB_ID, TRAINING_COHORTS, trainingLabel } from "@/lib/constants";
 import { useHelpRequests, usePresentation, useRequests, useSession, useStudents, useSubmissions, useReflections } from "@/lib/hooks";
 import { Button, Card, Input, Spinner } from "@/components/ui";
 import { StageControlBar } from "@/components/teacher/StageControlBar";
@@ -21,13 +21,24 @@ type Tab = "roster" | "requests" | "help" | "slides" | "present" | "reflections"
 export default function TeacherPage() {
   const [pin, setPin] = useState<string | null>(() => loadTeacherPin());
   const [mode, setMode] = useState<"student" | "training">("student");
+  const [cohortId, setCohortId] = useState<string>(ACTIVE_TRAINING_LAB_ID); // 교사 연수 기수(기본: 현재 진행 기수)
 
   if (!pin) {
     return <PinGate onAuthed={setPin} />;
   }
 
-  const sessionCode = mode === "training" ? TRAINING_LAB_ID : LAB_ID;
-  return <Dashboard key={sessionCode} sessionCode={sessionCode} pin={pin} mode={mode} setMode={setMode} />;
+  const sessionCode = mode === "training" ? cohortId : LAB_ID;
+  return (
+    <Dashboard
+      key={sessionCode}
+      sessionCode={sessionCode}
+      pin={pin}
+      mode={mode}
+      setMode={setMode}
+      cohortId={cohortId}
+      setCohortId={setCohortId}
+    />
+  );
 }
 
 function PinGate({ onAuthed }: { onAuthed: (pin: string) => void }) {
@@ -79,11 +90,15 @@ function Dashboard({
   pin,
   mode,
   setMode,
+  cohortId,
+  setCohortId,
 }: {
   sessionCode: string;
   pin: string;
   mode: "student" | "training";
   setMode: (m: "student" | "training") => void;
+  cohortId: string;
+  setCohortId: (id: string) => void;
 }) {
   const [tab, setTab] = useState<Tab>("roster");
   const [rosterView, setRosterView] = useState<"office" | "card">("office");
@@ -104,7 +119,7 @@ function Dashboard({
   const submissions = useSubmissions(sessionCode);
 
   async function closeLab() {
-    if (!confirm("연구소를 마감할까요? 모든 학생 화면이 수료증 화면으로 전환돼요.")) return;
+    if (!confirm(`[${modeLabel}] 연구소를 마감할까요? 해당 참가자 화면이 모두 수료증 화면으로 전환돼요.`)) return;
     await fetch("/api/teacher/close-lab", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -112,9 +127,9 @@ function Dashboard({
     });
   }
 
-  const modeLabel = mode === "training" ? "교사 연수용" : "학생용";
+  const modeLabel = mode === "training" ? trainingLabel(sessionCode) : "학생용";
   async function resetData() {
-    if (!confirm(`[${modeLabel}] 참가자 데이터(참가자·설계도·제출물·발표·성찰·도움요청)를 모두 삭제할까요?\n\n공식 의뢰와 브리핑 슬라이드는 그대로 유지돼요. ${mode === "training" ? "학생용" : "교사 연수용"} 데이터는 영향받지 않아요.`)) return;
+    if (!confirm(`[${modeLabel}] 참가자 데이터(참가자·설계도·제출물·발표·성찰·도움요청)를 모두 삭제할까요?\n\n공식 의뢰와 브리핑 슬라이드는 그대로 유지돼요. 다른 기수·학생용 데이터는 영향받지 않아요.`)) return;
     if (!confirm("정말 초기화할까요? 마지막 확인이에요.")) return;
     const res = await fetch("/api/teacher/reset", {
       method: "POST",
@@ -154,8 +169,21 @@ function Dashboard({
             🧑‍🏫 교사 연수용
           </button>
         </div>
+        {mode === "training" && (
+          <div className="inline-flex rounded-full bg-amber-100 p-1 text-xs font-bold">
+            {TRAINING_COHORTS.map((c) => (
+              <button
+                key={c.id}
+                onClick={() => setCohortId(c.id)}
+                className={`rounded-full px-3 py-1.5 ${cohortId === c.id ? "bg-white text-amber-800 shadow" : "text-amber-600/70"}`}
+              >
+                {c.no}기 ({c.date})
+              </button>
+            ))}
+          </div>
+        )}
         <span className="text-xs text-slate-400">
-          {mode === "training" ? "교사 연수 데이터(이름 입장)" : "학생 데이터(학번 입장)"} — 서로 분리돼요
+          {mode === "training" ? `${trainingLabel(sessionCode)} · 이름 입장 데이터` : "학생 데이터(학번 입장)"} — 서로 분리돼요
         </span>
       </div>
 
@@ -164,7 +192,7 @@ function Dashboard({
       <div className="mx-auto max-w-6xl px-4 py-4">
         <div className="mb-4 flex items-center justify-between">
           <div className="text-sm text-slate-500">{mode === "training" ? "참가자" : "연구원"} {students.length}명</div>
-          <a href={mode === "training" ? "/gallery?lab=training" : "/gallery"} target="_blank" className="text-xs font-bold text-brand underline">
+          <a href={mode === "training" ? `/gallery?lab=${sessionCode}` : "/gallery"} target="_blank" className="text-xs font-bold text-brand underline">
             참관자용 해결 보고회 링크 →
           </a>
         </div>
@@ -219,7 +247,7 @@ function Dashboard({
               </div>
               {rosterView === "office" && (
                 <a
-                  href={mode === "training" ? "/office?lab=training" : "/office"}
+                  href={mode === "training" ? `/office?lab=${sessionCode}` : "/office"}
                   target="_blank"
                   className="text-xs font-bold text-brand underline"
                 >

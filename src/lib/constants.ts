@@ -3,10 +3,33 @@ import type { Level } from "./types";
 export const LAB_NAME = "장평 문제해결연구소";
 export const CLUB_NAME = "하트이로봇 동아리";
 
-// 학생용은 sessions/main, 교사 연수용은 sessions/training 으로 데이터를 완전히 분리한다.
+// 학생용은 sessions/main, 교사 연수는 기수별로 sessions/{training, training2, ...} 로
+// 데이터를 완전히 분리한다. (같은 연수를 여러 기수로 진행해도 서로 섞이지 않음)
 export const LAB_ID = "main"; // 학생용(기본)
-export const TRAINING_LAB_ID = "training"; // 교사 연수용
-export const isTrainingLab = (sessionCode: string) => sessionCode === TRAINING_LAB_ID;
+export const TRAINING_LAB_ID = "training"; // 교사 연수 1기(10/21) — 하위호환 유지
+
+// 교사 연수 기수(코호트). id가 Firestore sessions/{id} 서브트리이며, date는 화면 표기용.
+export interface TrainingCohort { id: string; no: number; label: string; date: string }
+export const TRAINING_COHORTS: TrainingCohort[] = [
+  { id: "training", no: 1, label: "교사 연수 1기", date: "10/21" },
+  { id: "training2", no: 2, label: "교사 연수 2기", date: "10/28" },
+];
+
+// 이름(성함)만으로 입장하는 연수 참가자가 기본 배정되는 '현재 진행' 연수.
+// 새 기수를 시작하면 이 값만 해당 id로 바꾸면 된다.
+export const ACTIVE_TRAINING_LAB_ID = "training2"; // 2기(10/28)
+
+const TRAINING_LAB_IDS = new Set(TRAINING_COHORTS.map((c) => c.id));
+export const isTrainingLab = (sessionCode: string) => TRAINING_LAB_IDS.has(sessionCode);
+
+export function trainingCohort(sessionCode: string): TrainingCohort | null {
+  return TRAINING_COHORTS.find((c) => c.id === sessionCode) ?? null;
+}
+// 화면 표기용 라벨: "교사 연수 2기 (10/28)"
+export function trainingLabel(sessionCode: string): string {
+  const c = trainingCohort(sessionCode);
+  return c ? `${c.label} (${c.date})` : "교사 연수";
+}
 
 // 교사 연수 참가자(이름 로그인, id 'edu-')에게는 '친구'를 '동료'로 표기한다. 학생에겐 그대로.
 export function peerText(studentId: string, text: string): string {

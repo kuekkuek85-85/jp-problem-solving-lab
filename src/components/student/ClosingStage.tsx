@@ -5,7 +5,7 @@ import { doc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import { reflectionPath } from "@/lib/paths";
 import { useMyProjects, useReflection } from "@/lib/hooks";
-import { reflectionQuestionsForLab } from "@/lib/constants";
+import { isTrainingLab, reflectionQuestionsForLab, trainingLabel } from "@/lib/constants";
 import type { StudentDoc } from "@/lib/types";
 import { Button, Card, Textarea } from "@/components/ui";
 import { Certificate } from "./Certificate";
@@ -17,6 +17,7 @@ export function ClosingStage({ sessionCode, student }: { sessionCode: string; st
   const [answers, setAnswers] = useState<Record<string, string>>({ proud: "", hard: "", aiLiteracy: "", next: "" });
   const [saving, setSaving] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const cohortLabel = isTrainingLab(sessionCode) ? trainingLabel(sessionCode) : undefined;
 
   const allFilled = questions.every((q) => answers[q.id]?.trim());
 
@@ -42,14 +43,14 @@ export function ClosingStage({ sessionCode, student }: { sessionCode: string; st
     <main className="mx-auto max-w-3xl px-4 py-8 space-y-8">
       <div className="no-print">
         <h2 className="mb-3 text-lg font-black">🎓 연구소 마감 — 수료증</h2>
-        <Certificate student={student} projects={projects} />
+        <Certificate student={student} projects={projects} cohortLabel={cohortLabel} />
         <Button className="mt-4" onClick={() => window.print()}>
           🖨️ 수료증 인쇄하기
         </Button>
       </div>
 
       <div className="print-only">
-        <Certificate student={student} projects={projects} />
+        <Certificate student={student} projects={projects} cohortLabel={cohortLabel} />
       </div>
 
       <Card className="no-print">

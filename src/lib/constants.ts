@@ -297,7 +297,7 @@ export const SEED_SLIDES_TRAINING: string[] = [
   `# 💻 오늘의 도구 — Codex 또는 Claude Code (택1)
 - 본인이 **유료 구독 중인(편한) 것 하나**를 고르면 돼요.
 - **Codex**(OpenAI, ChatGPT **Plus**): [https://chatgpt.com/ko-KR/download](https://chatgpt.com/ko-KR/download) 에서 ChatGPT 앱 설치 → Plus 계정 로그인 → **Codex** 열기
-- **Claude Code**(Anthropic, Claude **Pro/Max**): 터미널에서 \`npm i -g @anthropic-ai/claude-code\` (Node.js 18+) → \`claude\` 실행 → 계정 로그인
+- **Claude Code**(Anthropic, Claude **Pro/Max**): [https://claude.com/ko/product/claude-code](https://claude.com/ko/product/claude-code) 에서 Claude Code 앱 설치 → Pro or Max 계정 로그인 → **Claude Code** 열기
 - ⚠️ 공식 경로로만 설치. 설치가 막히면 **강사에게 요청** 🙋`,
 
   `# 🛡️ AI를 안전하게 쓰는 원칙

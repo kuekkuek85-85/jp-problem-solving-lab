@@ -183,13 +183,13 @@ export function Onboarding({ sessionCode, student }: { sessionCode: string; stud
             )}
 
             <div>
-              <p className="mb-1 text-sm font-bold text-slate-800">4. 오늘 바이브 코딩으로 만들고 싶은 업무 아이디어를 적어 주세요.</p>
+              <p className="mb-1 text-sm font-bold text-slate-800">4. 오늘 만들고 싶은 교과 수업 플랫폼 / 수행평가 도구 아이디어를 적어 주세요.</p>
               <p className="mb-2 text-xs text-slate-400">💡 {VIBE_CODING_ONELINE}</p>
               <Textarea
                 rows={3}
                 value={workIdea}
                 onChange={(e) => setWorkIdea(e.target.value)}
-                placeholder="예: 가정통신문 회신을 자동 집계하는 간단한 웹"
+                placeholder="예: 수업 중 개념 퀴즈를 내고 자동 채점·집계하는 웹 / 수행평가 루브릭 채점 도구"
               />
             </div>
 

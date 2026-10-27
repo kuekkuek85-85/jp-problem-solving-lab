@@ -291,7 +291,7 @@ export const SEED_SLIDES_TRAINING: string[] = [
 - 🧑‍💻 **AI 코딩 도구**: ChatGPT **Plus**(Codex) 또는 Claude **Pro or Max**(Claude Code) 중 하나
 - 🐙 **GitHub** 계정 (저장소 만들기)
 - 🔵 **Google** 계정 (Gemini API 키 + Firebase)
-- ▲ **Vercel** 계정 (배포 — GitHub로 로그인 가능)
+- ▲ **Vercel** 계정 (배포 — GitHub와 연동 가능)
 - 로그인·가입이 막히면 바로 **🙋 도움 요청**하세요.`,
 
   `# 💻 오늘의 도구 — Codex 또는 Claude Code (택1)

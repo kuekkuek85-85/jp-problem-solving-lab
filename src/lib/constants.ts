@@ -288,7 +288,7 @@ export const SEED_SLIDES_TRAINING: string[] = [
 - 거창하지 않아도 돼요. **오늘 내 수업에 바로 쓸 작은 도구** 하나!`,
 
   `# ✅ 준비물 체크리스트(계정)
-- 🧑‍💻 **AI 코딩 도구**: ChatGPT **Plus**(Codex) 또는 Claude **유료**(Claude Code) 중 하나
+- 🧑‍💻 **AI 코딩 도구**: ChatGPT **Plus**(Codex) 또는 Claude **Pro or Max**(Claude Code) 중 하나
 - 🐙 **GitHub** 계정 (저장소 만들기)
 - 🔵 **Google** 계정 (Gemini API 키 + Firebase)
 - ▲ **Vercel** 계정 (배포 — GitHub로 로그인 가능)

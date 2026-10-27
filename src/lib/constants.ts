@@ -328,7 +328,7 @@ export const SEED_SLIDES_TRAINING: string[] = [
   `# 🐙 4단계 · GitHub 저장소 만들기
 - [https://github.com](https://github.com) → **New repository** 로 내 프로젝트 저장소를 만들어요.
 - Codex/Claude Code에게 "이 저장소에서 작업해줘"라고 시키고, **틈틈이 커밋·push**!
-- push해 두면 **되돌리기·공유·배포**가 쉬워져요. (오늘의 작업 기록이 남아요)`,
+- git을 쓰면 **되돌리기·공유·배포**가 쉬워져요. (오늘의 작업 기록이 남아요)`,
 
   `# ⚡ 5단계 · Codex/Claude Code로 MVP 구현
 - 설계도(프롬프트)를 그대로 도구에 주고 **MVP부터** 만들어요.

@@ -51,7 +51,7 @@ export function SlidesPanel({ sessionCode, pin, session }: { sessionCode: string
   }
 
   async function loadTraining() {
-    if (!confirm("현재 슬라이드를 '교사 연수용'(행정 업무 + Gemini·ChatGPT·Claude)으로 교체할까요? 편집한 내용은 사라져요.")) return;
+    if (!confirm("현재 슬라이드를 '교사 연수용'(행정 업무 + Codex)으로 교체할까요? 편집한 내용은 사라져요.")) return;
     const set = SEED_SLIDES_TRAINING.map((markdown, index) => ({ index, markdown }));
     setSlides(set);
     setSaving(true);

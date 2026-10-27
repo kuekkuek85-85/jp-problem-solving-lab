@@ -326,7 +326,7 @@ export const SEED_SLIDES_TRAINING: string[] = [
 - 여기서 다듬은 설계도가 그대로 **AI 코딩 프롬프트**가 됩니다.`,
 
   `# 🐙 4단계 · GitHub 저장소 만들기
-- **github.com → New repository** 로 내 프로젝트 저장소를 만들어요.
+- [https://github.com](https://github.com) → **New repository** 로 내 프로젝트 저장소를 만들어요.
 - Codex/Claude Code에게 "이 저장소에서 작업해줘"라고 시키고, **틈틈이 커밋·push**!
 - push해 두면 **되돌리기·공유·배포**가 쉬워져요. (오늘의 작업 기록이 남아요)`,
 
@@ -336,17 +336,17 @@ export const SEED_SLIDES_TRAINING: string[] = [
 - 막히면 **오류 메시지를 그대로 붙여넣고 "이 오류 고쳐줘"**`,
 
   `# 🤖 6단계 · Gemini API로 AI 기능 붙이기
-- **Google AI Studio**(aistudio.google.com)에서 **Gemini API 키 발급**
+- **Google AI Studio**([https://aistudio.google.com](https://aistudio.google.com))에서 **Gemini API 키 발급**
 - 도구에게 "이 키로 Gemini를 호출해서 요약/채점/추천 기능을 넣어줘"라고 요청
 - ⚠️ **키는 .env(환경변수)에** 두고, GitHub에는 올리지 않기!`,
 
   `# 💾 7단계 · Firestore(DB)로 데이터 저장
-- **Firebase 콘솔**(console.firebase.google.com)에서 프로젝트 생성 → **Firestore** 켜기
+- **Firebase 콘솔**([https://console.firebase.google.com](https://console.firebase.google.com))에서 프로젝트 생성 → **Firestore** 켜기
 - "입력한 내용을 Firestore에 저장하고 목록으로 보여줘"처럼 요청
 - 학생 개인정보·평가 데이터는 **최소한만**, 접근 규칙도 함께 설정`,
 
   `# ▲ 8단계 · Vercel로 배포 + 제출·공유
-- **Vercel**(vercel.com)에 **GitHub 연동** → 내 저장소로 **New Project → Deploy**
+- **Vercel**([https://vercel.com](https://vercel.com))에 **GitHub 연동** → 내 저장소로 **New Project → Deploy**
 - 환경변수(Gemini 키 등)는 Vercel 설정에 등록
 - 완성된 **배포 링크 + 저장소 링크**를 제출하고, 해결 보고회에서 서로 피드백!`,
 

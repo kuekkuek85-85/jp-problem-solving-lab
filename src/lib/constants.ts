@@ -287,9 +287,9 @@ export const SEED_SLIDES_TRAINING: string[] = [
 
   `# 💻 Codex 설치 (오늘의 도구)
 - 오늘은 **Codex**(ChatGPT 데스크톱 앱에 포함된 코딩 도구)로 만들어요.
-- **다운로드**: 브라우저에서 **chatgpt.com/download** → 내 컴퓨터용(Windows·Mac) 설치
+- **다운로드**: 브라우저에서 **chatgpt.com/ko-KR/download** → 내 컴퓨터용(Windows·Mac) 설치
   - Windows는 **Microsoft Store**에서 "ChatGPT" 를 검색해 설치해도 돼요.
-- 설치 후 **ChatGPT 계정으로 로그인** → 앱에서 **Codex** 열기 (계정·로그인은 강사 안내를 따라주세요)
+- 설치 후 **본인의 ChatGPT Plus(유료) 계정으로 로그인** → 앱에서 **Codex** 열기
 - ⚠️ 비공식 다운로드 사이트는 피하고 **공식 경로**만 이용하세요.`,
 
   `# 📋 의뢰 게시판

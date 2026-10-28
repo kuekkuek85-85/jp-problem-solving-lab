@@ -178,10 +178,12 @@ function StudentDetailModal({
           <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm">
             <p className="mb-2 text-xs font-bold text-amber-700">🧑‍🏫 연수 사전 설문</p>
             <div className="space-y-1 text-slate-700">
+              {student.trainingSurvey.subject && <p><b>담당 교과:</b> {student.trainingSurvey.subject}</p>}
               <p>
-                <b>사용 도구:</b>{" "}
+                <b>사용해 본 도구:</b>{" "}
                 {[...student.trainingSurvey.tools, student.trainingSurvey.toolsOther].filter(Boolean).join(", ") || "없음"}
               </p>
+              {student.trainingSurvey.paidTools && <p><b>유료 구독 도구:</b> {student.trainingSurvey.paidTools}</p>}
               <p><b>바이브 코딩 경험:</b> {student.trainingSurvey.vibeExperience === "yes" ? "있다" : "없다"}</p>
               {student.trainingSurvey.vibeApps && <p><b>만들어 본 앱:</b> {student.trainingSurvey.vibeApps}</p>}
               <p><b>오늘 만들고 싶은 것:</b> {student.trainingSurvey.workIdea}</p>

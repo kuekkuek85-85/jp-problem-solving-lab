@@ -25,8 +25,10 @@ export function Onboarding({ sessionCode, student }: { sessionCode: string; stud
   // 학생 자가진단
   const [answers, setAnswers] = useState<number[]>(Array(DIAGNOSTIC_QUESTIONS.length).fill(-1));
   // 연수 설문
+  const [subject, setSubject] = useState("");
   const [tools, setTools] = useState<string[]>([]);
   const [toolsOther, setToolsOther] = useState("");
+  const [paidTools, setPaidTools] = useState("");
   const [vibeExperience, setVibeExperience] = useState<"yes" | "no" | "">("");
   const [vibeApps, setVibeApps] = useState("");
   const [workIdea, setWorkIdea] = useState("");
@@ -51,13 +53,15 @@ export function Onboarding({ sessionCode, student }: { sessionCode: string; stud
     setStep("ethics");
   }
 
-  const surveyComplete = !!vibeExperience && !!workIdea.trim();
+  const surveyComplete = !!subject.trim() && !!vibeExperience && !!workIdea.trim();
   async function submitSurvey() {
     if (!surveyComplete) return;
     setSaving(true);
     const survey = {
+      subject: subject.trim(),
       tools,
       toolsOther: toolsOther.trim(),
+      paidTools: paidTools.trim(),
       vibeExperience: vibeExperience as "yes" | "no",
       vibeApps: vibeExperience === "yes" ? vibeApps.trim() : "",
       workIdea: workIdea.trim(),
@@ -124,7 +128,16 @@ export function Onboarding({ sessionCode, student }: { sessionCode: string; stud
 
           <div className="space-y-6">
             <div>
-              <p className="mb-2 text-sm font-bold text-slate-800">1. 사용해 본 도구를 모두 골라 주세요. (복수 선택 가능)</p>
+              <p className="mb-2 text-sm font-bold text-slate-800">1. 담당 교과를 적어 주세요.</p>
+              <Input
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                placeholder="예: 국어 / 수학 / 과학 / 영어 / 사회 / 음악 ..."
+              />
+            </div>
+
+            <div>
+              <p className="mb-2 text-sm font-bold text-slate-800">2. 사용해 본 도구를 모두 골라 주세요. (복수 선택 가능)</p>
               <div className="flex flex-wrap gap-2">
                 {TRAINING_TOOLS.map((t) => (
                   <button
@@ -151,7 +164,18 @@ export function Onboarding({ sessionCode, student }: { sessionCode: string; stud
             </div>
 
             <div>
-              <p className="mb-2 text-sm font-bold text-slate-800">2. 바이브 코딩을 해 본 적 있나요?</p>
+              <p className="mb-1 text-sm font-bold text-slate-800">3. 실제로 유료 구독 중인 도구를 적어 주세요. <span className="font-normal text-slate-400">(선택)</span></p>
+              <p className="mb-2 text-xs text-slate-400">여러 개면 쉼표(,)로 구분 — 예: ChatGPT Plus, Claude Pro, Gemini Advanced</p>
+              <Textarea
+                rows={2}
+                value={paidTools}
+                onChange={(e) => setPaidTools(e.target.value)}
+                placeholder="예: ChatGPT Plus, Claude Pro, Gemini Advanced"
+              />
+            </div>
+
+            <div>
+              <p className="mb-2 text-sm font-bold text-slate-800">4. 바이브 코딩을 해 본 적 있나요?</p>
               <div className="flex gap-2">
                 {(["yes", "no"] as const).map((v) => (
                   <button
@@ -172,7 +196,7 @@ export function Onboarding({ sessionCode, student }: { sessionCode: string; stud
 
             {vibeExperience === "yes" && (
               <div>
-                <p className="mb-2 text-sm font-bold text-slate-800">3. 바이브 코딩으로 만들어 본 앱을 적어 주세요.</p>
+                <p className="mb-2 text-sm font-bold text-slate-800">5. 바이브 코딩으로 만들어 본 앱을 적어 주세요.</p>
                 <Textarea
                   rows={2}
                   value={vibeApps}
@@ -183,7 +207,7 @@ export function Onboarding({ sessionCode, student }: { sessionCode: string; stud
             )}
 
             <div>
-              <p className="mb-1 text-sm font-bold text-slate-800">4. 오늘 만들고 싶은 교과 수업 플랫폼 / 수행평가 도구 아이디어를 적어 주세요.</p>
+              <p className="mb-1 text-sm font-bold text-slate-800">6. 오늘 만들고 싶은 교과 수업 플랫폼 / 수행평가 도구 아이디어를 적어 주세요.</p>
               <p className="mb-2 text-xs text-slate-400">💡 {VIBE_CODING_ONELINE}</p>
               <Textarea
                 rows={3}
@@ -195,7 +219,7 @@ export function Onboarding({ sessionCode, student }: { sessionCode: string; stud
 
             <div>
               <p className="mb-2 text-sm font-bold text-slate-800">
-                5. 학생들이 생성형 AI를 사용할 때, 사고의 외주화를 막기 위해 어떤 노력을 하나요?{" "}
+                7. 학생들이 생성형 AI를 사용할 때, 사고의 외주화를 막기 위해 어떤 노력을 하나요?{" "}
                 <span className="font-normal text-slate-400">(선택)</span>
               </p>
               <Textarea
@@ -210,7 +234,7 @@ export function Onboarding({ sessionCode, student }: { sessionCode: string; stud
           <Button className="mt-6 w-full" disabled={saving || !surveyComplete} onClick={submitSurvey}>
             {saving ? "저장 중..." : "다음: AI 윤리 서약"}
           </Button>
-          {!surveyComplete && <p className="mt-2 text-center text-xs text-slate-400">2번과 4번은 꼭 답해주세요.</p>}
+          {!surveyComplete && <p className="mt-2 text-center text-xs text-slate-400">1번(교과)·4번(경험)·6번(아이디어)은 꼭 답해주세요.</p>}
         </Card>
       )}
 

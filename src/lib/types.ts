@@ -96,8 +96,10 @@ export interface DiagnosticAnswers {
 
 // 교사 연수 참가자(이름 로그인)용 사전 설문
 export interface TrainingSurvey {
+  subject?: string; // 담당 교과
   tools: string[]; // 사용해 본 도구(복수)
   toolsOther: string; // 기타(주관식)
+  paidTools?: string; // 실제 유료로 구독 중인 도구(주관식, 여러 개 — 예: ChatGPT, Claude, Gemini)
   vibeExperience: "yes" | "no"; // 바이브 코딩 경험
   vibeApps: string; // 만들어 본 앱(있다일 때, 콤마 구분)
   workIdea: string; // 오늘 만들고 싶은 업무 아이디어

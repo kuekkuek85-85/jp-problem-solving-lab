@@ -13,11 +13,12 @@ export interface TrainingCohort { id: string; no: number; label: string; date: s
 export const TRAINING_COHORTS: TrainingCohort[] = [
   { id: "training", no: 1, label: "교사 연수 1기", date: "10/21" },
   { id: "training2", no: 2, label: "교사 연수 2기", date: "10/28" },
+  { id: "training3", no: 3, label: "교사 연수 3기", date: "성수중 11/5" },
 ];
 
 // 이름(성함)만으로 입장하는 연수 참가자가 기본 배정되는 '현재 진행' 연수.
 // 새 기수를 시작하면 이 값만 해당 id로 바꾸면 된다.
-export const ACTIVE_TRAINING_LAB_ID = "training2"; // 2기(10/28)
+export const ACTIVE_TRAINING_LAB_ID = "training3"; // 3기(성수중 11/5)
 
 const TRAINING_LAB_IDS = new Set(TRAINING_COHORTS.map((c) => c.id));
 export const isTrainingLab = (sessionCode: string) => TRAINING_LAB_IDS.has(sessionCode);

@@ -4,11 +4,11 @@ import { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
-import { studentPath } from "@/lib/paths";
+import { projectPath, studentPath } from "@/lib/paths";
 import { loadStudentAuth } from "@/lib/local-auth";
 import { LAB_ID, isTrainingLab, trainingLabel } from "@/lib/constants";
 import { useHelpRequests, useMyProjects, usePresentation, useProject, useRequests, useSession, useStudent, useStudents, useSubmissions } from "@/lib/hooks";
-import type { Stage } from "@/lib/types";
+import type { ProjectStep, Stage } from "@/lib/types";
 import { Spinner } from "@/components/ui";
 import { StageHeader } from "@/components/student/StageHeader";
 import { HelpWidget } from "@/components/student/HelpWidget";
@@ -96,6 +96,22 @@ export default function StudentPage() {
     });
   }
 
+  // 한 단계 뒤로 — 프롬프트 복사를 놓치고 넘어간 경우 등, 이전 단계로 되돌아간다.
+  // (스탬프는 arrayUnion이라 다시 진행해도 중복되지 않는다)
+  const PREV_STEP: Partial<Record<ProjectStep, ProjectStep>> = {
+    prd: "analyze",
+    grillme: "prd",
+    coding: "grillme",
+    submit: "coding",
+  };
+  async function goBackStep() {
+    if (!studentId || !student?.activeProjectId || !project) return;
+    const prev = PREV_STEP[project.currentStep];
+    if (!prev) return;
+    await updateDoc(doc(db, projectPath(sessionCode, studentId, project.id)), { currentStep: prev });
+    await updateDoc(doc(db, studentPath(sessionCode, studentId)), { activeStep: prev });
+  }
+
   // 1) 윤리 서약 전에는 항상 온보딩(서약을 마치면 바로 활동에 들어간다)
   if (!student.ethicsPledge.checkedAll) {
     return <Onboarding sessionCode={sessionCode} student={student} />;
@@ -178,7 +194,14 @@ export default function StudentPage() {
 
   return (
     <div>
-      <StageHeader student={student} stage={stage} requestTitle={project.requestTitle} onGoToBoard={goToBoard} cohortLabel={cohortLabel} />
+      <StageHeader
+        student={student}
+        stage={stage}
+        requestTitle={project.requestTitle}
+        onGoToBoard={goToBoard}
+        onBack={project.currentStep !== "done" && PREV_STEP[project.currentStep] ? goBackStep : undefined}
+        cohortLabel={cohortLabel}
+      />
 
       {stage === "analyze" && <AnalyzeStage sessionCode={sessionCode} student={student} project={project} />}
       {stage === "prd" && <PrdStage sessionCode={sessionCode} student={student} project={project} />}

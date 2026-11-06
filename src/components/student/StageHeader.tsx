@@ -9,17 +9,28 @@ export function StageHeader({
   stage,
   requestTitle,
   onGoToBoard,
+  onBack,
   cohortLabel,
 }: {
   student: StudentDoc;
   stage: Stage;
   requestTitle?: string | null;
   onGoToBoard?: () => void;
+  onBack?: () => void; // 한 단계 뒤로(이전 단계로 되돌아가기)
   cohortLabel?: string; // 교사 연수 기수·날짜 표기(예: "교사 연수 2기 (10/28)")
 }) {
   return (
     <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur px-4 py-3">
       <div className="mx-auto flex max-w-4xl items-center justify-between gap-3">
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="shrink-0 rounded-full border-2 border-brand-soft bg-white px-3 py-1.5 text-xs font-bold text-brand-deep hover:bg-brand-soft/5"
+            title="이전 단계로 돌아가기 (프롬프트 다시 복사 등)"
+          >
+            ← 이전 단계
+          </button>
+        )}
         {onGoToBoard && (
           <button
             onClick={onGoToBoard}

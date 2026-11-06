@@ -5,7 +5,7 @@ import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import { projectPath } from "@/lib/paths";
 import { buildCanvaPrompt } from "@/lib/prompt-builder";
-import { isTrainingLab } from "@/lib/constants";
+import { isTrainingLab, trainingTrack } from "@/lib/constants";
 import { advanceProject } from "@/lib/actions";
 import type { ProjectDoc, StudentDoc } from "@/lib/types";
 import { Button, Card, Textarea } from "@/components/ui";
@@ -92,7 +92,11 @@ export function CodingStage({
             </Button>
             <p className="mt-2 text-xs text-slate-500">
               {isTrainingLab(sessionCode) ? (
-                <>오늘은 이 프롬프트를 <b>Codex 또는 Claude Code</b>에 붙여넣어 만들어 보세요. (둘 중 편한 도구로!)</>
+                trainingTrack(sessionCode) === "dev" ? (
+                  <>오늘은 이 프롬프트를 <b>Codex 또는 Claude Code</b>에 붙여넣어 만들어 보세요. (둘 중 편한 도구로!)</>
+                ) : (
+                  <>오늘은 이 프롬프트를 <b>Canva AI · Gemini · ChatGPT · Claude</b> 중 편한 도구에 붙여넣어 만들어 보세요.</>
+                )
               ) : (
                 <>이 프롬프트는 캔바 코드뿐 아니라 <b>Gemini · ChatGPT · Claude</b>, Lovable · Replit 등 어떤 AI 도구에 붙여넣어도 돼요. 쓰는 도구에 그대로 붙여넣어 만들어 보세요.</>
               )}

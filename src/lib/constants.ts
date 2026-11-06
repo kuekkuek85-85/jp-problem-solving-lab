@@ -9,11 +9,13 @@ export const LAB_ID = "main"; // 학생용(기본)
 export const TRAINING_LAB_ID = "training"; // 교사 연수 1기(10/21) — 하위호환 유지
 
 // 교사 연수 기수(코호트). id가 Firestore sessions/{id} 서브트리이며, date는 화면 표기용.
-export interface TrainingCohort { id: string; no: number; label: string; date: string }
+// track: 'simple' = 프롬프트 붙여넣기형(Canva AI·Gemini·ChatGPT·Claude), 'dev' = 개발 파이프라인형(Codex·Claude Code + GitHub·Firestore·Vercel)
+export type TrainingTrack = "simple" | "dev";
+export interface TrainingCohort { id: string; no: number; label: string; date: string; track: TrainingTrack }
 export const TRAINING_COHORTS: TrainingCohort[] = [
-  { id: "training", no: 1, label: "교사 연수 1기", date: "10/21" },
-  { id: "training2", no: 2, label: "교사 연수 2기", date: "10/28" },
-  { id: "training3", no: 3, label: "교사 연수 3기", date: "성수중 11/5" },
+  { id: "training", no: 1, label: "교사 연수 1기", date: "10/21", track: "simple" },
+  { id: "training2", no: 2, label: "교사 연수 2기", date: "10/28", track: "dev" },
+  { id: "training3", no: 3, label: "교사 연수 3기", date: "성수중 11/5", track: "simple" },
 ];
 
 // 이름(성함)만으로 입장하는 연수 참가자가 기본 배정되는 '현재 진행' 연수.
@@ -30,6 +32,10 @@ export function trainingCohort(sessionCode: string): TrainingCohort | null {
 export function trainingLabel(sessionCode: string): string {
   const c = trainingCohort(sessionCode);
   return c ? `${c.label} (${c.date})` : "교사 연수";
+}
+// 기수의 트랙(간단형/개발형). 기수가 아니면 'simple'로 간주.
+export function trainingTrack(sessionCode: string): TrainingTrack {
+  return trainingCohort(sessionCode)?.track ?? "simple";
 }
 
 // 교사 연수 참가자(이름 로그인, id 'edu-')에게는 '친구'를 '동료'로 표기한다. 학생에겐 그대로.
@@ -270,9 +276,9 @@ export const SEED_SLIDES: string[] = [
 - 수료증을 인쇄하며 오늘을 마무리해요.`,
 ];
 
-// ── 교사 연수용 브리핑 슬라이드(2기: 내 교과 도구 만들기 — Codex/Claude Code + 배포) ──
+// ── 교사 연수 브리핑 슬라이드: 개발형(dev) — 내 교과 도구 만들기 + Codex/Claude Code + 배포(2기) ──
 // 교사 대시보드 '브리핑 슬라이드'에서 버튼으로 불러온다. 공용 기본 슬라이드와 별도.
-export const SEED_SLIDES_TRAINING: string[] = [
+export const SEED_SLIDES_TRAINING_DEV: string[] = [
   `# 🔬🤖 교사 연수 — 내 교과 수업 도구 만들기
 - 선생님이 **연구원**이 되어, **내 교과 수업 플랫폼** 또는 **수행평가 도구**를 직접 만들어요.
 - 아이디어 → 설계도 → **GitHub 저장소** → AI 코딩으로 **MVP** → **Gemini API**(AI) → **Firestore**(DB) → **Vercel 배포**
@@ -357,6 +363,71 @@ export const SEED_SLIDES_TRAINING: string[] = [
 - 실제로 적용하려면 **무엇을 더** 해야 할까요?`,
 ];
 
+// ── 교사 연수 브리핑 슬라이드: 간단형(simple) — 내 교과 도구 만들기 + Canva AI·Gemini·ChatGPT·Claude(3기 성수중) ──
+// 프롬프트를 복사해 AI 도구에 붙여넣어 만드는 흐름. GitHub/배포 단계 없음.
+export const SEED_SLIDES_TRAINING_SIMPLE: string[] = [
+  `# 🔬🤖 교사 연수 — 내 교과 수업 도구 만들기
+- 선생님이 **연구원**이 되어, **내 교과 수업 플랫폼** 또는 **수행평가 도구**를 직접 만들어요.
+- 흐름: 주제 고르기 → 분석 → 설계도 → AI Grill Me → 바이브 코딩(프롬프트 붙여넣기) → 제출 → 공유
+- 도구는 **Canva AI · Gemini · ChatGPT · Claude** 중 편한 것으로!`,
+
+  `# 🎯 오늘의 주제
+- **내 교과 수업 플랫폼** 또는 **내 교과 수행평가 도구** 중 하나를 만들어요.
+- 예: 형성평가 퀴즈 앱 · 수행평가 루브릭 채점 도구 · 실시간 의견 수합 · 플래시카드 · 활동 기록장
+- 거창하지 않아도 돼요. **오늘 내 수업에 바로 쓸 작은 도구** 하나!`,
+
+  `# 💻 오늘의 도구 — Canva AI · Gemini · ChatGPT · Claude
+- 설치할 것 없이 **웹에서 바로** 쓰는 도구들이에요. 본인이 **편한 것 하나**를 고르면 돼요.
+- **Canva AI**([https://www.canva.com](https://www.canva.com)) · **Gemini**([https://gemini.google.com](https://gemini.google.com)) · **ChatGPT**([https://chatgpt.com](https://chatgpt.com)) · **Claude**([https://claude.ai](https://claude.ai))
+- 각자 **본인 계정으로 로그인**해 두세요. (로그인이 막히면 🙋 도움 요청)`,
+
+  `# 🛡️ AI를 안전하게 쓰는 원칙
+- 학생·학부모의 **개인정보·평가 데이터는 프롬프트에 넣지 않기**
+- AI 결과를 **그대로 믿지 않고 한 번 더 검토**하기
+- 타인의 글·이미지의 **저작권**과 **공정성** 고려하기`,
+
+  `# 🎖️ 연구원 등록
+- **성함만 입력**하면 입장할 수 있어요. (로그인 화면 → '이름으로 입장(연수)')
+- 간단 사전 설문 + AI 윤리 서약을 마치면 바로 활동 시작
+- 수준(🌱새싹/🌿성장/🌳나눔)은 비교·평가가 아니라 안내용이에요.`,
+
+  `# 📌 1단계 · 주제 고르기 + 의뢰 분석
+- 의뢰 게시판에서 주제를 고르거나 **'+ 의뢰 등록 요청'** 으로 내 아이디어 등록
+- **누가 · 언제 · 무엇 때문에** 필요한지, 만들면 **무엇이 좋아지는지**
+- 막연한 생각을 **구체적인 문제/목표**로 좁혀요.`,
+
+  `# 📐 2단계 · 설계도 작성
+- 한 줄 소개 · 사용자 · **꼭 필요한 기능 3가지** · AI 기능 · 화면 · 저장할 정보 · 성공 기준
+- 처음엔 기능 **1~2개부터** 작게 시작!
+- **지켜야 할 것**: 🔒개인정보 ©️저작권 🤝공정성`,
+
+  `# 🔥 3단계 · AI Grill Me 검토
+- AI 코치가 설계도의 **허점을 날카롭게 질문**해요(윤리 질문 포함).
+- 질문에 답하면서 **설계도를 직접 더 탄탄하게** 다듬습니다.
+- 여기서 다듬은 설계도가 그대로 **코딩 프롬프트**가 됩니다.`,
+
+  `# 🧑‍💻 4단계 · 바이브 코딩 (Canva AI·Gemini·ChatGPT·Claude)
+- **"📋 프롬프트 복사하기"** → 설계도가 자동으로 프롬프트가 됩니다.
+- 복사한 프롬프트를 **Canva AI · Gemini · ChatGPT · Claude** 중 편한 도구에 붙여넣으세요.
+- 결과를 실행해 보고 "버튼 크게", "저장 기능 추가"처럼 **대화하듯** 고쳐요.`,
+
+  `# 🛠️ AI 코딩, 이런 것도 돼요
+프롬프트만으로 설계도의 기능을 대부분 붙일 수 있어요!
+- 💾 데이터 저장 → "입력한 내용을 저장하고 목록으로 보여줘"
+- 🤖 AI 기능 → "요약·추천·분류 기능을 넣어줘"
+- 🖼️ 화면·디자인 → "표로 정리", "모바일에서도 잘 보이게"
+- 막히면 결과/오류를 다시 붙여넣고 **"이 오류를 고쳐줘"**`,
+
+  `# 🚀 해결안 제출 · 공유
+- 완성한 산출물의 **링크(또는 파일)** 와 **한 줄 소개**를 제출해요.
+- **해결 보고회**에서 서로의 결과물을 보고 이모지·댓글로 피드백해요.`,
+
+  `# ✍️ 성찰 · 내 수업 적용
+- 오늘 만든 도구를 **내 수업·평가에 어떻게** 쓸 수 있을까요?
+- AI가 만든 것 중 **꼭 확인·수정해야 했던 부분**은 무엇이었나요?
+- 실제로 적용하려면 **무엇을 더** 해야 할까요?`,
+];
+
 export const HELP_CATEGORY_LABELS: Record<string, string> = {
   design: "설계",
   build: "구현",
@@ -387,5 +458,6 @@ export function seedRequestsForLab(sessionCode: string) {
   return isTrainingLab(sessionCode) ? SEED_REQUESTS_TRAINING : SEED_REQUESTS;
 }
 export function seedSlidesForLab(sessionCode: string) {
-  return isTrainingLab(sessionCode) ? SEED_SLIDES_TRAINING : SEED_SLIDES;
+  if (!isTrainingLab(sessionCode)) return SEED_SLIDES;
+  return trainingTrack(sessionCode) === "dev" ? SEED_SLIDES_TRAINING_DEV : SEED_SLIDES_TRAINING_SIMPLE;
 }

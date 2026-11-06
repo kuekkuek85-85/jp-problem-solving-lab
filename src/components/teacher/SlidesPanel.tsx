@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { SessionDoc, Slide } from "@/lib/types";
-import { SEED_SLIDES, SEED_SLIDES_TRAINING } from "@/lib/constants";
+import { SEED_SLIDES, seedSlidesForLab } from "@/lib/constants";
 import { Button, Card, Textarea } from "@/components/ui";
 
 export function SlidesPanel({ sessionCode, pin, session }: { sessionCode: string; pin: string; session: SessionDoc }) {
@@ -51,8 +51,8 @@ export function SlidesPanel({ sessionCode, pin, session }: { sessionCode: string
   }
 
   async function loadTraining() {
-    if (!confirm("현재 슬라이드를 '교사 연수용'(내 교과 도구 만들기 + Codex/Claude Code + 배포)으로 교체할까요? 편집한 내용은 사라져요.")) return;
-    const set = SEED_SLIDES_TRAINING.map((markdown, index) => ({ index, markdown }));
+    if (!confirm("현재 슬라이드를 이 기수의 '교사 연수용' 기본 슬라이드로 교체할까요? 편집한 내용은 사라져요.")) return;
+    const set = seedSlidesForLab(sessionCode).map((markdown, index) => ({ index, markdown }));
     setSlides(set);
     setSaving(true);
     try {

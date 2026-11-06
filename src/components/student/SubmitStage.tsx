@@ -5,7 +5,7 @@ import { arrayRemove, arrayUnion, doc, increment, setDoc, updateDoc } from "fire
 import { db } from "@/lib/firebase/client";
 import { projectPath, requestPath, studentPath, submissionPath } from "@/lib/paths";
 import type { ProjectDoc, StudentDoc } from "@/lib/types";
-import { Button, Card, Input } from "@/components/ui";
+import { Button, Card, Input, Textarea } from "@/components/ui";
 import { HtmlArtifactButton } from "@/components/HtmlArtifact";
 import { MAX_INLINE_HTML_BYTES, MAX_UPLOAD_BYTES, isHtmlFile, uploadSubmissionFile } from "@/lib/upload";
 import { isTrainingLab } from "@/lib/constants";
@@ -264,7 +264,7 @@ export function SubmitStage({
       <Card>
         <h2 className="mb-1 text-lg font-black">해결안 제출 · 배포</h2>
         <p className="mb-5 text-sm text-slate-500">
-          {training ? "산출물 링크와 HTML 파일을 모두 제출해주세요. (둘 다 필수)" : "완성한 산출물의 링크를 내거나, 파일을 올려주세요."}
+          {training ? "산출물 링크와 HTML(파일 업로드 또는 코드 붙여넣기)을 모두 제출해주세요. (둘 다 필수)" : "완성한 산출물의 링크를 내거나, 파일을 올려주세요."}
         </p>
 
         <div className="space-y-4">
@@ -275,18 +275,28 @@ export function SubmitStage({
                 <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://... (배포 주소·공유 링크)" />
               </div>
               <div>
-                <label className="mb-1 block text-sm font-bold text-slate-800">HTML 파일 <span className="text-red-500">*</span></label>
+                <label className="mb-1 block text-sm font-bold text-slate-800">HTML — 파일 업로드 또는 코드 붙여넣기 <span className="text-red-500">*</span></label>
                 <label className="flex cursor-pointer items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm font-bold text-slate-500 hover:border-brand-soft hover:bg-brand-soft/5">
                   <input type="file" accept=".html,.htm,text/html" onChange={onPickFile} className="hidden" />
                   {fileName ? `📄 ${fileName} (다시 선택하려면 클릭)` : "📄 .html 파일을 선택하세요"}
                 </label>
                 {fileError && <p className="mt-1.5 text-xs font-bold text-red-600">{fileError}</p>}
+                <div className="my-2 flex items-center gap-2 text-xs text-slate-400">
+                  <span className="h-px flex-1 bg-slate-200" /> 또는 코드 붙여넣기 <span className="h-px flex-1 bg-slate-200" />
+                </div>
+                <Textarea
+                  rows={5}
+                  value={html}
+                  onChange={(e) => { setHtml(e.target.value); setFileName(""); setFileError(""); }}
+                  placeholder="AI가 만든 HTML 코드를 복사해서 여기에 붙여넣으세요. (Canva·Gemini·ChatGPT·Claude 모두 코드 복사 가능)"
+                  className="font-mono text-xs"
+                />
                 {html.trim() && (
                   <div className="mt-2">
-                    <HtmlArtifactButton html={html} title={fileName || "산출물 미리보기"} label="👀 업로드한 화면 미리보기" className="text-xs font-bold text-brand underline" />
+                    <HtmlArtifactButton html={html} title={fileName || "산출물 미리보기"} label="👀 화면 미리보기" className="text-xs font-bold text-brand underline" />
                   </div>
                 )}
-                <p className="mt-1.5 text-xs text-slate-400">HTML 파일은 강사 검토의 ‘설계–산출물 일치도’ 분석과 발표회 화면 표시에 쓰여요.</p>
+                <p className="mt-1.5 text-xs text-slate-400">HTML은 강사 검토의 ‘설계–산출물 일치도’ 분석과 발표회 화면 표시에 쓰여요.</p>
               </div>
             </>
           ) : (

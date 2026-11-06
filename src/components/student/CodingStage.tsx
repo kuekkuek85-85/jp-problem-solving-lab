@@ -55,6 +55,18 @@ export function CodingStage({
     setCelebrate(true);
   }
 
+  // 이미 1차 완성한 뒤 '← 이전 단계'로 돌아온 경우: 축하 없이 바로 제출 단계로 다시 이동.
+  async function goToSubmit() {
+    await advanceProject({
+      sessionCode,
+      studentId: student.studentId,
+      projectId: project.id,
+      stamp: 4,
+      nextStep: "submit",
+      projectFields: { codingFirstDone: true },
+    });
+  }
+
   return (
     <main className="mx-auto max-w-5xl px-4 py-6">
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -113,9 +125,14 @@ export function CodingStage({
               1차 완성! 다음 단계로
             </Button>
           ) : (
-            <Card className="bg-emerald-50 border-emerald-200 text-center text-sm font-bold text-emerald-700">
-              1차 완성 체크됐어요. 계속 다듬은 뒤 해결안을 제출해주세요!
-            </Card>
+            <>
+              <Card className="bg-emerald-50 border-emerald-200 text-center text-sm font-bold text-emerald-700">
+                1차 완성 체크됐어요. 계속 다듬은 뒤 해결안을 제출해주세요!
+              </Card>
+              <Button className="w-full" onClick={goToSubmit}>
+                다음 단계: 해결안 제출하기 →
+              </Button>
+            </>
           )}
         </div>
       </div>

@@ -7,6 +7,7 @@ import { projectPath, requestPath, studentPath, submissionPath } from "@/lib/pat
 import type { ProjectDoc, StudentDoc } from "@/lib/types";
 import { Button, Card, Input, Textarea } from "@/components/ui";
 import { HtmlArtifactButton } from "@/components/HtmlArtifact";
+import { AcceptanceChecklist } from "./AcceptanceChecklist";
 import { MAX_INLINE_HTML_BYTES, MAX_UPLOAD_BYTES, isHtmlFile, uploadSubmissionFile } from "@/lib/upload";
 import { isTrainingLab, trainingTrack } from "@/lib/constants";
 import { StampCelebration } from "./StampCelebration";
@@ -117,7 +118,7 @@ export function SubmitStage({
       });
       await setDoc(
         doc(db, submissionPath(sessionCode, project.id)),
-        { url: submittedUrl, html: submittedHtml, htmlFileName: submittedFileName, oneLiner, submittedAt: now },
+        { url: submittedUrl, html: submittedHtml, htmlFileName: submittedFileName, oneLiner, acceptanceCriteria: project.prd.acceptanceCriteria ?? null, submittedAt: now },
         { merge: true }
       );
       onDone?.();
@@ -169,6 +170,7 @@ export function SubmitStage({
         url: submittedUrl,
         html: submittedHtml,
         htmlFileName: submittedFileName,
+        acceptanceCriteria: project.prd.acceptanceCriteria ?? null,
         slidesHtml: priorSlidesHtml,
         badges: student.badges,
         submittedAt: now,
@@ -360,6 +362,14 @@ export function SubmitStage({
             <label className="mb-1 block text-sm font-bold text-slate-800">한 줄 소개</label>
             <Input value={oneLiner} onChange={(e) => setOneLiner(e.target.value)} placeholder="어떤 문제를 어떻게 해결했나요?" />
           </div>
+
+          {training && (
+            <AcceptanceChecklist
+              criteria={project.prd.acceptanceCriteria}
+              title="✅ 제출 전 자가 점검 (AI 1차 → 내가 2차 확인)"
+              note="설계 단계에서 정한 수용 기준이에요. 실제로 되는지 하나씩 눌러보며 확인하고 제출하세요. (발표회에서 동료·강사가 다시 확인해요)"
+            />
+          )}
         </div>
 
         {editMode ? (

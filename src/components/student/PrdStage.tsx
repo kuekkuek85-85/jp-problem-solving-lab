@@ -216,6 +216,15 @@ export function PrdStage({
             </Field>
           </FieldWithHelp>
 
+          <Field label="✅ 수용 기준 (완성 판단 체크리스트)" hint="한 줄에 하나씩, '검증 가능한' 문장으로. 제출 전 스스로 1차 점검하고, 동료·강사가 2차로 확인해요. (예: 빈 칸으로 제출하면 안내가 뜬다 / 모바일에서도 글자가 잘 보인다)">
+            <Textarea
+              rows={4}
+              value={prd.acceptanceCriteria ?? ""}
+              onChange={(e) => update("acceptanceCriteria", e.target.value)}
+              placeholder={"예)\n- 학생이 빈 칸으로 제출하면 안내 메시지가 뜬다\n- 제출하면 목록에 바로 나타난다\n- 모바일 화면에서도 버튼이 누르기 쉽다"}
+            />
+          </Field>
+
           <FieldWithHelp fieldId="ethicsCheck" student={student} hints={hints} hintLoading={hintLoading} onHint={fetchHint}>
             <Field label="10. 지켜야 할 것 (윤리 체크)">
               <div className="space-y-3">

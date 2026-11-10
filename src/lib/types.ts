@@ -161,6 +161,7 @@ export interface PrdData {
   screenImageUrl?: string;
   dataToStore: string;
   successMetric: string;
+  acceptanceCriteria?: string; // 수용 기준(검증 가능한 체크리스트) — 한 줄에 하나. 제출 전 자가 + 동료/강사 2차 검토에 사용.
   ethicsCheck: {
     privacy: EthicsCheckItem;
     copyright: EthicsCheckItem;
@@ -231,6 +232,7 @@ export interface SubmissionSummaryDoc {
   htmlFileName: string | null;
   usage?: string | null;
   etc?: string | null;
+  acceptanceCriteria?: string | null; // 설계 단계에서 정한 수용 기준(동료·강사 2차 검토용)
   slidesHtml: string | null;
   badges: Badge[];
   submittedAt: number;

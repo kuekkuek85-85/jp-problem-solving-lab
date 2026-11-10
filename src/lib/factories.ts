@@ -65,6 +65,7 @@ export function emptyProject(params: {
       screenImageUrl: "",
       dataToStore: "",
       successMetric: "",
+      acceptanceCriteria: "",
       ethicsCheck: {
         privacy: { checked: false, note: "" },
         copyright: { checked: false, note: "" },

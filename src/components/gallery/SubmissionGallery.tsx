@@ -8,6 +8,7 @@ import { useSubmissions } from "@/lib/hooks";
 import { startPresentation } from "@/lib/actions";
 import { Button, LevelBadge } from "@/components/ui";
 import { HtmlArtifactButton } from "@/components/HtmlArtifact";
+import { AcceptanceChecklist } from "@/components/student/AcceptanceChecklist";
 
 const EMOJIS = ["👍", "❤️", "🔥", "👏", "💡"];
 
@@ -137,6 +138,18 @@ function SubmissionCard({
             </a>
           )}
         </div>
+      )}
+      {submission.acceptanceCriteria?.trim() && (
+        <details className="mt-2">
+          <summary className="cursor-pointer text-xs font-bold text-emerald-700">✅ 수용 기준으로 검토하기 (2차)</summary>
+          <div className="mt-2">
+            <AcceptanceChecklist
+              criteria={submission.acceptanceCriteria}
+              title="✅ 수용 기준 2차 검토"
+              note="만든 사람이 정한 기준이에요. 실제로 되는지 하나씩 확인해 보세요."
+            />
+          </div>
+        </details>
       )}
 
       {isMine && (

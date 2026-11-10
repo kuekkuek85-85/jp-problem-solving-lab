@@ -5,6 +5,7 @@ import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import { studentPath } from "@/lib/paths";
 import {
+  DEFAULT_HARNESS,
   DIAGNOSTIC_QUESTIONS,
   ETHICS_PLEDGE_ITEMS,
   TRAINING_TOOLS,
@@ -33,6 +34,7 @@ export function Onboarding({ sessionCode, student }: { sessionCode: string; stud
   const [vibeApps, setVibeApps] = useState("");
   const [workIdea, setWorkIdea] = useState("");
   const [antiOutsourcing, setAntiOutsourcing] = useState("");
+  const [harness, setHarness] = useState(DEFAULT_HARNESS);
 
   const [checked, setChecked] = useState<boolean[]>(Array(ETHICS_PLEDGE_ITEMS.length).fill(false));
   const [saving, setSaving] = useState(false);
@@ -70,6 +72,7 @@ export function Onboarding({ sessionCode, student }: { sessionCode: string; stud
     };
     await updateDoc(doc(db, studentPath(sessionCode, student.studentId)), {
       trainingSurvey: survey,
+      harness: harness.trim(),
       level: levelFromSurvey(survey),
     });
     setSaving(false);
@@ -227,6 +230,17 @@ export function Onboarding({ sessionCode, student }: { sessionCode: string; stud
                 value={antiOutsourcing}
                 onChange={(e) => setAntiOutsourcing(e.target.value)}
                 placeholder="평소 수업에서의 생각이나 방법을 자유롭게 적어주세요 (선택)"
+              />
+            </div>
+
+            <div>
+              <p className="mb-1 text-sm font-bold text-slate-800">🧭 8. 나의 하네스(오늘 지킬 개발 원칙)를 적어 주세요.</p>
+              <p className="mb-2 text-xs text-slate-400">AI와 함께 만들 때 <b>스스로 지킬 원칙</b>이에요. 아래 예시를 고치거나 더해도 됩니다. (작업 화면 상단 「🧭 나의 하네스」에서 언제든 다시 볼 수 있어요)</p>
+              <Textarea
+                rows={5}
+                value={harness}
+                onChange={(e) => setHarness(e.target.value)}
+                placeholder={DEFAULT_HARNESS}
               />
             </div>
           </div>

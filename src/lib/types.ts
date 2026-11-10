@@ -134,6 +134,7 @@ export interface StudentDoc {
   helperModeOn?: boolean;
   editMode?: boolean; // 제출 완료 해결안을 다시 열어 설계도·산출물을 수정 중일 때
   instructorFeedback?: { text: string; sentAt: number } | null; // 교사 연수: 강사(이승엽)가 보낸 피드백
+  harness?: string; // 교사 연수(SDD): 각자 적는 '나의 개발 원칙(하네스)'
 }
 
 export interface AnalyzeData {

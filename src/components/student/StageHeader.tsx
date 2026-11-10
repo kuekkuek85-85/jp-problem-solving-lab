@@ -49,6 +49,12 @@ export function StageHeader({
             <span className="text-xs text-slate-400">{peerText(student.studentId, LEVEL_LABELS[student.level].tagline)}</span>
           </div>
           {requestTitle && <div className="text-xs text-slate-500 mt-0.5">맡은 의뢰: {requestTitle}</div>}
+          {cohortLabel && student.harness?.trim() && (
+            <details className="mt-1">
+              <summary className="cursor-pointer text-xs font-bold text-amber-700">🧭 나의 하네스</summary>
+              <pre className="mt-1 whitespace-pre-wrap rounded-lg bg-amber-50 p-2 text-[11px] leading-relaxed text-slate-700">{student.harness}</pre>
+            </details>
+          )}
         </div>
         <div className="text-right">
           <div className="text-sm font-bold text-brand-deep">{STAGE_LABELS[stage]}</div>

@@ -102,6 +102,13 @@ export const TRAINING_TOOLS: string[] = [
 export const VIBE_CODING_ONELINE =
   "바이브 코딩이란, 코드를 직접 작성하지 않고 AI에게 자연어로 요청해 앱·웹을 만들어내는 방식이에요.";
 
+// 교사 연수(SDD): '나의 하네스(개발 원칙)' 작성 단계의 기본 예시. 참가자가 자유롭게 고치고 더한다.
+// 핵심 원칙으로 'AI 1차 자가검증 → 사람 2차 검토'를 기본 포함한다.
+export const DEFAULT_HARNESS = `· 작동 ≠ 완성 — AI가 1차로 스스로 점검하게 하고, 사람(나·동료)이 2차로 검토한다.
+· 개인정보·평가 데이터는 프롬프트나 코드에 넣지 않는다.
+· AI가 만든 결과는 그대로 믿지 않고, 한 번 더 확인하고 고친다.
+· 한 번에 한 가지씩, 작게 만들고 바로 확인한다.`;
+
 export function levelFromSurvey(s: {
   tools: string[];
   toolsOther: string;

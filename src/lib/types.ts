@@ -226,7 +226,7 @@ export interface ImplTask {
   id: string; // t1, t2, ...
   title: string; // 짧은 제목
   detail: string; // 무엇을 구현하는지(한두 문장)
-  check: string; // 이 태스크의 1차 자가점검(완료 판단) 기준
+  checks: string[]; // 이 태스크의 검증 기준(체크리스트) — 1차 자가점검·2차 인간 점검에 공통 사용
 }
 
 // 해결 보고회(갤러리) 조회용 평면화된 제출물 요약 문서

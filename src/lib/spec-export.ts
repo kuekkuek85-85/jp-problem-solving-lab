@@ -31,7 +31,10 @@ export function buildSpecMd(project: ProjectDoc): string {
   const taskSection = tasks.length
     ? "\n\n## 5. 구현 태스크 (순서대로 · 각 태스크: 구현 → 1차 자가점검 → 2차 인간 점검)\n" +
       tasks
-        .map((t, i) => `${i + 1}. **${t.title}** — ${t.detail}${t.check ? `\n   - ✅ 1차 점검 기준: ${t.check}` : ""}`)
+        .map((t, i) => {
+          const checks = (t.checks ?? []).map((c) => `   - [ ] ${c}`).join("\n");
+          return `${i + 1}. **${t.title}** — ${t.detail}${checks ? `\n   검증 기준:\n${checks}` : ""}`;
+        })
         .join("\n")
     : "";
 
@@ -75,13 +78,18 @@ export function buildCodingPrompt(project: ProjectDoc, mode: PromptMode): string
   const target = project.prd.oneLiner?.trim() || project.requestTitle;
   const tasks = project.tasks ?? [];
   const taskList = tasks.length
-    ? tasks.map((t, i) => `${i + 1}. ${t.title} — ${t.detail}${t.check ? ` (1차 점검: ${t.check})` : ""}`).join("\n")
+    ? tasks
+        .map((t, i) => {
+          const checks = (t.checks ?? []).map((c) => `   - [ ] ${c}`).join("\n");
+          return `${i + 1}. ${t.title} — ${t.detail}${checks ? `\n   검증 기준:\n${checks}` : ""}`;
+        })
+        .join("\n")
     : "(spec.md의 '구현 태스크'를 순서대로 따른다)";
 
   const cycle = `아래 **구현 태스크를 순서대로 하나씩** 진행하자. 한 번에 전부 만들지 말 것.
 각 태스크마다:
 ① 그 태스크만 구현한다.
-② 스스로 **1차 자가점검**(그 태스크의 점검 기준)을 하고, 통과 여부를 짧게 요약해 알려준다.
+② 스스로 **1차 자가점검** — 그 태스크의 **검증 기준을 하나씩 전부** 확인하고, 각 항목의 통과 여부를 체크리스트로 알려준다.
 ③ 나에게 **2차 점검(사람 확인)** 을 요청하고 멈춘다. 내가 "다음"이라고 하면 다음 태스크로 넘어간다.
 
 [구현 태스크]

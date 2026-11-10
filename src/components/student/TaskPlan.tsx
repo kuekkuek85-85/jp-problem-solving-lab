@@ -91,10 +91,18 @@ export function TaskPlan({
                   <div className="min-w-0 flex-1">
                     <p className="font-bold text-slate-800">{t.title}</p>
                     <p className="mt-0.5 text-sm text-slate-600">{t.detail}</p>
-                    {t.check && (
-                      <p className="mt-1 text-xs text-emerald-700">
-                        <span className="font-bold">✅ 1차 점검:</span> {t.check}
-                      </p>
+                    {t.checks?.length > 0 && (
+                      <div className="mt-1.5 rounded-lg bg-emerald-50 p-2">
+                        <p className="mb-0.5 text-[11px] font-bold text-emerald-700">✅ 검증 기준 (1차 자가 · 2차 사람)</p>
+                        <ul className="space-y-0.5 text-xs text-emerald-800">
+                          {t.checks.map((c, ci) => (
+                            <li key={ci} className="flex gap-1.5">
+                              <span className="flex-none">☐</span>
+                              <span>{c}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     )}
                   </div>
                 </div>

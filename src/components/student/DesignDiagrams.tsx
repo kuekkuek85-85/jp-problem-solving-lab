@@ -6,23 +6,16 @@ import { FlowDiagram } from "./FlowDiagram";
 import { SchemaDiagram } from "./SchemaDiagram";
 
 // 플로우 다이어그램과 데이터 스키마를 탭으로 묶어 세로 스크롤을 줄인다.
-// showSchema=false(저장할 정보 없음)면 플로우만 보여준다.
 export function DesignDiagrams({
   sessionCode,
   studentId,
   project,
-  showSchema,
 }: {
   sessionCode: string;
   studentId: string;
   project: ProjectDoc;
-  showSchema: boolean;
 }) {
   const [tab, setTab] = useState<"flow" | "schema">("flow");
-
-  if (!showSchema) {
-    return <FlowDiagram sessionCode={sessionCode} studentId={studentId} project={project} />;
-  }
 
   return (
     <div>

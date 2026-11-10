@@ -288,12 +288,7 @@ export function PrdStage({
 
       {!editMode && prd.oneLiner.trim() && (
         <div className="mt-4">
-          <DesignDiagrams
-            sessionCode={sessionCode}
-            studentId={student.studentId}
-            project={project}
-            showSchema={prd.dataToStore.trim() !== ""}
-          />
+          <DesignDiagrams sessionCode={sessionCode} studentId={student.studentId} project={project} />
         </div>
       )}
 

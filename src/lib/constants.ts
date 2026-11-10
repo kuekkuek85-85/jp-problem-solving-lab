@@ -9,18 +9,21 @@ export const LAB_ID = "main"; // 학생용(기본)
 export const TRAINING_LAB_ID = "training"; // 교사 연수 1기(10/21) — 하위호환 유지
 
 // 교사 연수 기수(코호트). id가 Firestore sessions/{id} 서브트리이며, date는 화면 표기용.
-// track: 'simple' = 프롬프트 붙여넣기형(Canva AI·Gemini·ChatGPT·Claude), 'dev' = 개발 파이프라인형(Codex·Claude Code + GitHub·Firestore·Vercel)
-export type TrainingTrack = "simple" | "dev";
+// track: 'simple' = 프롬프트 붙여넣기형(Canva AI·Gemini·ChatGPT·Claude),
+//        'dev' = 개발 파이프라인형(Codex·Claude Code + GitHub·Firestore·Vercel),
+//        'lovable' = Lovable로 구현(Lovable Cloud·Supabase·Lovable AI + GitHub 백업)
+export type TrainingTrack = "simple" | "dev" | "lovable";
 export interface TrainingCohort { id: string; no: number; label: string; date: string; track: TrainingTrack }
 export const TRAINING_COHORTS: TrainingCohort[] = [
   { id: "training", no: 1, label: "교사 연수 1기", date: "10/21", track: "simple" },
   { id: "training2", no: 2, label: "교사 연수 2기", date: "10/28", track: "dev" },
   { id: "training3", no: 3, label: "교사 연수 3기", date: "성수중 11/5", track: "simple" },
+  { id: "training4", no: 4, label: "교사 연수 4기", date: "11/11", track: "lovable" },
 ];
 
 // 이름(성함)만으로 입장하는 연수 참가자가 기본 배정되는 '현재 진행' 연수.
 // 새 기수를 시작하면 이 값만 해당 id로 바꾸면 된다.
-export const ACTIVE_TRAINING_LAB_ID = "training3"; // 3기(성수중 11/5)
+export const ACTIVE_TRAINING_LAB_ID = "training4"; // 4기(11/11, Lovable)
 
 const TRAINING_LAB_IDS = new Set(TRAINING_COHORTS.map((c) => c.id));
 export const isTrainingLab = (sessionCode: string) => TRAINING_LAB_IDS.has(sessionCode);
@@ -428,6 +431,96 @@ export const SEED_SLIDES_TRAINING_SIMPLE: string[] = [
 - 실제로 적용하려면 **무엇을 더** 해야 할까요?`,
 ];
 
+// ── 교사 연수 브리핑 슬라이드: Lovable 트랙(4기 11/11) — Lovable로 구현 + GitHub 백업 ──
+export const SEED_SLIDES_TRAINING_LOVABLE: string[] = [
+  `# 🔬🤖 교사 연수 — 내 교과 수업 도구 만들기 (Lovable)
+- 선생님이 **연구원**이 되어, **내 교과 수업 플랫폼** 또는 **수행평가 도구**를 직접 만들어요.
+- 흐름: 주제 → 분석 → 설계도 → AI Grill Me → **Lovable로 구현** → DB·AI 연동 → 배포 → **GitHub 백업** → 공유
+- 오늘의 도구: **Lovable** (설계까지는 ChatGPT·Claude·Gemini나 Lovable 채팅도 OK)`,
+
+  `# 🧭 오늘의 전체 흐름 (한눈에)
+1. 주제(의뢰) → 2. 분석 → 3. 설계도(MVP) → 4. AI Grill Me
+5. **Lovable**에 설계도를 주고 구현 → 6. **DB: Supabase**(Lovable Cloud) → 7. **AI: Lovable AI**
+8. 게시(배포) → 9. **GitHub 연동/백업** → 10. 제출 · 발표회`,
+
+  `# 🎯 오늘의 주제
+- **내 교과 수업 플랫폼** 또는 **내 교과 수행평가 도구** 중 하나를 만들어요.
+- 예: 형성평가 퀴즈 앱 · 수행평가 루브릭 채점 · 실시간 의견 수합 · 플래시카드 · 활동 기록장
+- 거창하지 않아도 돼요. **오늘 내 수업에 바로 쓸 작은 도구** 하나!`,
+
+  `# ✅ 준비물
+- 🧡 **Lovable Pro 임시 계정** — 업체가 **1달치 제공**(연수 후 만료). 오늘 나눠드리는 계정으로 로그인
+- 🐙 **GitHub 계정** — 내 프로젝트를 **백업**해 가져가기 위해 필요
+- ⚠️ 임시 계정이라 **연수가 끝나면 꼭 백업**해야 내 작업이 남습니다(뒤에서 설명)`,
+
+  `# 💻 오늘의 도구 — Lovable
+- [https://lovable.dev](https://lovable.dev) 접속 → 나눠드린 **임시 Pro 계정으로 로그인**
+- **채팅으로 요청하면** Lovable이 앱을 만들어 주고, **미리보기**로 바로 확인돼요.
+- 설계 단계까지는 **ChatGPT·Claude·Gemini**로 아이디어를 다듬거나, **Lovable 채팅**을 바로 써도 됩니다.`,
+
+  `# 🛡️ AI를 안전하게 쓰는 원칙
+- 학생·학부모의 **개인정보·평가 데이터는 넣지 않기**(임시 계정/공용 환경이라 특히 주의)
+- AI 결과를 **그대로 믿지 않고 한 번 더 검토**하기
+- 타인의 글·이미지의 **저작권**과 **공정성** 고려하기`,
+
+  `# 🎖️ 연구원 등록
+- **성함만 입력**하면 입장할 수 있어요. (로그인 화면 → '이름으로 입장(연수)')
+- 간단 사전 설문 + AI 윤리 서약을 마치면 바로 활동 시작
+- 수준(🌱새싹/🌿성장/🌳나눔)은 비교·평가가 아니라 안내용이에요.`,
+
+  `# 📌 1단계 · 주제 고르기 + 의뢰 분석
+- 의뢰 게시판에서 주제를 고르거나 **'+ 의뢰 등록 요청'** 으로 내 아이디어 등록
+- **누가 · 언제 · 무엇 때문에** 필요한지, 만들면 **무엇이 좋아지는지**
+- 막연한 생각을 **구체적인 문제/목표**로 좁혀요.`,
+
+  `# 📐 2단계 · 설계도(MVP 명세) 작성
+- 한 줄 소개 · 사용자 · **꼭 필요한 기능 3가지** · AI 기능 · 화면 · 저장할 정보 · 성공 기준
+- **MVP = 가장 작동하는 최소 버전**. 처음엔 기능 1~2개부터!
+- 설계가 구체적일수록 Lovable 결과가 좋아져요.`,
+
+  `# 🔥 3단계 · AI Grill Me 검토
+- AI 코치가 설계도의 **허점을 날카롭게 질문**해요(윤리 질문 포함).
+- 질문에 답하면서 **설계도를 직접 더 탄탄하게** 다듬습니다.
+- 다듬은 설계도가 그대로 **Lovable 요청 프롬프트**가 됩니다.`,
+
+  `# ⚡ 4단계 · Lovable로 구현
+- **"📋 프롬프트 복사하기"** → 설계도가 자동으로 프롬프트가 됩니다.
+- Lovable 채팅에 붙여넣어 **MVP부터** 만들고, 미리보기를 보며 **대화하듯** 고쳐요.
+- "버튼 크게", "목록으로 보여줘", "오류 고쳐줘"처럼 한국어로 그대로 요청!`,
+
+  `# 💾 5단계 · 데이터 저장 (Supabase · Lovable Cloud)
+- "입력한 내용을 **저장하고 목록으로 보여줘**"라고 요청하면
+- Lovable이 **Lovable Cloud(Supabase)** 백엔드를 붙여 줘요. (별도 설정 거의 없음)
+- 학생 개인정보·평가 데이터는 **최소한만** 저장`,
+
+  `# 🤖 6단계 · AI 기능 (Lovable AI)
+- "요약/채점/추천/분류 기능을 넣어줘"라고 요청하면 **Lovable AI**로 붙여 줘요.
+- 모델은 **Claude · ChatGPT · Gemini** 중 선택 가능(Lovable Cloud 제공).
+- AI 결과는 **교사가 꼭 검토**하도록 안내하는 문구도 넣어두면 좋아요.`,
+
+  `# 🚀 7단계 · 게시(배포) · 제출
+- Lovable에서 **Publish(게시)** → 공개 링크가 생깁니다.
+- 연구소에 **그 게시 링크**를 제출하세요. (HTML 파일은 선택)
+- **해결 보고회**에서 강사가 작품들을 모아 함께 둘러봐요.`,
+
+  `# 💾 8단계 · ⭐내 프로젝트 백업 (필수!)
+- 임시 계정은 **1달 뒤 만료** → 그 전에 꼭 백업하세요!
+- ① **GitHub 연동(추천)**: Lovable → GitHub 연결 → 내 저장소로 **지속 동기화**
+- ② **코드 다운로드**: Code(코드) 탭 → **Download**(ZIP) 로 현재 코드 받기
+- 둘 중 하나(가능하면 GitHub)로 **오늘 꼭** 백업!`,
+
+  `# 🛠️ 9단계 · 집에서 이어서 유지보수
+- 내 PC에서: GitHub **clone**(또는 ZIP 압축 해제) → \`npm install\` → \`npm run dev\`
+  - (Node.js 설치 필요. React/Vite 프로젝트예요)
+- ⚠️ **주의**: 코드(화면 + supabase 설정)는 백업되지만, **DB에 쌓인 데이터·로그인 사용자·Lovable AI**는 임시 계정(Lovable Cloud)에 묶여 있어요.
+  - 로컬에서 끝까지 이어가려면 **본인 Supabase/AI 키 연결**이 필요해요(심화 — 추후 안내).`,
+
+  `# ✍️ 성찰 · 내 수업 적용
+- 오늘 만든 도구를 **내 수업·평가에 어떻게** 쓸 수 있을까요?
+- AI가 만든 것 중 **꼭 확인·수정해야 했던 부분**은 무엇이었나요?
+- 실제로 적용하려면 **무엇을 더** 해야 할까요?`,
+];
+
 export const HELP_CATEGORY_LABELS: Record<string, string> = {
   design: "설계",
   build: "구현",
@@ -459,5 +552,8 @@ export function seedRequestsForLab(sessionCode: string) {
 }
 export function seedSlidesForLab(sessionCode: string) {
   if (!isTrainingLab(sessionCode)) return SEED_SLIDES;
-  return trainingTrack(sessionCode) === "dev" ? SEED_SLIDES_TRAINING_DEV : SEED_SLIDES_TRAINING_SIMPLE;
+  const track = trainingTrack(sessionCode);
+  if (track === "dev") return SEED_SLIDES_TRAINING_DEV;
+  if (track === "lovable") return SEED_SLIDES_TRAINING_LOVABLE;
+  return SEED_SLIDES_TRAINING_SIMPLE;
 }

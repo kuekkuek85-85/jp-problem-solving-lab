@@ -8,7 +8,7 @@ import type { ProjectDoc, StudentDoc } from "@/lib/types";
 import { Button, Card, Input, Textarea } from "@/components/ui";
 import { HtmlArtifactButton } from "@/components/HtmlArtifact";
 import { MAX_INLINE_HTML_BYTES, MAX_UPLOAD_BYTES, isHtmlFile, uploadSubmissionFile } from "@/lib/upload";
-import { isTrainingLab } from "@/lib/constants";
+import { isTrainingLab, trainingTrack } from "@/lib/constants";
 import { StampCelebration } from "./StampCelebration";
 
 export function SubmitStage({
@@ -37,11 +37,14 @@ export function SubmitStage({
   const [phase, setPhase] = useState("");
   const [celebrate, setCelebrate] = useState(false);
 
-  // 교사 연수용은 토글 없이 '링크 + HTML 파일'을 둘 다 필수로 받는다. 학생용은 기존 토글(둘 중 하나).
+  // 교사 연수용은 토글 없이 '링크 + HTML'을 받는다(HTML은 파일 또는 코드 붙여넣기).
+  // Lovable 트랙은 게시 링크가 산출물이라 HTML은 선택. 그 외 연수는 링크+HTML 둘 다 필수.
   const training = isTrainingLab(sessionCode);
+  const lovable = training && trainingTrack(sessionCode) === "lovable";
+  const htmlRequired = training && !lovable;
   const artifactReady = mode === "url" ? !!url.trim() : !!html.trim() || !!fileUrl.trim();
   const complete = training
-    ? !!url.trim() && !!html.trim() && !!oneLiner.trim() && !uploading
+    ? !!url.trim() && (htmlRequired ? !!html.trim() : true) && !!oneLiner.trim() && !uploading
     : artifactReady && !!oneLiner.trim() && !uploading;
 
   // 확장자 제한 없음(학생). 교사 연수는 HTML 파일만. HTML은 인라인 저장, 그 외 파일은 Storage 업로드.
@@ -264,18 +267,22 @@ export function SubmitStage({
       <Card>
         <h2 className="mb-1 text-lg font-black">해결안 제출 · 배포</h2>
         <p className="mb-5 text-sm text-slate-500">
-          {training ? "산출물 링크와 HTML(파일 업로드 또는 코드 붙여넣기)을 모두 제출해주세요. (둘 다 필수)" : "완성한 산출물의 링크를 내거나, 파일을 올려주세요."}
+          {training
+            ? lovable
+              ? "Lovable 게시(배포) 링크를 제출해주세요. (HTML은 선택)"
+              : "산출물 링크와 HTML(파일 업로드 또는 코드 붙여넣기)을 모두 제출해주세요. (둘 다 필수)"
+            : "완성한 산출물의 링크를 내거나, 파일을 올려주세요."}
         </p>
 
         <div className="space-y-4">
           {training ? (
             <>
               <div>
-                <label className="mb-1 block text-sm font-bold text-slate-800">산출물 링크(URL) <span className="text-red-500">*</span></label>
-                <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://... (배포 주소·공유 링크)" />
+                <label className="mb-1 block text-sm font-bold text-slate-800">{lovable ? "Lovable 게시(배포) 링크(URL)" : "산출물 링크(URL)"} <span className="text-red-500">*</span></label>
+                <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder={lovable ? "https://... (Lovable Publish 링크)" : "https://... (배포 주소·공유 링크)"} />
               </div>
               <div>
-                <label className="mb-1 block text-sm font-bold text-slate-800">HTML — 파일 업로드 또는 코드 붙여넣기 <span className="text-red-500">*</span></label>
+                <label className="mb-1 block text-sm font-bold text-slate-800">HTML — 파일 업로드 또는 코드 붙여넣기 {htmlRequired ? <span className="text-red-500">*</span> : <span className="font-normal text-slate-400">(선택)</span>}</label>
                 <label className="flex cursor-pointer items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm font-bold text-slate-500 hover:border-brand-soft hover:bg-brand-soft/5">
                   <input type="file" accept=".html,.htm,text/html" onChange={onPickFile} className="hidden" />
                   {fileName ? `📄 ${fileName} (다시 선택하려면 클릭)` : "📄 .html 파일을 선택하세요"}

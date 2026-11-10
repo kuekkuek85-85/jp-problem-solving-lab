@@ -106,6 +106,8 @@ export function CodingStage({
               {isTrainingLab(sessionCode) ? (
                 trainingTrack(sessionCode) === "dev" ? (
                   <>오늘은 이 프롬프트를 <b>Codex 또는 Claude Code</b>에 붙여넣어 만들어 보세요. (둘 중 편한 도구로!)</>
+                ) : trainingTrack(sessionCode) === "lovable" ? (
+                  <>오늘은 이 프롬프트를 <b>Lovable</b> 채팅에 붙여넣어 만들어 보세요. 미리보기를 보며 대화하듯 고치면 돼요.</>
                 ) : (
                   <>오늘은 이 프롬프트를 <b>Canva AI · Gemini · ChatGPT · Claude</b> 중 편한 도구에 붙여넣어 만들어 보세요.</>
                 )

@@ -9,6 +9,7 @@ import { advanceProject } from "@/lib/actions";
 import type { PrdData, ProjectDoc, StudentDoc } from "@/lib/types";
 import { Button, Card, Field, Input, Textarea } from "@/components/ui";
 import { StampCelebration } from "./StampCelebration";
+import { FlowDiagram } from "./FlowDiagram";
 
 const USER_OPTIONS = ["학생", "선생님", "학부모", "방문객", "기타"];
 
@@ -284,6 +285,12 @@ export function PrdStage({
           </Button>
         )}
       </Card>
+
+      {!editMode && prd.oneLiner.trim() && (
+        <div className="mt-4">
+          <FlowDiagram sessionCode={sessionCode} studentId={student.studentId} project={project} />
+        </div>
+      )}
 
       {celebrate && <StampCelebration stamp={2} onDone={() => setCelebrate(false)} />}
     </main>

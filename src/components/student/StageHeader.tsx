@@ -3,6 +3,7 @@
 import { LEVEL_LABELS, STAGE_LABELS, type Stage, type StudentDoc } from "@/lib/types";
 import { peerText } from "@/lib/constants";
 import { LevelBadge } from "@/components/ui";
+import { ValuesChip } from "./ValuesChip";
 
 export function StageHeader({
   student,
@@ -11,6 +12,7 @@ export function StageHeader({
   onGoToBoard,
   onBack,
   cohortLabel,
+  sessionCode,
 }: {
   student: StudentDoc;
   stage: Stage;
@@ -18,6 +20,7 @@ export function StageHeader({
   onGoToBoard?: () => void;
   onBack?: () => void; // 한 단계 뒤로(이전 단계로 되돌아가기)
   cohortLabel?: string; // 교사 연수 기수·날짜 표기(예: "교사 연수 2기 (10/28)")
+  sessionCode?: string; // 연수: '나의 가치관' 보기·수정에 사용
 }) {
   return (
     <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur px-4 py-3">
@@ -49,12 +52,7 @@ export function StageHeader({
             <span className="text-xs text-slate-400">{peerText(student.studentId, LEVEL_LABELS[student.level].tagline)}</span>
           </div>
           {requestTitle && <div className="text-xs text-slate-500 mt-0.5">맡은 의뢰: {requestTitle}</div>}
-          {cohortLabel && student.harness?.trim() && (
-            <details className="mt-1">
-              <summary className="cursor-pointer text-xs font-bold text-amber-700">🧭 나의 가치관</summary>
-              <pre className="mt-1 whitespace-pre-wrap rounded-lg bg-amber-50 p-2 text-[11px] leading-relaxed text-slate-700">{student.harness}</pre>
-            </details>
-          )}
+          {cohortLabel && sessionCode && <ValuesChip sessionCode={sessionCode} student={student} />}
         </div>
         <div className="text-right">
           <div className="text-sm font-bold text-brand-deep">{STAGE_LABELS[stage]}</div>

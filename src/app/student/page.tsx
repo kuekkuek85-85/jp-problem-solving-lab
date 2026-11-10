@@ -140,7 +140,7 @@ export default function StudentPage() {
   if (session.currentStage === "gallery") {
     return (
       <div>
-        <StageHeader student={student} stage="gallery" cohortLabel={cohortLabel} />
+        <StageHeader student={student} stage="gallery" cohortLabel={cohortLabel} sessionCode={sessionCode} />
         {isTrainingLab(sessionCode) && (
           <TrainingReviewPanel sessionCode={sessionCode} student={student} submissions={submissions} />
         )}
@@ -161,7 +161,7 @@ export default function StudentPage() {
   if (!student.activeProjectId || !project) {
     return (
       <div>
-        <StageHeader student={student} stage="board" cohortLabel={cohortLabel} />
+        <StageHeader student={student} stage="board" cohortLabel={cohortLabel} sessionCode={sessionCode} />
         <RequestBoard
           sessionCode={sessionCode}
           student={student}
@@ -179,7 +179,7 @@ export default function StudentPage() {
   if (activeRequest?.directSubmit) {
     return (
       <div>
-        <StageHeader student={student} stage="submit" requestTitle={project.requestTitle} onGoToBoard={goToBoard} cohortLabel={cohortLabel} />
+        <StageHeader student={student} stage="submit" requestTitle={project.requestTitle} onGoToBoard={goToBoard} cohortLabel={cohortLabel} sessionCode={sessionCode} />
         <SimpleSubmitStage key={project.id} sessionCode={sessionCode} student={student} project={project} />
       </div>
     );
@@ -189,7 +189,7 @@ export default function StudentPage() {
   if (project.currentStep === "done" && student.editMode) {
     return (
       <div>
-        <StageHeader student={student} stage="submit" requestTitle={project.requestTitle} onGoToBoard={goToBoard} cohortLabel={cohortLabel} />
+        <StageHeader student={student} stage="submit" requestTitle={project.requestTitle} onGoToBoard={goToBoard} cohortLabel={cohortLabel} sessionCode={sessionCode} />
         <EditSolution sessionCode={sessionCode} student={student} project={project} onDone={goToBoard} />
       </div>
     );
@@ -207,6 +207,7 @@ export default function StudentPage() {
         onGoToBoard={goToBoard}
         onBack={project.currentStep !== "done" && PREV_STEP[project.currentStep] ? goBackStep : undefined}
         cohortLabel={cohortLabel}
+        sessionCode={sessionCode}
       />
 
       {stage === "analyze" && <AnalyzeStage sessionCode={sessionCode} student={student} project={project} />}

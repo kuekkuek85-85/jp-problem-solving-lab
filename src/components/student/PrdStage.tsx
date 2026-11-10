@@ -9,8 +9,7 @@ import { advanceProject } from "@/lib/actions";
 import type { PrdData, ProjectDoc, StudentDoc } from "@/lib/types";
 import { Button, Card, Field, Input, Textarea } from "@/components/ui";
 import { StampCelebration } from "./StampCelebration";
-import { FlowDiagram } from "./FlowDiagram";
-import { SchemaDiagram } from "./SchemaDiagram";
+import { DesignDiagrams } from "./DesignDiagrams";
 
 const USER_OPTIONS = ["학생", "선생님", "학부모", "방문객", "기타"];
 
@@ -289,13 +288,12 @@ export function PrdStage({
 
       {!editMode && prd.oneLiner.trim() && (
         <div className="mt-4">
-          <FlowDiagram sessionCode={sessionCode} studentId={student.studentId} project={project} />
-        </div>
-      )}
-
-      {!editMode && prd.dataToStore.trim() && (
-        <div className="mt-4">
-          <SchemaDiagram sessionCode={sessionCode} studentId={student.studentId} project={project} />
+          <DesignDiagrams
+            sessionCode={sessionCode}
+            studentId={student.studentId}
+            project={project}
+            showSchema={prd.dataToStore.trim() !== ""}
+          />
         </div>
       )}
 

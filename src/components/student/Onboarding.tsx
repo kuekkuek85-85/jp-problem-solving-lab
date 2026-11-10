@@ -5,7 +5,6 @@ import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import { studentPath } from "@/lib/paths";
 import {
-  DEFAULT_HARNESS,
   DIAGNOSTIC_QUESTIONS,
   ETHICS_PLEDGE_ITEMS,
   TRAINING_TOOLS,
@@ -20,14 +19,8 @@ import { Button, Card, Input, LevelBadge, Textarea } from "@/components/ui";
 export function Onboarding({ sessionCode, student }: { sessionCode: string; student: StudentDoc }) {
   // 이름으로 입장한 교사 연수 참가자는 사전 설문(survey), 학생은 기존 자가진단(diagnostic)을 거친다.
   const isTraining = student.studentId.startsWith("edu-");
-  const surveyDone = isTraining ? !!student.trainingSurvey : !!student.diagnostic;
-  // 연수: 설문 → 하네스 → 윤리서약. 학생: 자가진단 → 윤리서약.
-  const initialStep: "intro" | "harness" | "ethics" = !surveyDone
-    ? "intro"
-    : isTraining && !student.harness?.trim()
-      ? "harness"
-      : "ethics";
-  const [step, setStep] = useState<"intro" | "harness" | "ethics" | "ready">(initialStep);
+  const firstDone = isTraining ? !!student.trainingSurvey : !!student.diagnostic;
+  const [step, setStep] = useState<"intro" | "ethics" | "ready">(firstDone ? "ethics" : "intro");
 
   // 학생 자가진단
   const [answers, setAnswers] = useState<number[]>(Array(DIAGNOSTIC_QUESTIONS.length).fill(-1));
@@ -40,7 +33,6 @@ export function Onboarding({ sessionCode, student }: { sessionCode: string; stud
   const [vibeApps, setVibeApps] = useState("");
   const [workIdea, setWorkIdea] = useState("");
   const [antiOutsourcing, setAntiOutsourcing] = useState("");
-  const [harness, setHarness] = useState(student.harness?.trim() ? student.harness : DEFAULT_HARNESS);
 
   const [checked, setChecked] = useState<boolean[]>(Array(ETHICS_PLEDGE_ITEMS.length).fill(false));
   const [saving, setSaving] = useState(false);
@@ -80,14 +72,6 @@ export function Onboarding({ sessionCode, student }: { sessionCode: string; stud
       trainingSurvey: survey,
       level: levelFromSurvey(survey),
     });
-    setSaving(false);
-    setStep("harness");
-  }
-
-  async function submitHarness() {
-    if (!harness.trim()) return;
-    setSaving(true);
-    await updateDoc(doc(db, studentPath(sessionCode, student.studentId)), { harness: harness.trim() });
     setSaving(false);
     setStep("ethics");
   }
@@ -248,29 +232,9 @@ export function Onboarding({ sessionCode, student }: { sessionCode: string; stud
           </div>
 
           <Button className="mt-6 w-full" disabled={saving || !surveyComplete} onClick={submitSurvey}>
-            {saving ? "저장 중..." : "다음: 나의 하네스 작성"}
+            {saving ? "저장 중..." : "다음: AI 윤리 서약"}
           </Button>
           {!surveyComplete && <p className="mt-2 text-center text-xs text-slate-400">1번(교과)·4번(경험)·6번(아이디어)은 꼭 답해주세요.</p>}
-        </Card>
-      )}
-
-      {step === "harness" && (
-        <Card>
-          <h2 className="mb-1 text-lg font-black">🧭 나의 하네스 — 개발 원칙</h2>
-          <p className="mb-4 text-sm text-slate-500">
-            AI와 함께 만들 때 <b>스스로 지킬 원칙</b>을 적어주세요. 아래 예시를 고치거나 더해도 됩니다.
-            여기서 적은 원칙은 작업 화면 상단 「🧭 나의 하네스」에서 언제든 다시 볼 수 있어요.
-          </p>
-          <Textarea
-            rows={8}
-            value={harness}
-            onChange={(e) => setHarness(e.target.value)}
-            placeholder={DEFAULT_HARNESS}
-            className="font-mono text-[13px] leading-relaxed"
-          />
-          <Button className="mt-6 w-full" disabled={saving || !harness.trim()} onClick={submitHarness}>
-            {saving ? "저장 중..." : "저장하고 다음: AI 윤리 서약"}
-          </Button>
         </Card>
       )}
 

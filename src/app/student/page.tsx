@@ -24,6 +24,7 @@ import { CodingStage } from "@/components/student/CodingStage";
 import { SubmitStage } from "@/components/student/SubmitStage";
 import { SimpleSubmitStage } from "@/components/student/SimpleSubmitStage";
 import { EditSolution } from "@/components/student/EditSolution";
+import { ValuesStep } from "@/components/student/ValuesStep";
 import { TrainingReviewPanel } from "@/components/student/TrainingReviewPanel";
 import { ClosingStage } from "@/components/student/ClosingStage";
 import { SubmissionGallery } from "@/components/gallery/SubmissionGallery";
@@ -149,6 +150,11 @@ export default function StudentPage() {
   }
   if (session.currentStage === "closing") {
     return <ClosingStage sessionCode={sessionCode} student={student} />;
+  }
+
+  // 4.5) 연수 참가자는 활동(기획) 시작 전에 '나의 가치관(원칙)'을 한 번 적는다. (윤리 서약 후 첫 단계)
+  if (isTrainingLab(sessionCode) && !student.harness?.trim()) {
+    return <ValuesStep sessionCode={sessionCode} student={student} />;
   }
 
   // 5) 그 외(board~submit)는 학생 개인 루프

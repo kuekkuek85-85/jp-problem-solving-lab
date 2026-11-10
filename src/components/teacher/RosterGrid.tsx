@@ -176,7 +176,7 @@ function StudentDetailModal({
 
         {student.harness?.trim() && (
           <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm">
-            <p className="mb-1 text-xs font-bold text-amber-700">🧭 나의 하네스(개발 원칙)</p>
+            <p className="mb-1 text-xs font-bold text-amber-700">🧭 나의 가치관(개발 원칙)</p>
             <pre className="whitespace-pre-wrap text-[13px] leading-relaxed text-slate-700">{student.harness}</pre>
           </div>
         )}

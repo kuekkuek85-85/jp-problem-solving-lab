@@ -3,17 +3,25 @@ import { getAdminDb } from "@/lib/firebase/admin";
 import { generateText } from "@/lib/gemini";
 import type { AnalyzeData, PrdData } from "@/lib/types";
 
-// 기획서(의뢰 분석 + 설계도)를 보고 '사용자 흐름'을 Mermaid flowchart로 그린다.
-const SYSTEM_PROMPT = `너는 교사가 만들려는 웹앱의 '사용자 흐름(플로우)'을 Mermaid flowchart 코드로 그려주는 도우미야.
-입력(기획서)을 읽고, 앱이 이미 만들어졌다고 가정하고 사용자가 화면을 거치는 흐름을 그려.
+// 기획서(의뢰 분석 + 설계도)를 보고 '사용자 흐름'을 보기 좋은 Mermaid flowchart로 그린다.
+const SYSTEM_PROMPT = `너는 교사가 만들려는 웹앱의 '사용자 흐름(플로우)'을 보기 좋은 Mermaid flowchart로 그려주는 도우미야.
+앱이 이미 만들어졌다고 가정하고, 사용자가 화면을 거치는 흐름을 역할별로 깔끔하게 그려.
 
 [출력 규칙 — 반드시 지켜]
-- Mermaid "flowchart TD" 코드만 출력한다. 설명·제목·코드펜스(\`\`\`) 금지. 첫 줄은 정확히 "flowchart TD".
-- 노드 id는 영문 대문자(A, B, C, ...). 라벨은 한국어, 반드시 큰따옴표로 감싼다. 예: A["문제 등록"]
-- 판단/분기는 중괄호 노드로: D{"빈칸인가?"} 그리고 간선 라벨은 -->|"예"| 처럼 큰따옴표로.
+- Mermaid 코드만 출력한다. 설명·제목·코드펜스(\`\`\`) 금지. 첫 줄은 정확히 "flowchart TD".
+- 둘째 줄부터 아래 색상 정의(classDef) 5줄을 그대로 포함한다:
+  classDef teacher fill:#e0edff,stroke:#3b74d6,color:#14305e;
+  classDef student fill:#e7f8ee,stroke:#36a568,color:#14432b;
+  classDef system fill:#f3eefe,stroke:#8b5cf6,color:#3b1d6e;
+  classDef decision fill:#fff4e0,stroke:#e0922f,color:#6b3d12;
+  classDef data fill:#eef2f7,stroke:#64748b,color:#2a3647;
+- 노드 id는 영문 대문자(A, B, C, ...). 라벨은 한국어, 반드시 큰따옴표로 감싼다.
+- 노드 모양: 일반 동작 A["..."], 시작/끝 Z(["..."]), 판단/분기 D{"..."}, 데이터 저장 DB[("...")].
+- 각 노드에 역할 클래스를 붙인다: 교사 동작 :::teacher, 학생 동작 :::student, 시스템/AI 동작 :::system, 판단 :::decision, 저장소 :::data. 예: A["문제 등록"]:::teacher
+- 역할(교사/학생/시스템)이 둘 이상이면 subgraph로 묶어라. 제목도 큰따옴표. 예: subgraph T["교사"] ... end
+- 분기 간선 라벨도 큰따옴표: D -->|"예"| E
 - 라벨 안에 괄호(), 대괄호[], 콜론:, 세미콜론; 은 쓰지 마라(Mermaid 파싱 깨짐). 쉼표·점은 괜찮다.
-- 노드는 7~14개 정도. 사용자 관점의 화면·동작·저장·AI·분기를 담되 과하지 않게.
-- 역할이 다르면(사용자/교사/시스템 등) subgraph로 묶어도 좋다. subgraph 제목도 "큰따옴표" 라벨.`;
+- 노드는 8~14개 정도. 사용자 관점의 화면·동작·저장·AI·분기를 담되 과하지 않게.`;
 
 function buildUserPrompt(analyze: AnalyzeData, prd: PrdData, requestTitle: string, feedback?: string) {
   const lines = [

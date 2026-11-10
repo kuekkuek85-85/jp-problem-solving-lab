@@ -36,10 +36,25 @@ export function FlowDiagram({
     (async () => {
       try {
         const mermaid = (await import("mermaid")).default;
-        mermaid.initialize({ startOnLoad: false, theme: "neutral", securityLevel: "loose", fontFamily: "inherit" });
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: "base",
+          securityLevel: "loose",
+          fontFamily: "inherit",
+          themeVariables: { fontSize: "14px", lineColor: "#94a3b8", primaryBorderColor: "#cbd5e1" },
+          flowchart: { curve: "basis", htmlLabels: true, padding: 14, nodeSpacing: 46, rankSpacing: 54, useMaxWidth: true },
+        });
         const id = "flow-" + Math.random().toString(36).slice(2);
         const { svg } = await mermaid.render(id, code);
-        if (!cancelled && containerRef.current) containerRef.current.innerHTML = svg;
+        if (!cancelled && containerRef.current) {
+          containerRef.current.innerHTML = svg;
+          const el = containerRef.current.querySelector<SVGSVGElement>("svg");
+          if (el) {
+            el.removeAttribute("height");
+            el.style.maxWidth = "100%";
+            el.style.height = "auto";
+          }
+        }
       } catch {
         if (!cancelled && containerRef.current) {
           containerRef.current.innerHTML = '<p style="font-size:12px;color:#dc2626">다이어그램을 그리지 못했어요. 「다시 생성」을 눌러보세요.</p>';

@@ -9,6 +9,7 @@ import type { PrdData, ProjectDoc, StudentDoc } from "@/lib/types";
 import { Button, Card, Field, Input, Textarea } from "@/components/ui";
 import { StampCelebration } from "./StampCelebration";
 import { FlowDiagram } from "./FlowDiagram";
+import { SchemaDiagram } from "./SchemaDiagram";
 
 const TYPE_LABEL: Record<string, string> = { feature: "기능", data: "데이터", ethics: "윤리" };
 
@@ -267,6 +268,12 @@ function ReviseStage({
       {prd.oneLiner.trim() && (
         <div className="mt-4">
           <FlowDiagram sessionCode={sessionCode} studentId={student.studentId} project={project} />
+        </div>
+      )}
+
+      {prd.dataToStore.trim() && (
+        <div className="mt-4">
+          <SchemaDiagram sessionCode={sessionCode} studentId={student.studentId} project={project} />
         </div>
       )}
 

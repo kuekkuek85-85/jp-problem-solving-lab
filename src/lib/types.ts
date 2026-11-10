@@ -217,6 +217,7 @@ export interface ProjectDoc {
   submission: SubmissionData;
   deepDive: DeepDiveData;
   flowMermaid?: string; // 기획서 기반 자동 생성한 플로우 다이어그램(Mermaid flowchart 코드)
+  schemaMermaid?: string; // '저장할 정보'가 있을 때 자동 생성한 데이터 스키마(Mermaid erDiagram 코드)
 }
 
 // 해결 보고회(갤러리) 조회용 평면화된 제출물 요약 문서

@@ -1,9 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { doc, updateDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase/client";
-import { projectPath } from "@/lib/paths";
+import { useState } from "react";
 import { isTrainingLab, trainingTrack } from "@/lib/constants";
 import { advanceProject } from "@/lib/actions";
 import { buildAgentsMd, buildSpecMd, buildCodingPrompt, type PromptMode } from "@/lib/spec-export";
@@ -51,21 +48,8 @@ export function CodingStage({
   const [specText, setSpecText] = useState(() => buildSpecMd(project));
   const [promptText, setPromptText] = useState(() => buildCodingPrompt(project, lovable ? "app" : "single"));
 
-  const [notes, setNotes] = useState(project.codingNotes ?? "");
   const [copied, setCopied] = useState(false);
   const [celebrate, setCelebrate] = useState(false);
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
-      updateDoc(doc(db, projectPath(sessionCode, student.studentId, project.id)), { codingNotes: notes }).catch(() => {});
-    }, 1500);
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [notes]);
 
   const current = { agents: agentsText, spec: specText, prompt: promptText }[tab];
   const setCurrent = { agents: setAgentsText, spec: setSpecText, prompt: setPromptText }[tab];
@@ -206,11 +190,6 @@ export function CodingStage({
             <>오늘은 <b>Gemini · ChatGPT · Claude</b> 중 편한 도구에 세 파일 내용을 붙여넣고 프롬프트를 보내보세요.</>
           )}
         </p>
-      </Card>
-
-      <Card className="mt-4">
-        <h3 className="mb-2 font-black">진행 메모장</h3>
-        <Textarea rows={4} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="바이브 코딩하며 메모를 남겨보세요" />
       </Card>
 
       <div className="mt-4">

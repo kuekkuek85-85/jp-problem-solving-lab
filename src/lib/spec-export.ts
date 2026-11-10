@@ -24,6 +24,9 @@ export function buildSpecMd(project: ProjectDoc): string {
   const flow = flowMermaid?.trim()
     ? "```mermaid\n" + flowMermaid.trim() + "\n```"
     : "_(아직 생성 안 됨 — 설계 단계에서 '플로우 다이어그램'을 생성하세요)_";
+  const schemaSection = project.schemaMermaid?.trim()
+    ? `\n\n## 4. 데이터 스키마 (DB 설계)\n\`\`\`mermaid\n${project.schemaMermaid.trim()}\n\`\`\``
+    : "";
 
   return `# spec.md — ${requestTitle}
 
@@ -53,7 +56,7 @@ ${accept}
 - 🤝 공정성: ${prd.ethicsCheck?.fairness.note || "-"}
 
 ## 3. 플로우 다이어그램
-${flow}
+${flow}${schemaSection}
 `;
 }
 

@@ -42,7 +42,7 @@ export function SubmitStage({
   // Lovable 트랙은 게시 링크가 산출물이라 HTML은 선택. 그 외 연수는 링크+HTML 둘 다 필수.
   const training = isTrainingLab(sessionCode);
   const lovable = training && trainingTrack(sessionCode) === "lovable";
-  const htmlRequired = training && !lovable;
+  const htmlRequired = training; // 발표자료 퀄리티를 위해 모든 연수 트랙에서 HTML 필수
   const artifactReady = mode === "url" ? !!url.trim() : !!html.trim() || !!fileUrl.trim();
   const complete = training
     ? !!url.trim() && (htmlRequired ? !!html.trim() : true) && !!oneLiner.trim() && !uploading
@@ -271,7 +271,7 @@ export function SubmitStage({
         <p className="mb-5 text-sm text-slate-500">
           {training
             ? lovable
-              ? "Lovable 게시(배포) 링크를 제출해주세요. (HTML은 선택)"
+              ? "Lovable 게시(배포) 링크와 발표용 HTML을 모두 제출해주세요. (둘 다 필수)"
               : "산출물 링크와 HTML(파일 업로드 또는 코드 붙여넣기)을 모두 제출해주세요. (둘 다 필수)"
             : "완성한 산출물의 링크를 내거나, 파일을 올려주세요."}
         </p>

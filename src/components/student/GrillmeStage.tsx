@@ -8,6 +8,7 @@ import { advanceProject } from "@/lib/actions";
 import type { PrdData, ProjectDoc, StudentDoc } from "@/lib/types";
 import { Button, Card, Field, Input, Textarea } from "@/components/ui";
 import { StampCelebration } from "./StampCelebration";
+import { FlowDiagram } from "./FlowDiagram";
 
 const TYPE_LABEL: Record<string, string> = { feature: "기능", data: "데이터", ethics: "윤리" };
 
@@ -262,6 +263,12 @@ function ReviseStage({
           </Button>
         </div>
       </Card>
+
+      {prd.oneLiner.trim() && (
+        <div className="mt-4">
+          <FlowDiagram sessionCode={sessionCode} studentId={student.studentId} project={project} />
+        </div>
+      )}
 
       {celebrate && <StampCelebration stamp={3} onDone={onCelebrateDone} />}
     </main>

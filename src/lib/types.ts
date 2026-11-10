@@ -218,6 +218,15 @@ export interface ProjectDoc {
   deepDive: DeepDiveData;
   flowMermaid?: string; // 기획서 기반 자동 생성한 플로우 다이어그램(Mermaid flowchart 코드)
   schemaMermaid?: string; // '저장할 정보'가 있을 때 자동 생성한 데이터 스키마(Mermaid erDiagram 코드)
+  tasks?: ImplTask[]; // 설계를 기반으로 AI가 쪼갠 구현 태스크(순서대로). 러버블 순환 사이클·프롬프트에 사용.
+}
+
+// AI가 설계도를 분석해 쪼갠 '구현 태스크' 하나. 순서대로 구현 → 1차 자가점검 → 2차 인간 점검 사이클에 사용.
+export interface ImplTask {
+  id: string; // t1, t2, ...
+  title: string; // 짧은 제목
+  detail: string; // 무엇을 구현하는지(한두 문장)
+  check: string; // 이 태스크의 1차 자가점검(완료 판단) 기준
 }
 
 // 해결 보고회(갤러리) 조회용 평면화된 제출물 요약 문서

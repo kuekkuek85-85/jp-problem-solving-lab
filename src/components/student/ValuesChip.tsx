@@ -11,7 +11,7 @@ import type { StudentDoc } from "@/lib/types";
 export function ValuesChip({ sessionCode, student }: { sessionCode: string; student: StudentDoc }) {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(false);
-  const [text, setText] = useState(student.harness?.trim() ? student.harness : DEFAULT_HARNESS);
+  const [text, setText] = useState(student.harness ?? "");
   const [saving, setSaving] = useState(false);
 
   async function save() {
@@ -38,9 +38,10 @@ export function ValuesChip({ sessionCode, student }: { sessionCode: string; stud
                 rows={6}
                 value={text}
                 onChange={(e) => setText(e.target.value)}
+                placeholder="오늘 내가 지킬 원칙을 자유롭게 적어보세요."
                 className="w-full rounded-md border border-amber-200 p-2 text-[12px] leading-relaxed outline-none focus:border-amber-400"
               />
-              <div className="mt-1.5 flex gap-2">
+              <div className="mt-1.5 flex items-center gap-2">
                 <button
                   onClick={save}
                   disabled={saving || !text.trim()}
@@ -48,9 +49,14 @@ export function ValuesChip({ sessionCode, student }: { sessionCode: string; stud
                 >
                   {saving ? "저장 중..." : "저장"}
                 </button>
-                <button onClick={() => { setEditing(false); setText(student.harness?.trim() ? student.harness : DEFAULT_HARNESS); }} className="text-[11px] text-slate-400">
+                <button onClick={() => { setEditing(false); setText(student.harness ?? ""); }} className="text-[11px] text-slate-400">
                   취소
                 </button>
+                {!text.trim() && (
+                  <button onClick={() => setText(DEFAULT_HARNESS)} className="ml-auto text-[11px] font-bold text-amber-700 underline">
+                    예시 참고
+                  </button>
+                )}
               </div>
             </>
           ) : (

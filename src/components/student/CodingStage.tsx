@@ -14,7 +14,7 @@ import { StampCelebration } from "./StampCelebration";
 type TabKey = "agents" | "spec" | "prompt";
 
 const TABS: { key: TabKey; label: string; file: string }[] = [
-  { key: "agents", label: "🧭 하네스", file: "AGENTS.md" },
+  { key: "agents", label: "🧭 가치관", file: "AGENTS.md" },
   { key: "spec", label: "📄 설계서", file: "spec.md" },
   { key: "prompt", label: "⌨️ 프롬프트", file: "prompt.txt" },
 ];
@@ -121,7 +121,7 @@ export function CodingStage({
           설계한 내용을 <b>3개의 파일</b>로 정리했어요. 내용을 확인·수정한 뒤, AI 도구에 그대로 넘겨 구현하면 됩니다.
           <br />
           <span className="text-xs text-slate-400">
-            ① 하네스(AGENTS.md) = 지킬 원칙 · ② 설계서(spec.md) = 기획·설계·플로우 · ③ 프롬프트 = 구현 지시
+            ① 가치관(AGENTS.md) = 지킬 원칙 · ② 설계서(spec.md) = 기획·설계·플로우 · ③ 프롬프트 = 구현 지시
           </span>
         </p>
 

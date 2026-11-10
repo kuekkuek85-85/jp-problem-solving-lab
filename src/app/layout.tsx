@@ -12,7 +12,7 @@ const notoSansKr = Noto_Sans_KR({
 
 export const metadata: Metadata = {
   title: "장평 문제해결연구소",
-  description: "장평중학교 하트이로봇 동아리 바이브 코딩 수업 플랫폼",
+  description: "장평중학교 하트아이로봇 동아리 바이브 코딩 수업 플랫폼",
 };
 
 export default function RootLayout({

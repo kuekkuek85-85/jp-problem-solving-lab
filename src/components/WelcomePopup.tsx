@@ -46,7 +46,7 @@ export function WelcomePopup() {
 
           <div className="text-4xl">🔬🤖</div>
           <div className="mt-2 inline-block rounded-full bg-white/20 px-3 py-1 text-xs font-bold tracking-wide">
-            하트이로봇 동아리 · 바이브 코딩 수업
+            하트아이로봇 동아리 · 바이브 코딩 수업
           </div>
           <h2 className="mt-3 text-2xl font-black drop-shadow">장평 문제해결연구소 개소!</h2>
         </div>
@@ -64,7 +64,7 @@ export function WelcomePopup() {
           </div>
 
           <blockquote className="rounded-2xl bg-slate-50 p-4 text-sm leading-relaxed text-slate-700">
-            사랑하는 <b>하트이로봇 동아리 연구원 여러분</b>, 반갑습니다. 🎉
+            사랑하는 <b>하트아이로봇 동아리 연구원 여러분</b>, 반갑습니다. 🎉
             <br />
             <br />
             오늘 여러분은 AI를 <b>도구</b> 삼아 우리 장평중학교의 불편함을 직접 해결하는 <b className="jp-shine-text font-black">문제해결연구소</b>의 어엿한 연구원이 됩니다.

@@ -1,6 +1,6 @@
 # 장평 문제해결연구소 (Jangpyeong Problem-Solving Lab)
 
-장평중학교 하트이로봇 동아리 바이브 코딩 수업용 실시간 웹 플랫폼입니다. Next.js(App Router) + Tailwind + Firebase(Firestore) + Gemini API로 구성되어 있습니다.
+장평중학교 하트아이로봇 동아리 바이브 코딩 수업용 실시간 웹 플랫폼입니다. Next.js(App Router) + Tailwind + Firebase(Firestore) + Gemini API로 구성되어 있습니다.
 
 ## 스택
 

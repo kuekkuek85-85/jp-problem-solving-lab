@@ -16,7 +16,7 @@ export default function PrivacyPage() {
 
       <div className="mt-6 space-y-6 text-sm leading-relaxed text-slate-700">
         <p>
-          {LAB_NAME}(이하 “서비스”)는 장평중학교 하트이로봇 동아리의 교육 활동을 위해 운영되는 비영리 학습 플랫폼으로,
+          {LAB_NAME}(이하 “서비스”)는 장평중학교 하트아이로봇 동아리의 교육 활동을 위해 운영되는 비영리 학습 플랫폼으로,
           최소한의 정보만을 수집·이용합니다.
         </p>
 

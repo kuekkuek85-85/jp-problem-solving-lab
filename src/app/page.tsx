@@ -20,7 +20,7 @@ export default function LandingPage() {
       <div className="mb-8 text-center">
         <div className="text-4xl mb-2">🔬🤖</div>
         <h1 className="text-2xl font-black text-slate-900">장평 문제해결연구소</h1>
-        <p className="mt-1 text-sm text-slate-500">하트이로봇 동아리 바이브 코딩 수업 플랫폼</p>
+        <p className="mt-1 text-sm text-slate-500">하트아이로봇 동아리 바이브 코딩 수업 플랫폼</p>
       </div>
 
       <div className="mb-4 inline-flex rounded-full bg-slate-200 p-1 text-sm font-bold">

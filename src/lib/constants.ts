@@ -1,7 +1,7 @@
 import type { Level } from "./types";
 
 export const LAB_NAME = "장평 문제해결연구소";
-export const CLUB_NAME = "하트이로봇 동아리";
+export const CLUB_NAME = "하트아이로봇 동아리";
 
 // 학생용은 sessions/main, 교사 연수는 기수별로 sessions/{training, training2, ...} 로
 // 데이터를 완전히 분리한다. (같은 연수를 여러 기수로 진행해도 서로 섞이지 않음)
@@ -183,7 +183,7 @@ export const SEEDLING_PRD_TEMPLATE = {
 export const SEED_REQUESTS: { title: string; summary: string; difficulty: Level; directSubmit?: boolean }[] = [
   { title: "컴퓨터실 예약", summary: "여러 학급이 겹치지 않게 컴퓨터실을 예약할 수 있는 서비스", difficulty: "growing" },
   { title: "분실물 안내", summary: "학교에서 주운 분실물을 등록하고 찾아갈 수 있게 안내하는 서비스", difficulty: "seedling" },
-  { title: "하트이로봇 동아리 홍보·포트폴리오", summary: "동아리 활동을 소개하고 결과물을 모아 보여주는 포트폴리오 사이트", difficulty: "growing" },
+  { title: "하트아이로봇 동아리 홍보·포트폴리오", summary: "동아리 활동을 소개하고 결과물을 모아 보여주는 포트폴리오 사이트", difficulty: "growing" },
   { title: "아리수 인식개선", summary: "학교 수돗물(아리수)에 대한 오해를 풀고 인식을 개선하는 안내 서비스", difficulty: "seedling" },
   { title: "학교 소식 알림이", summary: "학교의 새 소식을 놓치지 않게 모아서 보여주는 알림 서비스", difficulty: "growing" },
   { title: "급식 안내 + 잔반 줄이기", summary: "오늘 급식을 안내하고 잔반을 줄이기 위한 캠페인 서비스", difficulty: "seedling" },

@@ -134,7 +134,7 @@ export const ETHICS_PLEDGE_ITEMS: string[] = [
 export const STAMP_LABELS: Record<number, string> = {
   1: "① 의뢰 분석",
   2: "② 설계도 작성",
-  3: "③ AI Grill Me 검토",
+  3: "③ AI 검토",
   4: "④ 바이브 코딩",
   5: "⑤ 해결안 제출",
 };
@@ -218,7 +218,7 @@ export const SEED_SLIDES: string[] = [
   `# 🔬🤖 오늘의 문제해결연구소
 - 우리는 오늘 **연구원**이 되어 장평중의 불편함(의뢰)을 해결해요.
 - AI로 웹/앱을 뚝딱 만들어보는 **바이브 코딩** 수업이에요.
-- 흐름: 의뢰 맡기 → 분석 → 설계도 → Grill Me → 바이브 코딩 → 해결안 제출 → 해결 보고회`,
+- 흐름: 의뢰 맡기 → 분석 → 설계도 → AI 검토 → 바이브 코딩 → 해결안 제출 → 해결 보고회`,
 
   `# 🛡️ 오늘 우리가 AI를 안전하게 쓰는 이유
 - 학생 계정으로 직접 AI에 접속하지 않아요.
@@ -248,7 +248,7 @@ export const SEED_SLIDES: string[] = [
 7. 화면 그리기  8. 저장할 정보  9. 성공의 기준
 10. **지켜야 할 것**(🔒개인정보 ©️저작권 🤝공정성)`,
 
-  `# 🔥 AI Grill Me 검토란?
+  `# 🔥 AI 검토란?
 - AI 코치가 내 설계도의 **허점을 날카롭게 질문**해요(윤리 질문 1개 포함).
 - 질문에 답한 뒤, 그 내용을 바탕으로 **설계도를 직접 다듬어요**.
 - 목표는 정답 맞히기가 아니라 **설계를 더 탄탄하게** 만드는 것!`,
@@ -295,7 +295,7 @@ export const SEED_SLIDES_TRAINING_DEV: string[] = [
 - 도구는 **Codex 또는 Claude Code** 중 편한 것으로!`,
 
   `# 🧭 오늘의 전체 흐름 (한눈에)
-1. 주제 정하기(의뢰) → 2. 의뢰 분석 → 3. 설계도(MVP 명세) → 4. AI Grill Me 검토
+1. 주제 정하기(의뢰) → 2. 의뢰 분석 → 3. 설계도(MVP 명세) → 4. AI 검토
 5. **GitHub 저장소** 만들기 → 6. **Codex/Claude Code**로 MVP 구현(틈틈이 push)
 7. **Gemini API**로 AI 기능 → 8. **Firestore**로 DB → 9. **Vercel** 배포 → 10. 제출·공유`,
 
@@ -337,7 +337,7 @@ export const SEED_SLIDES_TRAINING_DEV: string[] = [
 - **MVP = 가장 작동하는 최소 버전**. 처음엔 기능 1~2개부터!
 - **지켜야 할 것**: 🔒개인정보 ©️저작권 🤝공정성`,
 
-  `# 🔥 3단계 · AI Grill Me 검토
+  `# 🔥 3단계 · AI 검토
 - AI 코치가 설계도의 **허점을 날카롭게 질문**해요(윤리 질문 포함).
 - 질문에 답하면서 **설계도를 직접 더 탄탄하게** 다듬습니다.
 - 여기서 다듬은 설계도가 그대로 **AI 코딩 프롬프트**가 됩니다.`,
@@ -378,7 +378,7 @@ export const SEED_SLIDES_TRAINING_DEV: string[] = [
 export const SEED_SLIDES_TRAINING_SIMPLE: string[] = [
   `# 🔬🤖 교사 연수 — 내 교과 수업 도구 만들기
 - 선생님이 **연구원**이 되어, **내 교과 수업 플랫폼** 또는 **수행평가 도구**를 직접 만들어요.
-- 흐름: 주제 고르기 → 분석 → 설계도 → AI Grill Me → 바이브 코딩(프롬프트 붙여넣기) → 제출 → 공유
+- 흐름: 주제 고르기 → 분석 → 설계도 → AI 검토 → 바이브 코딩(프롬프트 붙여넣기) → 제출 → 공유
 - 도구는 **Canva AI · Gemini · ChatGPT · Claude** 중 편한 것으로!`,
 
   `# 🎯 오늘의 주제
@@ -411,7 +411,7 @@ export const SEED_SLIDES_TRAINING_SIMPLE: string[] = [
 - 처음엔 기능 **1~2개부터** 작게 시작!
 - **지켜야 할 것**: 🔒개인정보 ©️저작권 🤝공정성`,
 
-  `# 🔥 3단계 · AI Grill Me 검토
+  `# 🔥 3단계 · AI 검토
 - AI 코치가 설계도의 **허점을 날카롭게 질문**해요(윤리 질문 포함).
 - 질문에 답하면서 **설계도를 직접 더 탄탄하게** 다듬습니다.
 - 여기서 다듬은 설계도가 그대로 **코딩 프롬프트**가 됩니다.`,
@@ -442,11 +442,11 @@ export const SEED_SLIDES_TRAINING_SIMPLE: string[] = [
 export const SEED_SLIDES_TRAINING_LOVABLE: string[] = [
   `# 🔬🤖 교사 연수 — 내 교과 수업 도구 만들기 (Lovable)
 - 선생님이 **연구원**이 되어, **내 교과 수업 플랫폼** 또는 **수행평가 도구**를 직접 만들어요.
-- 흐름: 주제 → 분석 → 설계도 → AI Grill Me → **Lovable로 구현** → DB·AI 연동 → 배포 → **GitHub 백업** → 공유
+- 흐름: 주제 → 분석 → 설계도 → AI 검토 → **Lovable로 구현** → DB·AI 연동 → 배포 → **GitHub 백업** → 공유
 - 오늘의 도구: **Lovable** (설계까지는 ChatGPT·Claude·Gemini나 Lovable 채팅도 OK)`,
 
   `# 🧭 오늘의 전체 흐름 (한눈에)
-1. 주제(의뢰) → 2. 분석 → 3. 설계도(MVP) → 4. AI Grill Me
+1. 주제(의뢰) → 2. 분석 → 3. 설계도(MVP) → 4. AI 검토
 5. **Lovable**에 설계도를 주고 구현 → (필요하면) **Lovable Cloud로 DB·보안·AI** 붙이기
 6. 게시(배포) → 7. **GitHub 백업** → 8. 제출 · 발표회
 - 💡 DB·AI는 **필요한 사람만**! 화면만 있는 간단한 도구로 끝내도 완성이에요.`,
@@ -486,7 +486,7 @@ export const SEED_SLIDES_TRAINING_LOVABLE: string[] = [
 - **MVP = 가장 작동하는 최소 버전**. 처음엔 기능 1~2개부터!
 - 설계가 구체적일수록 Lovable 결과가 좋아져요.`,
 
-  `# 🔥 3단계 · AI Grill Me 검토
+  `# 🔥 3단계 · AI 검토
 - AI 코치가 설계도의 **허점을 날카롭게 질문**해요(윤리 질문 포함).
 - 질문에 답하면서 **설계도를 직접 더 탄탄하게** 다듬습니다.
 - 다듬은 설계도가 그대로 **Lovable 요청 프롬프트**가 됩니다.`,

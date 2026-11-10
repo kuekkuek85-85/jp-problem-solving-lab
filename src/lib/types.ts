@@ -33,7 +33,7 @@ export const STAGE_LABELS: Record<Stage, string> = {
   lecture: "브리핑",
   analyze: "의뢰 분석",
   prd: "설계도 작성",
-  grillme: "AI Grill Me 검토",
+  grillme: "AI 검토",
   coding: "바이브 코딩",
   submit: "해결안 제출",
   gallery: "해결 보고회",
@@ -85,7 +85,7 @@ export interface RequestDoc {
   activeSolverIds: string[];
   submissionCount: number;
   createdAt: number;
-  // true이면 단계(분석·설계도·Grill Me·코딩)를 생략하고 산출물만 내는 간단 제출 의뢰(예: 축제 부스).
+  // true이면 단계(분석·설계도·AI 검토·코딩)를 생략하고 산출물만 내는 간단 제출 의뢰(예: 축제 부스).
   directSubmit?: boolean;
 }
 

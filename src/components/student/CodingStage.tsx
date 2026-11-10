@@ -81,7 +81,7 @@ export function CodingStage({
 
           {project.grillme.questions.length > 0 && (
             <div className="mt-4 border-t border-slate-100 pt-3">
-              <p className="mb-1 text-xs font-bold text-slate-400">Grill Me 답변</p>
+              <p className="mb-1 text-xs font-bold text-slate-400">AI 검토 답변</p>
               <ul className="space-y-1 text-xs text-slate-600">
                 {project.grillme.questions.map((q, i) => (
                   <li key={i}>

@@ -13,7 +13,7 @@ import { HtmlArtifactButton } from "@/components/HtmlArtifact";
 const STEP_STATUS: Record<Exclude<ProjectStep, "done">, string> = {
   analyze: "의뢰 분석 중",
   prd: "설계도 작성 중",
-  grillme: "Grill Me 검토 중",
+  grillme: "AI 검토 중",
   coding: "바이브 코딩 중",
   submit: "해결안 제출 중",
 };
@@ -370,7 +370,7 @@ function ProjectProcess({ project }: { project: ProjectDoc }) {
         </Section>
 
         {gq.length > 0 && (
-          <Section title="③ AI Grill Me 검토">
+          <Section title="③ AI 검토">
             {gq.map((q, i) => (
               <p key={i}>Q. {q.text} → {ga[i] || "-"}</p>
             ))}

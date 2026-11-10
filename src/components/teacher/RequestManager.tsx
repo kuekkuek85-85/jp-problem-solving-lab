@@ -8,7 +8,7 @@ import { HtmlArtifactButton } from "@/components/HtmlArtifact";
 const STEP_LABEL: Record<ProjectStep, string> = {
   analyze: "의뢰 분석 중",
   prd: "설계도 작성 중",
-  grillme: "Grill Me 검토 중",
+  grillme: "AI 검토 중",
   coding: "바이브 코딩 중",
   submit: "해결안 제출 중",
   done: "완료",

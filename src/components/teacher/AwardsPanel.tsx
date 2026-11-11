@@ -176,6 +176,12 @@ export function AwardsPanel({
 
   return (
     <div className="space-y-4">
+      {/* 빼빼로 데이(11/11) 시상식 테마 */}
+      <Card className="border-rose-200 bg-gradient-to-r from-pink-50 to-rose-50 text-center">
+        <p className="text-base font-black text-rose-600">🍫 빼빼로 데이 시상식 (11월 11일)</p>
+        <p className="mt-0.5 text-xs text-slate-500">오늘의 선물은 <b>빼빼로</b>! 수고하신 선생님들께 달콤하게 전해주세요.</p>
+      </Card>
+
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-sm text-slate-500">
           라이브 집계 · 완주 <b>{stats.filter((s) => s.completed).length}</b>명 · 성찰 <b>{stats.filter((s) => s.hasReflection).length}</b>명 · 2건↑ <b>{multiPool.length}</b>명
@@ -204,7 +210,7 @@ export function AwardsPanel({
           <div className="mt-3 flex flex-wrap justify-center gap-2">
             {simple.map((id, i) => (
               <span key={id} className={`rounded-xl bg-amber-50 px-4 py-2 text-lg font-black text-amber-700 ${rolling === "simple" ? "" : "jp-pop-in"}`}>
-                🏆 {i + 1}. {nameOf(id)}
+                🍫 {i + 1}. {nameOf(id)}
               </span>
             ))}
           </div>
@@ -227,7 +233,7 @@ export function AwardsPanel({
               {/* 당첨자 */}
               <div className={`mb-3 flex min-h-[52px] items-center justify-center rounded-xl border-2 border-dashed ${winnerId ? "border-amber-300 bg-amber-50" : "border-slate-200 bg-slate-50"}`}>
                 {winnerId ? (
-                  <span className={`text-lg font-black text-amber-700 ${rolling === a.key ? "" : "jp-pop-in"}`}>🎉 {nameOf(winnerId)}</span>
+                  <span className={`text-lg font-black text-amber-700 ${rolling === a.key ? "" : "jp-pop-in"}`}>🍫 {nameOf(winnerId)}</span>
                 ) : (
                   <span className="text-xs text-slate-400">미정</span>
                 )}
@@ -281,7 +287,7 @@ export function AwardsPanel({
           <div className="mb-3 flex flex-wrap justify-center gap-2">
             {lotto.map((id, i) => (
               <span key={id} className={`rounded-xl bg-amber-50 px-4 py-2 text-lg font-black text-amber-700 ${rolling === "lotto" ? "" : "jp-pop-in"}`}>
-                🏆 {i + 1}. {nameOf(id)}
+                🍫 {i + 1}. {nameOf(id)}
               </span>
             ))}
           </div>

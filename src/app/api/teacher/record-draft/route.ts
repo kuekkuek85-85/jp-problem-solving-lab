@@ -25,7 +25,7 @@ const SYSTEM = `당신은 대한민국 중학교 교사의 학교생활기록부
 const SYSTEM_TRAINING = `당신은 교사 연수의 강사 '이승엽'입니다. 참가하신 선생님이 '바이브 코딩'으로 학교 행정 업무 문제를 해결한 활동(설계도와 산출물 소개)을 바탕으로, 그 선생님께 드리는 '강사 검토 피드백'을 작성합니다. (학생 생활기록부가 아닙니다.)
 
 [피드백에 꼭 담을 내용]
-1. 설계–산출물 일치도: 처음 설계도(계획한 핵심 기능·화면·성공 기준)와 실제 산출물이 얼마나 일치하는지, 계획대로 구현된 점과 빠지거나 달라진 점을 구체적으로 짚어 줍니다. 업로드된 '실제 HTML 코드'가 제공되면 그 코드를 읽고 실제 구현 기능을 근거로 판단하고, 링크만 있으면 제공된 소개·사용법·설계 내용을 근거로 판단합니다(이 경우 실제 화면은 직접 확인하지 못했음을 전제로 조심스럽게 표현).
+1. 설계–산출물 일치도: 처음 설계도(계획한 핵심 기능·화면·성공 기준)와 실제 산출물이 얼마나 일치하는지, 계획대로 구현된 점과 빠지거나 달라진 점을 구체적으로 짚어 줍니다. 업로드된 '실제 HTML 코드'나 '링크 페이지에서 읽어온 실제 내용'이 제공되면 그것을 읽고 실제 구현된 기능을 근거로 판단합니다. 둘 다 없이 소개·설계 내용만 있으면 그 내용을 근거로 판단합니다(이 경우 실제 화면은 직접 확인하지 못했음을 전제로 조심스럽게 표현).
 2. 기대 효과: 이 산출물이 실제 학교 업무에 쓰일 때 기대되는 효과와, 효과를 더 높이기 위한 현실적인 제안 한 가지.
 3. 활동 전반 피드백: 문제 정의·설계·AI 활용·정보윤리 고려 등 활동 과정에서 잘하신 점과 격려.
 
@@ -45,6 +45,50 @@ const OUT_TEXT = `\n\n[출력 형식] 문단 텍스트만 출력합니다. 머�
 function reason(e: unknown): string {
   const msg = e instanceof Error ? e.message : String(e);
   return msg.replace(/\s+/g, " ").slice(0, 240);
+}
+
+// 제출된 HTML에서 눈에 보이는 텍스트만 뽑아낸다(태그·스크립트 제거).
+function htmlToText(html: string): string {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&#39;|&apos;/gi, "'")
+    .replace(/&quot;/gi, '"')
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// 제출된 '링크(배포된 산출물)'의 실제 페이지를 서버에서 읽어와 본문 텍스트를 반환한다.
+// 실패(접속 불가·타임아웃·비HTML)하면 null. 참가자 본인이 제출한 공개 산출물 URL만 대상으로 한다.
+async function fetchPageText(url: string): Promise<string | null> {
+  try {
+    const u = new URL(url);
+    if (u.protocol !== "http:" && u.protocol !== "https:") return null;
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 8000);
+    try {
+      const res = await fetch(url, {
+        signal: ctrl.signal,
+        redirect: "follow",
+        headers: { "User-Agent": "Mozilla/5.0 (compatible; VibeCodingLab/1.0; feedback-bot)" },
+      });
+      if (!res.ok) return null;
+      const ct = res.headers.get("content-type") ?? "";
+      if (ct && !ct.includes("html") && !ct.includes("text") && !ct.includes("xml")) return null;
+      const raw = await res.text();
+      const text = htmlToText(raw);
+      return text.length > 40 ? text.slice(0, 6000) : null;
+    } finally {
+      clearTimeout(timer);
+    }
+  } catch {
+    return null;
+  }
 }
 
 function summarizeProject(p: ProjectDoc, idx: number): string {
@@ -139,7 +183,7 @@ export async function POST(req: Request) {
   }
 
   const SYS = training ? SYSTEM_TRAINING : SYSTEM;
-  // 교사 연수: 업로드된 산출물 HTML이 있으면 실제 코드를 근거로 넣어 '진짜' 일치도 판단이 가능하게 한다.
+  // 교사 연수: 업로드된 산출물 HTML + 제출 링크의 실제 페이지 내용을 근거로 넣어 '진짜' 일치도 판단이 가능하게 한다.
   if (training) {
     const htmlParts = projects
       .filter((p) => p.submission?.html)
@@ -148,6 +192,26 @@ export async function POST(req: Request) {
       digest.push(
         "아래는 업로드된 산출물의 실제 HTML/JS 코드입니다. 이 코드로 실제 구현된 기능을 파악해 설계도와의 일치도를 판단하세요:\n" +
           htmlParts.join("\n\n")
+      );
+    }
+
+    // 제출 링크(배포된 산출물)의 실제 화면 내용을 서버에서 읽어와 근거로 추가한다.
+    const linkFetches = await Promise.all(
+      projects.map(async (p, i) => {
+        const url = p.submission?.url;
+        if (!url) return null;
+        const text = await fetchPageText(url);
+        if (text) {
+          return `[산출물 ${i + 1} · ${p.requestTitle} 링크(${url}) 페이지에서 실제로 읽어온 내용(발췌)]\n${text}`;
+        }
+        return `[산출물 ${i + 1} · ${p.requestTitle} 링크(${url})] 링크 페이지 내용을 자동으로 읽지 못했습니다(접속 불가, 또는 화면이 자바스크립트로 렌더링되는 형태일 수 있음). 이 경우 소개·사용법·설계 내용을 근거로 판단하세요.`;
+      })
+    );
+    const linkParts = linkFetches.filter((x): x is string => !!x);
+    if (linkParts.length) {
+      digest.push(
+        "아래는 제출된 '링크(배포된 산출물)'에서 실제로 읽어온 화면 내용입니다. 이 내용으로 실제 구현·동작을 파악해 설계도와의 일치도를 판단하세요:\n" +
+          linkParts.join("\n\n")
       );
     }
   }

@@ -52,7 +52,7 @@ function idFromName(name: string): string {
 
 function StudentLogin() {
   const router = useRouter();
-  const [mode, setMode] = useState<"studentNo" | "nameOnly">("studentNo");
+  const [mode, setMode] = useState<"studentNo" | "nameOnly">("nameOnly");
   const [name, setName] = useState("");
   const [studentNo, setStudentNo] = useState("");
   const [error, setError] = useState("");

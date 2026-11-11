@@ -141,6 +141,9 @@ export function PresentationOverlay({
               <Button variant="secondary" className="!px-4 !py-1.5 text-xs" disabled={idx >= slides.length - 1} onClick={() => move(1)}>
                 다음 →
               </Button>
+              <Button variant="secondary" className="!px-3 !py-1.5 text-xs" disabled={regen} onClick={regenerate} title="제목 슬라이드 포함해 다시 생성">
+                {regen ? "만드는 중..." : "🔄 다시 만들기"}
+              </Button>
             </>
           )}
           {submission?.url && (

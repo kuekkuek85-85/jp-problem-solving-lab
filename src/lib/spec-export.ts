@@ -86,6 +86,8 @@ export function buildCodingPrompt(project: ProjectDoc, mode: PromptMode): string
         .join("\n")
     : "(spec.md의 '구현 태스크'를 순서대로 따른다)";
 
+  const design = `[디자인] 미리 불러온 **디자인 시스템**(getdesign.md에서 고른 스타일)을 전체 화면에 일관되게 적용할 것. 색·타이포·간격·컴포넌트 스타일을 디자인 시스템에 맞춘다. (디자인 시스템이 없으면 깔끔하고 일관된 디자인으로.)`;
+
   const cycle = `아래 **구현 태스크를 순서대로 하나씩** 진행하자. 한 번에 전부 만들지 말 것.
 각 태스크마다:
 ① 그 태스크만 구현한다.
@@ -100,6 +102,8 @@ ${taskList}`;
 
 함께 제공한 **AGENTS.md**(지킬 원칙)와 **spec.md**(기획·설계·플로우·스키마·구현 태스크)를 기반으로 **${target}**을(를) 만들어줘.
 
+${design}
+
 ${cycle}
 
 [최종 산출물] 모든 태스크가 끝나면 **하나의 통합 HTML 파일(index.html)** 로 정리한다. (외부 서버 없이 그 파일 하나만으로 동작, CSS·JS 인라인)
@@ -108,6 +112,8 @@ AGENTS.md의 원칙을 지키고, spec.md의 '수용 기준'을 모두 충족할
   return `# 구현 요청
 
 함께 제공한 **AGENTS.md**(지킬 원칙)와 **spec.md**(기획·설계·플로우·스키마·구현 태스크)를 기반으로 **${target}**을(를) 만들어줘.
+
+${design}
 
 ${cycle}
 

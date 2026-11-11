@@ -190,6 +190,35 @@ export function CodingStage({
             <>오늘은 <b>Gemini · ChatGPT · Claude</b> 중 편한 도구에 세 파일 내용을 붙여넣고 프롬프트를 보내보세요.</>
           )}
         </p>
+
+        {tab === "prompt" && (
+          <details className="mt-4 rounded-xl border border-violet-200 bg-violet-50 p-3">
+            <summary className="cursor-pointer text-sm font-black text-violet-800">
+              🎨 (선택) 구현 전에 디자인 시스템 먼저 입히기
+            </summary>
+            <p className="mt-2 text-xs text-slate-600">
+              결과물의 <b>디자인 완성도</b>를 높이려면, 코딩에 들어가기 전에 원하는 디자인을 먼저 하나의 <b>디자인 시스템</b>으로 정해두고 전체에 일관되게 적용하면 좋아요.
+            </p>
+            <ol className="mt-2 space-y-1.5 text-xs text-slate-700">
+              <li>
+                <b>1.</b>{" "}
+                <a href="https://getdesign.md/" target="_blank" rel="noopener noreferrer" className="font-bold text-violet-700 underline">
+                  getdesign.md
+                </a>{" "}
+                에서 마음에 드는 스타일을 골라 <b>디자인 .md 파일</b>을 내려받아요.
+              </li>
+              <li>
+                <b>2.</b> {lovable ? "Lovable" : "쓰는 AI 도구"}에서 그 디자인 .md로 <b>디자인 시스템을 먼저 만들어요</b>. (별도 프로젝트/대화로 토큰·컴포넌트 스타일을 잡아둠)
+              </li>
+              <li>
+                <b>3.</b> 그 다음 <b>새 프로젝트를 만들고 디자인 시스템을 불러와</b>, 앞의 <code>AGENTS.md</code>·<code>spec.md</code>와 이 프롬프트로 구현하면 전체에 같은 디자인이 적용돼요.
+              </li>
+            </ol>
+            <p className="mt-2 text-[11px] text-slate-400">
+              위 프롬프트에는 이미 「불러온 디자인 시스템을 전체에 일관되게 적용」 지시가 포함돼 있어요. 디자인 시스템을 안 쓰면 이 단계는 건너뛰어도 됩니다.
+            </p>
+          </details>
+        )}
       </Card>
 
       <div className="mt-4">

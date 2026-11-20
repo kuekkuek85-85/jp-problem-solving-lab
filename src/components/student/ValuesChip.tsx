@@ -13,6 +13,7 @@ export function ValuesChip({ sessionCode, student }: { sessionCode: string; stud
   const [editing, setEditing] = useState(false);
   const [text, setText] = useState(student.harness ?? "");
   const [saving, setSaving] = useState(false);
+  const [showExample, setShowExample] = useState(false);
 
   async function save() {
     if (!text.trim()) return;
@@ -52,12 +53,16 @@ export function ValuesChip({ sessionCode, student }: { sessionCode: string; stud
                 <button onClick={() => { setEditing(false); setText(student.harness ?? ""); }} className="text-[11px] text-slate-400">
                   취소
                 </button>
-                {!text.trim() && (
-                  <button onClick={() => setText(DEFAULT_HARNESS)} className="ml-auto text-[11px] font-bold text-amber-700 underline">
-                    예시 참고
-                  </button>
-                )}
+                <button onClick={() => setShowExample((v) => !v)} className="ml-auto text-[11px] font-bold text-amber-700 underline">
+                  {showExample ? "예시 닫기" : "예시 참고"}
+                </button>
               </div>
+              {showExample && (
+                <div className="mt-1.5 rounded-md border border-amber-200 bg-white p-2">
+                  <p className="mb-0.5 text-[10px] font-bold text-amber-700">참고 예시 — 내 말로 바꿔 적어 보세요.</p>
+                  <pre className="whitespace-pre-wrap text-[11px] leading-relaxed text-slate-600">{DEFAULT_HARNESS}</pre>
+                </div>
+              )}
             </>
           ) : (
             <>

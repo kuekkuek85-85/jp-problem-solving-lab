@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { isTrainingLab, trainingTrack } from "@/lib/constants";
 import { advanceProject } from "@/lib/actions";
-import { buildAgentsMd, buildSpecMd, buildCodingPrompt, type PromptMode } from "@/lib/spec-export";
+import { buildAgentsMd, buildSpecMd, buildCodingPrompt, type PromptMode, type PromptPace } from "@/lib/spec-export";
 import type { ProjectDoc, StudentDoc } from "@/lib/types";
 import { Button, Card, Textarea } from "@/components/ui";
 import { StampCelebration } from "./StampCelebration";
@@ -46,7 +46,13 @@ export function CodingStage({
   // 세 파일 내용(편집 가능). 설계 데이터로부터 최초 1회 생성.
   const [agentsText, setAgentsText] = useState(() => buildAgentsMd(student));
   const [specText, setSpecText] = useState(() => buildSpecMd(project));
-  const [promptText, setPromptText] = useState(() => buildCodingPrompt(project, lovable ? "app" : "single"));
+  // 진행 방식: 러버블은 태스크마다 멈추고 확인(stepwise), 그 외(시간이 짧은 연수 등)는 한 번에 구현 후 태스크별 점검 보고(oneshot).
+  const [pace, setPace] = useState<PromptPace>(lovable ? "stepwise" : "oneshot");
+  // 디자인 시스템을 미리 불러온 경우에만 [디자인] 지시를 넣는다.
+  const [useDesignSystem, setUseDesignSystem] = useState(false);
+  const [promptText, setPromptText] = useState(() =>
+    buildCodingPrompt(project, lovable ? "app" : "single", { pace: lovable ? "stepwise" : "oneshot", useDesignSystem: false })
+  );
 
   const [copied, setCopied] = useState(false);
   const [celebrate, setCelebrate] = useState(false);
@@ -55,16 +61,24 @@ export function CodingStage({
   const setCurrent = { agents: setAgentsText, spec: setSpecText, prompt: setPromptText }[tab];
   const currentFile = TABS.find((t) => t.key === tab)!.file;
 
+  function rebuildPrompt(next: { mode?: PromptMode; pace?: PromptPace; useDesignSystem?: boolean }) {
+    const m = next.mode ?? promptMode;
+    const p = next.pace ?? pace;
+    const d = next.useDesignSystem ?? useDesignSystem;
+    setPromptMode(m);
+    setPace(p);
+    setUseDesignSystem(d);
+    setPromptText(buildCodingPrompt(project, m, { pace: p, useDesignSystem: d }));
+  }
   function selectPromptMode(mode: PromptMode) {
-    setPromptMode(mode);
-    setPromptText(buildCodingPrompt(project, mode));
+    rebuildPrompt({ mode });
   }
 
   // 현재 탭을 최신 설계 데이터 기준으로 다시 생성(편집 내용은 덮어씀).
   function regenerate() {
     if (tab === "agents") setAgentsText(buildAgentsMd(student));
     else if (tab === "spec") setSpecText(buildSpecMd(project));
-    else setPromptText(buildCodingPrompt(project, promptMode));
+    else setPromptText(buildCodingPrompt(project, promptMode, { pace, useDesignSystem }));
   }
 
   async function copyCurrent() {
@@ -162,6 +176,32 @@ export function CodingStage({
                 ? "제출·발표·AI 피드백이 바로 되는 index.html 한 파일로 완성합니다. (Gemini·ChatGPT·Claude·Codex 추천)"
                 : "익숙한 구조로 먼저 구현하고, 제출·발표용 단일 HTML을 따로 만들게 합니다. (Lovable 등 앱 빌더 추천)"}
             </p>
+
+            <p className="mb-1.5 mt-3 text-xs text-slate-500">태스크 진행 방식</p>
+            <div className="flex gap-1 rounded-lg bg-slate-100 p-1 text-xs">
+              <button
+                onClick={() => rebuildPrompt({ pace: "oneshot" })}
+                className={`flex-1 rounded-md px-2 py-1.5 font-bold transition ${pace === "oneshot" ? "bg-white shadow-sm" : "text-slate-500"}`}
+              >
+                한 번에 구현 → 태스크별 점검 보고
+              </button>
+              <button
+                onClick={() => rebuildPrompt({ pace: "stepwise" })}
+                className={`flex-1 rounded-md px-2 py-1.5 font-bold transition ${pace === "stepwise" ? "bg-white shadow-sm" : "text-slate-500"}`}
+              >
+                태스크마다 멈추고 확인
+              </button>
+            </div>
+            <p className="mt-1.5 text-[11px] text-slate-400">
+              {pace === "oneshot"
+                ? "시간이 짧을 때 추천: AI가 전부 구현한 뒤 태스크별 자가점검 결과를 보고하고, 내가 2차로 확인해요."
+                : "태스크 하나씩 구현 → AI 1차 자가점검 → 내가 2차 확인 후 '다음' — 꼼꼼하지만 왕복이 많아요."}
+            </p>
+
+            <label className="mt-3 flex cursor-pointer items-center gap-2 text-xs font-bold text-slate-600">
+              <input type="checkbox" checked={useDesignSystem} onChange={(e) => rebuildPrompt({ useDesignSystem: e.target.checked })} />
+              🎨 디자인 시스템을 미리 불러왔어요 (프롬프트에 디자인 적용 지시 추가)
+            </label>
           </div>
         )}
 
@@ -215,7 +255,7 @@ export function CodingStage({
               </li>
             </ol>
             <p className="mt-2 text-[11px] text-slate-400">
-              위 프롬프트에는 이미 「불러온 디자인 시스템을 전체에 일관되게 적용」 지시가 포함돼 있어요. 디자인 시스템을 안 쓰면 이 단계는 건너뛰어도 됩니다.
+              디자인 시스템을 불러왔다면 위의 「🎨 디자인 시스템을 미리 불러왔어요」를 체크하세요. 프롬프트에 디자인 적용 지시가 추가돼요. 안 쓰면 이 단계는 건너뛰어도 됩니다.
             </p>
           </details>
         )}

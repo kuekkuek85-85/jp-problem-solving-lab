@@ -74,7 +74,14 @@ export type PromptMode = "single" | "app";
 
 // 구현 프롬프트. single = 하나의 통합 HTML 파일 / app = 편하게 구현 + 제출용 단일 HTML 별도 생성.
 // 공통: '구현 태스크'를 순서대로 하나씩 — 구현 → 1차 자가점검 → 2차 인간 점검 요청 후 멈춤 → 다음 태스크(순환 사이클).
-export function buildCodingPrompt(project: ProjectDoc, mode: PromptMode): string {
+export type PromptPace = "stepwise" | "oneshot";
+export interface PromptOptions {
+  pace?: PromptPace; // stepwise = 태스크마다 멈추고 2차 확인 / oneshot = 한 번에 구현 후 태스크별 자가점검 보고
+  useDesignSystem?: boolean; // 디자인 시스템을 미리 불러온 경우에만 [디자인] 지시 포함
+}
+
+export function buildCodingPrompt(project: ProjectDoc, mode: PromptMode, opts: PromptOptions = {}): string {
+  const pace = opts.pace ?? "stepwise";
   const target = project.prd.oneLiner?.trim() || project.requestTitle;
   const tasks = project.tasks ?? [];
   const taskList = tasks.length
@@ -86,9 +93,17 @@ export function buildCodingPrompt(project: ProjectDoc, mode: PromptMode): string
         .join("\n")
     : "(spec.md의 '구현 태스크'를 순서대로 따른다)";
 
-  const design = `[디자인] 미리 불러온 **디자인 시스템**(getdesign.md에서 고른 스타일)을 전체 화면에 일관되게 적용할 것. 색·타이포·간격·컴포넌트 스타일을 디자인 시스템에 맞춘다. (디자인 시스템이 없으면 깔끔하고 일관된 디자인으로.)`;
+  const designLine = `[디자인] 미리 불러온 **디자인 시스템**(getdesign.md에서 고른 스타일)을 전체 화면에 일관되게 적용할 것. 색·타이포·간격·컴포넌트 스타일을 디자인 시스템에 맞춘다. (디자인 시스템이 없으면 깔끔하고 일관된 디자인으로.)`;
+  const design = opts.useDesignSystem ? `${designLine}\n\n` : "";
 
-  const cycle = `아래 **구현 태스크를 순서대로 하나씩** 진행하자. 한 번에 전부 만들지 말 것.
+  const cycle = pace === "oneshot"
+    ? `아래 **구현 태스크를 순서대로 모두 구현**해줘.
+구현이 끝나면 태스크별로 **1차 자가점검** — 각 태스크의 **검증 기준을 하나씩 전부** 확인해 통과 여부를 체크리스트로 보고한다.
+그 다음 내가 **2차 점검(사람 확인)** 을 하고 고칠 부분을 알려줄게.
+
+[구현 태스크]
+${taskList}`
+    : `아래 **구현 태스크를 순서대로 하나씩** 진행하자. 한 번에 전부 만들지 말 것.
 각 태스크마다:
 ① 그 태스크만 구현한다.
 ② 스스로 **1차 자가점검** — 그 태스크의 **검증 기준을 하나씩 전부** 확인하고, 각 항목의 통과 여부를 체크리스트로 알려준다.
@@ -102,9 +117,7 @@ ${taskList}`;
 
 함께 제공한 **AGENTS.md**(지킬 원칙)와 **spec.md**(기획·설계·플로우·스키마·구현 태스크)를 기반으로 **${target}**을(를) 만들어줘.
 
-${design}
-
-${cycle}
+${design}${cycle}
 
 [최종 산출물] 모든 태스크가 끝나면 **하나의 통합 HTML 파일(index.html)** 로 정리한다. (외부 서버 없이 그 파일 하나만으로 동작, CSS·JS 인라인)
 AGENTS.md의 원칙을 지키고, spec.md의 '수용 기준'을 모두 충족할 것.`;
@@ -113,9 +126,7 @@ AGENTS.md의 원칙을 지키고, spec.md의 '수용 기준'을 모두 충족할
 
 함께 제공한 **AGENTS.md**(지킬 원칙)와 **spec.md**(기획·설계·플로우·스키마·구현 태스크)를 기반으로 **${target}**을(를) 만들어줘.
 
-${design}
-
-${cycle}
+${design}${cycle}
 
 [마무리] 모든 태스크가 끝나면, 발표·제출용으로 핵심 화면을 담은 **단일 HTML 파일(index.html)** 도 별도로 만들어줘. (외부 서버 없이 그 파일만으로 동작)
 AGENTS.md의 원칙을 지키고, spec.md의 '수용 기준'을 충족할 것.`;

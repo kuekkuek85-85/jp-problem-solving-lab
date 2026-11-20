@@ -207,7 +207,7 @@ export function Onboarding({ sessionCode, student }: { sessionCode: string; stud
             )}
 
             <div>
-              <p className="mb-1 text-sm font-bold text-slate-800">6. 오늘 만들고 싶은 교과 수업 플랫폼 / 수행평가 도구 아이디어를 적어 주세요.</p>
+              <p className="mb-1 text-sm font-bold text-slate-800">{vibeExperience === "yes" ? 6 : 5}. 오늘 만들고 싶은 교과 수업 플랫폼 / 수행평가 도구 아이디어를 적어 주세요.</p>
               <p className="mb-2 text-xs text-slate-400">💡 {VIBE_CODING_ONELINE}</p>
               <Textarea
                 rows={3}
@@ -219,7 +219,7 @@ export function Onboarding({ sessionCode, student }: { sessionCode: string; stud
 
             <div>
               <p className="mb-2 text-sm font-bold text-slate-800">
-                7. 학생들이 생성형 AI를 사용할 때, 사고의 외주화를 막기 위해 어떤 노력을 하나요?{" "}
+                {vibeExperience === "yes" ? 7 : 6}. 학생들이 생성형 AI를 사용할 때, 사고의 외주화를 막기 위해 어떤 노력을 하나요?{" "}
                 <span className="font-normal text-slate-400">(선택)</span>
               </p>
               <Textarea

@@ -201,13 +201,13 @@ function StudentDetailModal({
           </div>
         )}
 
-        <RecordDraft sessionCode={sessionCode} pin={pin} studentId={student.studentId} />
+        <RecordDraft sessionCode={sessionCode} pin={pin} studentId={student.studentId} sentAt={student.instructorFeedback?.sentAt ?? null} />
       </div>
     </div>
   );
 }
 
-function RecordDraft({ sessionCode, pin, studentId }: { sessionCode: string; pin: string; studentId: string }) {
+function RecordDraft({ sessionCode, pin, studentId, sentAt }: { sessionCode: string; pin: string; studentId: string; sentAt: number | null }) {
   const training = isTrainingLab(sessionCode);
   const [loading, setLoading] = useState(false);
   const [draft, setDraft] = useState("");
@@ -248,6 +248,7 @@ function RecordDraft({ sessionCode, pin, studentId }: { sessionCode: string; pin
   const [sent, setSent] = useState(false);
   async function sendToParticipant() {
     if (!draft.trim()) return;
+    if (sentAt && !confirm("이미 보낸 피드백이 있어요. 새 내용으로 덮어쓸까요?")) return;
     await updateDoc(doc(db, studentPath(sessionCode, studentId)), {
       instructorFeedback: { text: draft.trim(), sentAt: Date.now() },
     });
@@ -283,6 +284,12 @@ function RecordDraft({ sessionCode, pin, studentId }: { sessionCode: string; pin
 
       {error && <p className="mb-2 text-xs font-bold text-red-600">{error}</p>}
 
+      {training && sentAt && (
+        <p className="mb-2 rounded-md bg-emerald-50 px-2 py-1 text-[11px] font-bold text-emerald-700">
+          ✅ 보냄 ({new Date(sentAt).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })}) · 참가자 해결 보고회 화면에 표시 중
+        </p>
+      )}
+
       {draft && (
         <>
           <textarea
@@ -296,7 +303,7 @@ function RecordDraft({ sessionCode, pin, studentId }: { sessionCode: string; pin
             <div className="flex gap-1.5">
               {training && (
                 <button onClick={sendToParticipant} className="rounded-full bg-brand px-3 py-1 text-xs font-bold text-white">
-                  {sent ? "전송 완료! ✅" : "📣 참가자에게 보내기"}
+                  {sent ? "전송 완료! ✅" : sentAt ? "📣 다시 보내기(덮어쓰기)" : "📣 참가자에게 보내기"}
                 </button>
               )}
               <button onClick={copy} className="rounded-full bg-ink-deep px-3 py-1 text-xs font-bold text-white">

@@ -19,13 +19,10 @@ export function AnalyzeStage({
   student: StudentDoc;
   project: ProjectDoc;
 }) {
-  const [data, setData] = useState<AnalyzeData>(() =>
-    project.analyze.who || project.analyze.what
-      ? project.analyze
-      : student.level === "seedling"
-      ? SEEDLING_ANALYZE_TEMPLATE
-      : project.analyze
-  );
+  // 새싹 코스 예시는 value로 채우지 않고 placeholder로만 보여준다(입력이 예시 뒤에 이어붙는 문제 방지).
+  const [data, setData] = useState<AnalyzeData>(project.analyze);
+  const seed = student.level === "seedling";
+  const ph = (key: keyof AnalyzeData, fallback: string) => (seed ? `예: ${SEEDLING_ANALYZE_TEMPLATE[key]}` : fallback);
   const [celebrate, setCelebrate] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -70,22 +67,22 @@ export function AnalyzeStage({
 
         {student.level === "seedling" && (
           <p className="mb-4 rounded-lg bg-lime-50 px-3 py-2 text-xs font-bold text-lime-700">
-            🌱 예시가 채워져 있어요. 자유롭게 수정해서 완성해보세요!
+            🌱 흐린 글씨 예시를 참고해서 내 말로 직접 써 보세요!
           </p>
         )}
 
         <div className="space-y-4">
           <Field label="누가 불편한가요?">
-            <Input value={data.who} onChange={(e) => setData({ ...data, who: e.target.value })} placeholder="예: 급식실을 이용하는 학생들" />
+            <Input value={data.who} onChange={(e) => setData({ ...data, who: e.target.value })} placeholder={ph("who", "예: 급식실을 이용하는 학생들")} />
           </Field>
           <Field label="언제 불편한가요?">
-            <Input value={data.when} onChange={(e) => setData({ ...data, when: e.target.value })} placeholder="예: 점심시간마다" />
+            <Input value={data.when} onChange={(e) => setData({ ...data, when: e.target.value })} placeholder={ph("when", "예: 점심시간마다")} />
           </Field>
           <Field label="무엇 때문에 불편한가요?">
-            <Input value={data.what} onChange={(e) => setData({ ...data, what: e.target.value })} placeholder="예: 오늘 메뉴를 미리 알 수 없어서" />
+            <Input value={data.what} onChange={(e) => setData({ ...data, what: e.target.value })} placeholder={ph("what", "예: 오늘 메뉴를 미리 알 수 없어서")} />
           </Field>
           <Field label="해결되면 무엇이 좋아지나요?">
-            <Input value={data.benefit} onChange={(e) => setData({ ...data, benefit: e.target.value })} placeholder="예: 급식을 미리 확인하고 잔반도 줄어요" />
+            <Input value={data.benefit} onChange={(e) => setData({ ...data, benefit: e.target.value })} placeholder={ph("benefit", "예: 급식을 미리 확인하고 잔반도 줄어요")} />
           </Field>
         </div>
 

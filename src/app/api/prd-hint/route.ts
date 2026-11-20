@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { stripMarkdown } from "@/lib/plain-text";
 import { getAdminDb } from "@/lib/firebase/admin";
 import { generateText } from "@/lib/gemini";
 import { PRD_FIELDS } from "@/lib/constants";
@@ -42,7 +43,7 @@ export async function POST(req: Request) {
 현재 힌트가 필요한 항목: ${field.label}
 학생이 지금까지 이 항목에 쓴 내용: ${prd[fieldId] ? JSON.stringify(prd[fieldId]) : "(아직 없음)"}`;
 
-    const hint = await generateText(SYSTEM_PROMPT, userPrompt);
+    const hint = stripMarkdown(await generateText(SYSTEM_PROMPT + "\n마크다운 기호(**, `, #)는 쓰지 말고 일반 문장으로만 답해.", userPrompt));
 
     await projectRef.update({ [`prdHints.${fieldId}`]: callCount + 1 });
 

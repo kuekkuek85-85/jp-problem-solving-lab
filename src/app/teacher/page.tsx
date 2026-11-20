@@ -20,7 +20,20 @@ type Tab = "roster" | "requests" | "help" | "slides" | "present" | "reflections"
 
 export default function TeacherPage() {
   const [pin, setPin] = useState<string | null>(() => loadTeacherPin());
-  const [mode, setMode] = useState<"student" | "training">("student");
+  // 마지막으로 보던 모드(학생용/교사 연수용)를 기억해 새로고침해도 유지한다.
+  const [mode, setModeState] = useState<"student" | "training">(() => {
+    try {
+      return localStorage.getItem("jp-teacher-mode") === "training" ? "training" : "student";
+    } catch {
+      return "student";
+    }
+  });
+  const setMode = (m: "student" | "training") => {
+    setModeState(m);
+    try {
+      localStorage.setItem("jp-teacher-mode", m);
+    } catch {}
+  };
   const [cohortId, setCohortId] = useState<string>(ACTIVE_TRAINING_LAB_ID); // 교사 연수 기수(기본: 현재 진행 기수)
 
   if (!pin) {
@@ -136,8 +149,15 @@ function Dashboard({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ sessionCode, pin }),
     });
-    const data = await res.json();
-    alert(data.ok ? `[${modeLabel}] 초기화 완료! 깨끗한 상태로 시작할 수 있어요.` : `초기화 실패: ${data.error ?? "알 수 없는 오류"}`);
+    const data = await res.json().catch(() => ({ ok: false, error: "응답을 읽지 못했어요." }));
+    if (data.ok) {
+      const d = data.deleted ?? {};
+      alert(
+        `[${modeLabel}] 초기화 완료!\n\n삭제: 참가자 ${d.students ?? 0}명 · 제출물 ${d.submissions ?? 0}건 · 반응 ${d.reactions ?? 0}건 · 성찰 ${d.reflections ?? 0}건 · 도움요청 ${d.helpRequests ?? 0}건 · 제보 의뢰 ${d.proposedRequests ?? 0}건`
+      );
+    } else {
+      alert(`초기화 실패: ${data.error ?? "알 수 없는 오류"}`);
+    }
   }
 
   if (loading || !session) {

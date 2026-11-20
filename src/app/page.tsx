@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
@@ -53,6 +53,7 @@ function idFromName(name: string): string {
 function StudentLogin() {
   const router = useRouter();
   const [mode, setMode] = useState<"studentNo" | "nameOnly">("nameOnly");
+  const imeEnterRef = useRef(false);
   const [name, setName] = useState("");
   const [studentNo, setStudentNo] = useState("");
   const [error, setError] = useState("");
@@ -143,7 +144,21 @@ function StudentLogin() {
       )}
       <div>
         <label className="mb-1 block text-sm font-bold text-slate-800">이름</label>
-        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="홍길동" />
+        <Input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="홍길동"
+          // 한글 입력(IME) 조합 중 Enter는 조합 확정에만 쓰여 제출되지 않으므로, 조합이 끝난 Enter에서 제출한다.
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && e.nativeEvent.isComposing) imeEnterRef.current = true;
+          }}
+          onKeyUp={(e) => {
+            if (e.key === "Enter" && imeEnterRef.current) {
+              imeEnterRef.current = false;
+              e.currentTarget.form?.requestSubmit();
+            }
+          }}
+        />
       </div>
       {mode === "nameOnly" && (
         <p className="text-xs text-slate-400">

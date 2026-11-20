@@ -49,7 +49,7 @@ export function RequestManager({
             {pending.map((r) => (
               <Card key={r.id} className="border-amber-200 bg-amber-50">
                 <p className="font-bold">{r.title}</p>
-                <p className="text-sm text-slate-600">{r.summary}</p>
+                <p className="whitespace-pre-line text-sm text-slate-600">{r.summary}</p>
                 <p className="mt-1 text-xs text-slate-400">제보: {r.proposedByStudentName}</p>
                 <div className="mt-2 flex gap-2">
                   <Button className="!px-3 !py-1.5 text-xs" onClick={() => call({ action: "approve", requestId: r.id })}>
@@ -129,7 +129,7 @@ function RequestDetailModal({
           <h3 className="text-lg font-black">{request.title}</h3>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-600">✕</button>
         </div>
-        <p className="mb-4 text-sm text-slate-500">{request.summary}</p>
+        <p className="mb-4 whitespace-pre-line text-sm text-slate-500">{request.summary}</p>
 
         <div className="mb-4">
           <p className="mb-2 text-sm font-black text-sky-700">🔬 지금 연구 중 ({solvers.length}명)</p>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, doc, onSnapshot, orderBy, query, where } from "firebase/firestore";
+import { collection, doc, getDocFromServer, onSnapshot, orderBy, query, where, type DocumentReference, type DocumentSnapshot } from "firebase/firestore";
 import { db } from "./firebase/client";
 import {
   helpRequestsPath,
@@ -30,17 +30,48 @@ import type {
   SubmissionSummaryDoc,
 } from "./types";
 
+// 실시간 구독 + 안전망: 오래 열어둔 탭에서 realtime 연결이 끊기거나 백그라운드 스로틀로
+// 변경(발표 시작·해결 보고회 전환 등)을 놓치는 경우를 대비해, 탭 포커스·온라인 복귀 시 서버에서 다시 읽고
+// 탭이 보이는 동안 8초마다 가볍게 재확인한다. 내용이 실제로 바뀐 경우에만 반영한다.
+function listenDocResilient(ref: DocumentReference, onData: (snap: DocumentSnapshot) => void): () => void {
+  let last = "";
+  const apply = (snap: DocumentSnapshot) => {
+    const key = snap.exists() ? JSON.stringify(snap.data()) : "__none__";
+    if (key === last) return;
+    last = key;
+    onData(snap);
+  };
+  const unsub = onSnapshot(ref, apply);
+  const refetch = () => {
+    if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
+    getDocFromServer(ref).then(apply).catch(() => {});
+  };
+  const onVisible = () => {
+    if (document.visibilityState === "visible") refetch();
+  };
+  const timer = setInterval(refetch, 8000);
+  document.addEventListener("visibilitychange", onVisible);
+  window.addEventListener("online", refetch);
+  window.addEventListener("focus", refetch);
+  return () => {
+    unsub();
+    clearInterval(timer);
+    document.removeEventListener("visibilitychange", onVisible);
+    window.removeEventListener("online", refetch);
+    window.removeEventListener("focus", refetch);
+  };
+}
+
 export function useSession(sessionCode: string | null) {
   const [session, setSession] = useState<SessionDoc | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!sessionCode) return;
-    const unsub = onSnapshot(doc(db, sessionPath(sessionCode)), (snap) => {
+    return listenDocResilient(doc(db, sessionPath(sessionCode)), (snap) => {
       setSession(snap.exists() ? (snap.data() as SessionDoc) : null);
       setLoading(false);
     });
-    return unsub;
   }, [sessionCode]);
 
   return { session, loading: sessionCode ? loading : false };
@@ -170,10 +201,9 @@ export function usePresentation(sessionCode: string | null) {
 
   useEffect(() => {
     if (!sessionCode) return;
-    const unsub = onSnapshot(doc(db, presentationPath(sessionCode)), (snap) => {
+    return listenDocResilient(doc(db, presentationPath(sessionCode)), (snap) => {
       setState(snap.exists() ? (snap.data() as PresentationState) : null);
     });
-    return unsub;
   }, [sessionCode]);
 
   return state;

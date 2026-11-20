@@ -71,8 +71,9 @@ const ZONE_SHORT: Record<ZoneId, string> = {
 };
 
 function zoneFor(s: StudentDoc, hasSubmission: boolean): ZoneId {
+  // 제출을 마쳤고 새 의뢰를 시작하지 않았다면(제출 화면에 머무는 중 포함) 완료로 본다 — 카드 뷰 집계와 동일 기준.
+  if (hasSubmission && (!s.activeStep || s.activeStep === "submit" || s.activeStep === "done")) return "done";
   if (s.activeStep) return s.activeStep as ZoneId;
-  if (hasSubmission) return "done";
   return "lobby";
 }
 
@@ -432,7 +433,8 @@ export function OfficeView({ students, submissions }: { students: StudentDoc[]; 
   }
 
   const onlineCount = onlineSet.size;
-  const doneCount = byZone.done.length;
+  // 헤더 완료 수 = 제출을 1건 이상 낸 참가자 수(카드 뷰의 "완료"와 같은 기준)
+  const doneCount = students.filter((s) => submittedIds.has(s.studentId)).length;
   const redCount = students.filter((s) => s.trafficLight === "red" && onlineSet.has(s.studentId)).length;
   const selected = students.find((s) => s.studentId === selectedId) ?? null;
 

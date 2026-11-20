@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { stripMarkdown } from "@/lib/plain-text";
 import { getAdminDb } from "@/lib/firebase/admin";
 import { generateJson, generateText } from "@/lib/gemini";
 import { checkTeacherPin } from "../../_lib/auth";
@@ -34,7 +35,8 @@ const SYSTEM_TRAINING = `당신은 교사 연수의 강사 '이승엽'입니다.
 - 세 부분을 '■ 설계–산출물 일치도', '■ 기대 효과', '■ 활동 피드백' 소제목으로 나눠 읽기 쉽게 구성합니다.
 - 도구·제품명(캔바, Gemini, ChatGPT, Claude 등)은 자유롭게 언급해도 됩니다.
 - 대상 선생님의 실명은 본문에 넣지 않고 '선생님' 호칭을 사용합니다.
-- 활동 근거가 빈약하면 무리하게 늘리지 말고 확인된 내용만으로 작성합니다.`;
+- 활동 근거가 빈약하면 무리하게 늘리지 말고 확인된 내용만으로 작성합니다.
+- 마크다운 기호(별표 두 개, 백틱, 샵 기호)는 쓰지 않습니다. 코드·태그 이름도 따옴표나 백틱 기호 없이 일반 글로 씁니다.`;
 
 const OUT_JSON = `\n\n[출력 형식] 아래 JSON 하나만 출력합니다(코드펜스·설명 없이).
 {"draft": "문단 텍스트", "basis": ["문구가 근거한 활동 사실 3~6개(검토용, 짧은 구)"]}`;
@@ -236,6 +238,7 @@ export async function POST(req: Request) {
     }
   }
 
+  draft = stripMarkdown(draft);
   if (!draft) {
     return NextResponse.json({ ok: false, error: "초안이 비어 있어요. 활동 기록이 충분한지 확인 후 다시 시도해주세요." }, { status: 502 });
   }

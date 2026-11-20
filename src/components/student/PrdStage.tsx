@@ -13,19 +13,6 @@ import { DesignDiagrams } from "./DesignDiagrams";
 
 const USER_OPTIONS = ["학생", "선생님", "학부모", "방문객", "기타"];
 
-function withSeedlingDefaults(prd: PrdData): PrdData {
-  if (prd.oneLiner) return prd; // 이미 시작했으면 그대로
-  return {
-    ...prd,
-    oneLiner: SEEDLING_PRD_TEMPLATE.oneLiner,
-    usersNote: SEEDLING_PRD_TEMPLATE.usersNote,
-    niceToHave: SEEDLING_PRD_TEMPLATE.niceToHave,
-    screen: SEEDLING_PRD_TEMPLATE.screen,
-    dataToStore: SEEDLING_PRD_TEMPLATE.dataToStore,
-    successMetric: SEEDLING_PRD_TEMPLATE.successMetric,
-  };
-}
-
 export function PrdStage({
   sessionCode,
   student,
@@ -39,9 +26,10 @@ export function PrdStage({
   editMode?: boolean;
   onDone?: () => void;
 }) {
-  const [prd, setPrd] = useState<PrdData>(() =>
-    student.level === "seedling" ? withSeedlingDefaults(project.prd) : project.prd
-  );
+  // 새싹 코스 예시는 value로 채우지 않고 placeholder로만 보여준다(입력이 예시 뒤에 이어붙는 문제 방지).
+  const [prd, setPrd] = useState<PrdData>(project.prd);
+  const seed = student.level === "seedling";
+  const ph = (key: keyof typeof SEEDLING_PRD_TEMPLATE, fallback: string) => (seed ? `예) ${SEEDLING_PRD_TEMPLATE[key]}` : fallback);
   const [hints, setHints] = useState<Record<string, string>>({});
   const [hintLoading, setHintLoading] = useState<string | null>(null);
   const [celebrate, setCelebrate] = useState(false);
@@ -124,7 +112,7 @@ export function PrdStage({
 
           <FieldWithHelp fieldId="oneLiner" student={student} hints={hints} hintLoading={hintLoading} onHint={fetchHint}>
             <Field label="2. 해결 아이디어 한 줄 소개">
-              <Input value={prd.oneLiner} onChange={(e) => update("oneLiner", e.target.value)} placeholder='"OO 하는 사람을 위한 OO 서비스"' />
+              <Input value={prd.oneLiner} onChange={(e) => update("oneLiner", e.target.value)} placeholder={ph("oneLiner", '"OO 하는 사람을 위한 OO 서비스"')} />
             </Field>
           </FieldWithHelp>
 
@@ -144,7 +132,7 @@ export function PrdStage({
                   </button>
                 ))}
               </div>
-              <Input value={prd.usersNote} onChange={(e) => update("usersNote", e.target.value)} placeholder="구체적으로 설명해주세요" />
+              <Input value={prd.usersNote} onChange={(e) => update("usersNote", e.target.value)} placeholder={ph("usersNote", "구체적으로 설명해주세요")} />
             </Field>
           </FieldWithHelp>
 
@@ -169,7 +157,7 @@ export function PrdStage({
 
           <FieldWithHelp fieldId="niceToHave" student={student} hints={hints} hintLoading={hintLoading} onHint={fetchHint}>
             <Field label="5. 있으면 좋은 기능">
-              <Input value={prd.niceToHave} onChange={(e) => update("niceToHave", e.target.value)} />
+              <Input value={prd.niceToHave} onChange={(e) => update("niceToHave", e.target.value)} placeholder={ph("niceToHave", "")} />
             </Field>
           </FieldWithHelp>
 
@@ -201,19 +189,19 @@ export function PrdStage({
 
           <FieldWithHelp fieldId="screen" student={student} hints={hints} hintLoading={hintLoading} onHint={fetchHint}>
             <Field label="7. 화면 그리기">
-              <Textarea rows={3} value={prd.screen} onChange={(e) => update("screen", e.target.value)} placeholder="화면 구성을 글로 설명해보세요" />
+              <Textarea rows={3} value={prd.screen} onChange={(e) => update("screen", e.target.value)} placeholder={ph("screen", "화면 구성을 글로 설명해보세요")} />
             </Field>
           </FieldWithHelp>
 
           <FieldWithHelp fieldId="dataToStore" student={student} hints={hints} hintLoading={hintLoading} onHint={fetchHint}>
             <Field label="8. 저장할 정보">
-              <Input value={prd.dataToStore} onChange={(e) => update("dataToStore", e.target.value)} />
+              <Input value={prd.dataToStore} onChange={(e) => update("dataToStore", e.target.value)} placeholder={ph("dataToStore", "")} />
             </Field>
           </FieldWithHelp>
 
           <FieldWithHelp fieldId="successMetric" student={student} hints={hints} hintLoading={hintLoading} onHint={fetchHint}>
             <Field label="9. 성공의 기준">
-              <Input value={prd.successMetric} onChange={(e) => update("successMetric", e.target.value)} />
+              <Input value={prd.successMetric} onChange={(e) => update("successMetric", e.target.value)} placeholder={ph("successMetric", "")} />
             </Field>
           </FieldWithHelp>
 

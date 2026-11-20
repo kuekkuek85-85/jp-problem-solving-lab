@@ -13,6 +13,7 @@ import { Button, Card, Textarea } from "@/components/ui";
 export function ValuesStep({ sessionCode, student }: { sessionCode: string; student: StudentDoc }) {
   const [text, setText] = useState(student.harness ?? "");
   const [saving, setSaving] = useState(false);
+  const [showExample, setShowExample] = useState(false);
 
   async function save() {
     if (!text.trim()) return;
@@ -40,10 +41,14 @@ export function ValuesStep({ sessionCode, student }: { sessionCode: string; stud
           placeholder="오늘 AI와 함께 만들며 내가 지킬 원칙을 자유롭게 적어보세요."
           className="text-[13px] leading-relaxed"
         />
-        {!text.trim() && (
-          <button onClick={() => setText(DEFAULT_HARNESS)} className="mt-2 text-xs font-bold text-amber-700 underline">
-            막막하면 예시 참고하기
-          </button>
+        <button onClick={() => setShowExample((v) => !v)} className="mt-2 text-xs font-bold text-amber-700 underline">
+          {showExample ? "예시 닫기" : "막막하면 예시 참고하기"}
+        </button>
+        {showExample && (
+          <div className="mt-2 rounded-lg border border-amber-200 bg-amber-50 p-3">
+            <p className="mb-1 text-[11px] font-bold text-amber-700">참고 예시 — 그대로 옮기지 말고, 내 말로 바꿔 적어 보세요.</p>
+            <pre className="whitespace-pre-wrap text-[12px] leading-relaxed text-slate-600">{DEFAULT_HARNESS}</pre>
+          </div>
         )}
         <Button className="mt-5 w-full" disabled={saving || !text.trim()} onClick={save}>
           {saving ? "저장 중..." : "이 원칙으로 시작하기 →"}

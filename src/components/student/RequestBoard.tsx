@@ -276,7 +276,7 @@ function RequestCard({
             <h3 className="font-black text-slate-900">{request.title}</h3>
             {recommended && <span className="text-xs font-bold text-brand">나에게 딱!</span>}
           </div>
-          <p className="mt-1 text-sm text-slate-500">{request.summary}</p>
+          <p className="mt-1 whitespace-pre-line text-sm text-slate-500">{request.summary}</p>
         </div>
         <LevelBadge level={request.difficulty} />
       </div>

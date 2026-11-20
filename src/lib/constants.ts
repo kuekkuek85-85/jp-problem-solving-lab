@@ -19,11 +19,12 @@ export const TRAINING_COHORTS: TrainingCohort[] = [
   { id: "training2", no: 2, label: "교사 연수 2기", date: "10/28", track: "dev" },
   { id: "training3", no: 3, label: "교사 연수 3기", date: "성수중 11/5", track: "simple" },
   { id: "training4", no: 4, label: "교사 연수 4기", date: "11/11", track: "lovable" },
+  { id: "training5", no: 5, label: "교사 연수 5기", date: "11/23 서울시교육청", track: "simple" },
 ];
 
 // 이름(성함)만으로 입장하는 연수 참가자가 기본 배정되는 '현재 진행' 연수.
 // 새 기수를 시작하면 이 값만 해당 id로 바꾸면 된다.
-export const ACTIVE_TRAINING_LAB_ID = "training4"; // 4기(11/11, Lovable)
+export const ACTIVE_TRAINING_LAB_ID = "training5"; // 5기(11/23, 서울시교육청 코딩 수업 3단계)
 
 const TRAINING_LAB_IDS = new Set(TRAINING_COHORTS.map((c) => c.id));
 export const isTrainingLab = (sessionCode: string) => TRAINING_LAB_IDS.has(sessionCode);
@@ -552,11 +553,94 @@ export function reflectionQuestionsForLab(sessionCode: string) {
   return isTrainingLab(sessionCode) ? REFLECTION_QUESTIONS_TRAINING : REFLECTION_QUESTIONS;
 }
 
-// lab(학생용/연수용)에 맞는 시드 선택
+// ── 교사 연수 5기(11/23 서울시교육청) — 코딩 수업 3단계 [블록·텍스트·바이브] 의뢰 3종 ──
+// 주제는 셋이지만 설계 틀은 하나. 의뢰인의 하소연(사연)을 문제 정의 단계에서 파고든다.
+export const SEED_REQUESTS_TRAINING_5: { title: string; summary: string; difficulty: Level; directSubmit?: boolean }[] = [
+  {
+    title: "🟩 [블록] 엔트리 단계형 과제 키트",
+    summary: `의뢰인: 초등 5학년 담임
+사연: "엔트리로 게임을 만들면 잘하는 아이는 10분 만에 끝내고, 어떤 아이는 첫 블록에서 멈춰 있어요. 모두가 자기 속도로 끝까지 가면서, 만든 걸 설명도 할 수 있었으면 좋겠어요."
+산출물: 단계별 엔트리 과제 설계(예: 게임을 5단계로 업데이트, 또는 같은 과제를 상·중·하 난이도로) + 단계별 학생 활동지
+범위: 엔트리 코드 생성은 선택. 단계 설계와 활동지까지가 목표.`,
+    difficulty: "seedling",
+  },
+  {
+    title: "🟦 [텍스트] 파이썬 힌트 도우미",
+    summary: `의뢰인: 고1 정보 교사
+사연: "에러가 나면 학생들이 코드를 통째로 AI에 붙여 넣고 정답 코드를 받아 가요. 고친 이유를 물어보면 모른다고 해요."
+산출물: 학생이 코드를 제출하면 정답 대신 단계적 힌트를 주는 웹 도구(1단계 어느 줄 → 2단계 어떤 개념 → 3단계 비슷한 예시)
+범위: 힌트 흐름 하나만. 문법 채점·학생 기록 누적은 제외.`,
+    difficulty: "growing",
+  },
+  {
+    title: "🟪 [바이브] 생각 단계가 있는 바이브 코딩 도구",
+    summary: `의뢰인: 중2 정보 교사
+사연: "'게임 만들어줘' 한 줄 치고 나온 결과를 그대로 내요. 뭘 만든 건지 물어보면 설명을 못 해요."
+산출물: 학생이 문제 정의 → 조건 → 확인 기준을 다 써야 프롬프트가 만들어지는 웹 도구
+범위: 단계 입력 화면과 프롬프트 조립까지. AI 피드백·로그인은 제외.`,
+    difficulty: "growing",
+  },
+];
+
+// 5기 브리핑 슬라이드 — 사고는 하나, 도구는 셋.
+export const SEED_SLIDES_TRAINING_5: string[] = [
+  `# 🔬🤖 파트 2 — 장평 문제해결연구소
+- 학생들이 실제로 쓰는 이 플랫폼으로, 선생님이 **내 코딩 수업 도구**를 설계해요.
+- 주제(의뢰)는 셋: 🟩 블록 · 🟦 텍스트 · 🟪 바이브 — 하지만 **설계 틀은 하나**
+- 오늘의 결과물은 **설계도**, 프로토타입은 **보너스**!`,
+
+  `# 🎖️ 입장하기
+- 로그인 화면 → **이름으로 입장(연수)** → 별칭(가명) 입력
+- ⚠️ 같은 이름이면 같은 계정이 돼요. **겹치지 않는 별칭**을 써 주세요 (예: 초등_별빛)
+- 사전 설문 → AI 윤리 서약 → 나의 가치관을 마치면 의뢰 게시판이 열려요.`,
+
+  `# 📋 의뢰 3종
+- 🟩 **[블록] 엔트리 단계형 과제 키트** — 초등 5학년 담임
+- 🟦 **[텍스트] 파이썬 힌트 도우미** — 고1 정보 교사
+- 🟪 **[바이브] 생각 단계가 있는 바이브 코딩 도구** — 중2 정보 교사
+- 의뢰 카드의 **사연**을 꼭 읽어 보세요. 문제 정의의 재료예요.`,
+
+  `# 📌 ① 의뢰 분석 (AI 없이)
+- **누가 · 언제 · 무엇 때문에** 불편한지, 해결되면 **무엇이 좋아지는지**
+- 의뢰인의 하소연 속 **진짜 문제**를 내 말로 다시 정의해요.`,
+
+  `# 📐 ② 설계도 작성
+- 핵심 기능은 **딱 하나**만 — 프로토타입은 기능 하나면 충분해요.
+- 화면 · 저장할 정보 · 지켜야 할 것(🔒개인정보 ©️저작권 🤝공정성)
+- **✅ 수용 기준 3개**: "무엇이 되면 성공인가?" — 나중에 이걸로 검증해요.`,
+
+  `# 🔥 ③ AI 검토
+- AI 코치가 설계도의 **허점을 날카롭게 질문**해요.
+- 답하면서 **설계도를 직접 다듬어요**. 판단은 사람이 — Human in the loop.`,
+
+  `# ⚡ ④ 설계도로 AI 구현
+- 코딩 단계의 3탭: **가치관(AGENTS.md) · 설계서(spec.md) · 프롬프트**
+- 복사(또는 다운로드)해서 **Gemini · ChatGPT · Claude · Codex** 중 편한 도구에 붙여넣기
+- 태스크를 **하나씩**: 구현 → AI 1차 자가점검 → 내가 2차 확인 → 다음`,
+
+  `# ✅ ⑤ 확인 기준으로 검증 · 제출
+- 설계도의 **수용 기준**으로 결과물을 체크해요. "작동 ≠ 완성"
+- 결과 **링크 + HTML**을 제출하면 해결 보고회에서 함께 봐요.`,
+
+  `# 🧠 사고는 하나, 도구는 셋
+- 도구는 셋이었는데, **가장 오래 걸리고 어려웠던 건** 어디였나요?
+- 블록·텍스트 코딩은 이제 **목표가 아닌 사고 훈련 도구**
+- 중요한 건 문제를 발견·정의·계획해 내놓는 **프로덕트 엔지니어 역량**`,
+];
+
+// lab(학생용/연수용)에 맞는 시드 선택 — 기수 전용 시드가 있으면 우선.
+const COHORT_SEED_REQUESTS: Record<string, typeof SEED_REQUESTS_TRAINING> = {
+  training5: SEED_REQUESTS_TRAINING_5,
+};
+const COHORT_SEED_SLIDES: Record<string, string[]> = {
+  training5: SEED_SLIDES_TRAINING_5,
+};
 export function seedRequestsForLab(sessionCode: string) {
+  if (COHORT_SEED_REQUESTS[sessionCode]) return COHORT_SEED_REQUESTS[sessionCode];
   return isTrainingLab(sessionCode) ? SEED_REQUESTS_TRAINING : SEED_REQUESTS;
 }
 export function seedSlidesForLab(sessionCode: string) {
+  if (COHORT_SEED_SLIDES[sessionCode]) return COHORT_SEED_SLIDES[sessionCode];
   if (!isTrainingLab(sessionCode)) return SEED_SLIDES;
   const track = trainingTrack(sessionCode);
   if (track === "dev") return SEED_SLIDES_TRAINING_DEV;
